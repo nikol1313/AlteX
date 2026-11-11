@@ -120,7 +120,7 @@ html.sx .width, html.sx student-tables-component {
   text-align: left !important;
 }
 /* The dashboard needs room for three columns; its header follows it */
-html.sx:has(dashboard-component, student-tables-component, program-view) :is(.width, student-tables-component) { max-width: var(--wide) !important; }
+html.sx:is(.sx-dash, .sx-tables, .sx-program) :is(.width, student-tables-component) { max-width: var(--wide) !important; }
 html.sx .all-page-container { padding-top: 96px !important; padding-bottom: 96px !important; min-height: 0 !important; }
 
 /* ---------- Header ---------- */
@@ -787,7 +787,7 @@ html.sx.sx-enter .dashboard-item-wrapper[href="/tasks-books"] { animation-delay:
 }
 
 /* ---------- Timetable page: no empty gap above the week ---------- */
-html.sx:has(student-tables-component) .all-page-container { padding-top: 32px !important; }
+html.sx.sx-tables .all-page-container { padding-top: 32px !important; }
 html.sx student-tables-component > div > :is(br, mat-divider) { display: none !important; }
 html.sx .calendar-navigation { justify-content: flex-start !important; gap: 12px !important; margin: 0 0 24px !important; padding: 0 !important; }
 html.sx .calendar-navigation > div { flex: 0 0 auto !important; width: auto !important; margin: 0 !important; padding: 0 !important; float: none !important; display: flex !important; align-items: center; }
@@ -890,7 +890,7 @@ html.sx.sx .semester-child .mat-column-expandedDetail > * { padding: 4px 0 12px 
 /* ---------- Dashboard: nav bar on top, only the three big boxes below ---------- */
 html.sx .dashboard-item-wrapper:not([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) { display: none !important; }
 html.sx dashboard-component .dashboard-item-container { padding-top: 24px !important; }
-html.sx:has(dashboard-component) .all-page-container { padding-top: 48px !important; }
+html.sx.sx-dash .all-page-container { padding-top: 48px !important; }
 
 /* ---------- Header: no greeting; name in a box that opens the site's user menu ---------- */
 html.sx .hello-text { display: none !important; }
@@ -928,12 +928,12 @@ html.sx.sx .user-subMenu > a.sx-um-logout { color: var(--clay) !important; }
 
 /* ---------- Timetable & exam routes: full width next to the rail ----------
    Header, nav and content all use .width, so lifting its cap keeps one shared edge. */
-html.sx.sx:has(tables-dashboard-component) :is(.width, student-tables-component) {
+html.sx.sx.sx-ttdash :is(.width, student-tables-component) {
   max-width: none !important; padding-inline: 32px !important;
 }
 html.sx student-tables-component > div { padding-inline: 0 !important; margin-inline: 0 !important; }
 @media (max-width: 520px) {
-  html.sx.sx:has(tables-dashboard-component) :is(.width, student-tables-component) { padding-inline: 16px !important; }
+  html.sx.sx.sx-ttdash :is(.width, student-tables-component) { padding-inline: 16px !important; }
 }
 
 /* Phones: keep the name box, just shorter */
@@ -943,8 +943,8 @@ html.sx student-tables-component > div { padding-inline: 0 !important; margin-in
 }
 
 /* ---------- Main page: a little wider than reading pages ---------- */
-html.sx.sx:has(dashboard-component) .width { max-width: min(1440px, 92vw) !important; padding-inline: 32px !important; }
-@media (max-width: 520px) { html.sx.sx:has(dashboard-component) .width { padding-inline: 16px !important; } }
+html.sx.sx.sx-dash .width { max-width: min(1440px, 92vw) !important; padding-inline: 32px !important; }
+@media (max-width: 520px) { html.sx.sx.sx-dash .width { padding-inline: 16px !important; } }
 
 /* ---------- Learning card header: title, programme selector, grouping toggle ---------- */
 html.sx.sx .page-learningCard > .semesters-container {
@@ -1409,7 +1409,7 @@ html.sx .mdc-switch__handle::before, html.sx .mdc-switch__handle::after { backgr
 
 /* ---------- Main page: greeting, then three boxes ---------- */
 html.sx.sx.sx .dashboard-item-wrapper[href="/finances"] { display: none !important; }
-html.sx.sx:has(dashboard-component) .all-page-container { padding-top: 40px !important; }
+html.sx.sx.sx-dash .all-page-container { padding-top: 40px !important; }
 html.sx .sx-hello {
   display: flex; align-items: flex-end; justify-content: space-between; gap: 24px 40px; flex-wrap: wrap;
   margin: 0 0 32px; animation: sx-rise 520ms var(--ease) both !important;
