@@ -868,3 +868,148 @@ html.sx .sx-bar::after { content: ""; position: absolute; top: 0; bottom: 0; lef
 html.sx .sx-bar > i { display: block; height: 100%; border-radius: 999px !important; background-color: var(--g, var(--fg3)) !important; transition: width 600ms var(--ease, ease) !important; }
 html.sx.sx .semester-child mat-row .mat-column-result { grid-area: grade; justify-self: center; }
 html.sx.sx .semester-child mat-row .result-color {
+  display: inline-grid !important; place-items: center; min-width: 40px; height: 40px !important; padding: 0 8px !important;
+  border-radius: 12px !important; font-family: var(--sans) !important; font-size: 18px !important; font-weight: 500 !important;
+  background-color: color-mix(in srgb, var(--g, var(--fg3)) 18%, var(--box)) !important; color: var(--g, var(--fg2)) !important;
+}
+html.sx.sx .semester-child mat-row .mat-column-details { grid-area: details; justify-self: end; }
+html.sx mat-row:is([data-grade="A"], [data-grade="B"]) { --g: var(--sage); }
+html.sx mat-row:is([data-grade="C"], [data-grade="D"]) { --g: var(--fg2); }
+html.sx mat-row:is([data-grade="E"], [data-grade="FX"], [data-grade="F"]) { --g: var(--clay); }
+/* Expanded details row (opened by the site's own button) */
+html.sx.sx .semester-child mat-row:has(.mat-column-expandedDetail) { padding: 0 !important; border: 0 !important; }
+html.sx.sx .semester-child .mat-column-expandedDetail { padding: 0 !important; }
+html.sx.sx .semester-child .mat-column-expandedDetail > * { padding: 4px 0 12px !important; }
+@media (max-width: 760px) {
+  html.sx.sx .semester-child mat-row:not(:has(.mat-column-expandedDetail)) {
+    grid-template-columns: minmax(0, 1fr) 52px; grid-template-areas: "course grade" "prof grade" "credit credit" "score score" "details details";
+  }
+  html.sx .ini-block .last-stat { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- Dashboard: nav bar on top, only the three big boxes below ---------- */
+html.sx .dashboard-item-wrapper:not([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) { display: none !important; }
+html.sx dashboard-component .dashboard-item-container { padding-top: 24px !important; }
+html.sx:has(dashboard-component) .all-page-container { padding-top: 48px !important; }
+
+/* ---------- Header: no greeting; name in a box that opens the site's user menu ---------- */
+html.sx .hello-text { display: none !important; }
+html.sx .topMenuItem:has(> a[href="/personal-data"]) { display: none !important; }
+html.sx .user-menu-top { position: relative !important; display: flex !important; } /* the site hides it on phones */
+html.sx.sx .user-menu {
+  display: flex !important; align-items: center; gap: 10px; padding: 9px 16px 9px 18px !important; cursor: pointer;
+  background-color: var(--box) !important; border: 1px solid var(--line) !important; border-radius: 999px !important;
+  transition: background-color 150ms linear, border-color 150ms linear !important;
+}
+html.sx.sx .user-menu:hover { background-color: var(--box-hi) !important; border-color: var(--line-2, var(--line)) !important; }
+html.sx.sx .user-menu .userName { color: var(--fg) !important; font-size: 15px !important; }
+html.sx.sx .user-menu::after {
+  content: ""; width: 7px; height: 7px; margin: -4px 0 0 4px; border: solid var(--fg2) !important; border-width: 0 1.5px 1.5px 0 !important;
+  transform: rotate(45deg); transition: transform 220ms var(--ease, ease) !important;
+}
+html.sx.sx .user-menu-top:has(.user-subMenu) .user-menu::after { transform: translateY(3px) rotate(225deg); }
+html.sx.sx .user-subMenu {
+  position: absolute !important; top: calc(100% + 8px) !important; right: 0 !important; left: auto !important; z-index: 80;
+  display: flex !important; flex-direction: column; gap: 2px; min-width: 260px; width: auto !important; height: auto !important;
+  padding: 8px !important; margin: 0 !important; background-color: var(--box) !important;
+  border: 1px solid var(--line) !important; border-radius: 16px !important;
+  animation: sx-drop 180ms var(--ease, ease) both !important;
+}
+html.sx.sx .user-subMenu > a {
+  display: flex !important; flex-direction: column; align-items: flex-start; gap: 2px; width: auto !important; height: auto !important;
+  padding: 10px 14px !important; margin: 0 !important; border-radius: 10px !important; text-align: left !important;
+  color: var(--fg) !important; font-size: 16px !important; transition: background-color 150ms linear !important;
+}
+html.sx.sx .user-subMenu > a * { color: inherit !important; font-size: inherit !important; }
+html.sx.sx .user-subMenu > a mat-icon, html.sx.sx .user-subMenu > a img { display: none !important; }
+html.sx.sx .user-subMenu > a::after { content: attr(data-en); font-size: 13px; color: var(--fg3); }
+html.sx.sx .user-subMenu > a:hover { background-color: var(--box-hi) !important; }
+html.sx.sx .user-subMenu > a.sx-um-logout { color: var(--clay) !important; }
+
+/* ---------- Timetable & exam routes: full width next to the rail ----------
+   Header, nav and content all use .width, so lifting its cap keeps one shared edge. */
+html.sx.sx:has(tables-dashboard-component) :is(.width, student-tables-component) {
+  max-width: none !important; padding-inline: 32px !important;
+}
+html.sx student-tables-component > div { padding-inline: 0 !important; margin-inline: 0 !important; }
+@media (max-width: 520px) {
+  html.sx.sx:has(tables-dashboard-component) :is(.width, student-tables-component) { padding-inline: 16px !important; }
+}
+
+/* Phones: keep the name box, just shorter */
+@media (max-width: 760px) {
+  html.sx.sx .user-menu .userName { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+  html.sx .company-logo::before, html.sx .company-logo::after { font-size: 28px; }
+}
+
+/* ---------- Main page: a little wider than reading pages ---------- */
+html.sx.sx:has(dashboard-component) .width { max-width: min(1440px, 92vw) !important; padding-inline: 32px !important; }
+@media (max-width: 520px) { html.sx.sx:has(dashboard-component) .width { padding-inline: 16px !important; } }
+
+/* ---------- Learning card header: title, programme selector, grouping toggle ---------- */
+html.sx.sx .page-learningCard > .semesters-container {
+  display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important;
+  flex-wrap: wrap; gap: 20px 32px; margin: 0 0 16px !important; padding: 28px 32px !important;
+  background-color: var(--box) !important; border: 1px solid var(--line) !important; border-radius: var(--r-lg) !important;
+}
+html.sx.sx .semesters-container .commandsh3 { margin: 0 !important; font-size: 40px !important; white-space: nowrap; }
+/* one row, everything 48px tall and centred */
+html.sx.sx .semesters-container .semesters { display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0 !important; flex-wrap: nowrap; }
+html.sx.sx .semesters-container .semester-item:not(.button) {
+  position: relative; display: flex !important; align-items: center; width: 360px; max-width: 100%; height: 48px; box-sizing: border-box;
+  margin: 18px 12px 0 0 !important; padding: 0 16px !important; border-radius: 14px !important;
+  background-color: var(--bg) !important; border: 1px solid var(--line) !important;
+}
+html.sx.sx .semesters-container .semester-item:not(.button)::before {
+  content: "პროგრამა"; position: absolute; left: 2px; top: -21px; font-size: 13px; color: var(--fg3);
+}
+html.sx.sx .semesters-container .semester-item:not(.button) mat-form-field { width: 100% !important; margin: 0 !important; }
+html.sx.sx .semesters-container .semester-item:not(.button) :is(.mat-mdc-form-field-subscript-wrapper, .mat-mdc-floating-label, label, mat-label) { display: none !important; } /* our "პროგრამა" label replaces it */
+html.sx.sx .semesters-container .semester-item:not(.button) :is(.mat-mdc-text-field-wrapper, .mat-mdc-form-field-flex, .mat-mdc-form-field-infix) {
+  height: 46px !important; min-height: 0 !important; padding: 0 !important; display: flex !important; align-items: center !important; width: 100% !important;
+}
+html.sx.sx .semesters-container .mat-mdc-select { width: 100% !important; }
+html.sx.sx .semesters-container :is(.mat-mdc-select-value, .mat-mdc-select-value *) {
+  font-size: 16px !important; color: var(--fg) !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+}
+/* segmented toggle: two connected buttons, the active one highlighted like the active nav tab */
+html.sx.sx .semesters-container .semester-item.button { margin: 18px 0 0 !important; }
+html.sx.sx .semesters-container .semester-item.button button {
+  width: 52px !important; height: 48px !important; min-width: 0 !important; padding: 0 !important;
+  display: flex !important; align-items: center !important; justify-content: center !important;
+  background-color: var(--bg) !important; border: 1px solid var(--line) !important; color: var(--fg2) !important;
+  transition: background-color 150ms linear, color 150ms linear !important;
+}
+html.sx.sx .semesters-container .semester-item.button:nth-last-child(2) button { border-radius: 14px 0 0 14px !important; }
+html.sx.sx .semesters-container .semester-item.button:last-child button { border-radius: 0 14px 14px 0 !important; border-left-width: 0 !important; }
+html.sx.sx .semesters-container .semester-item.button button:hover { background-color: var(--box-hi) !important; color: var(--fg) !important; }
+html.sx.sx .semesters-container .semester-item.button button.mat-primary {
+  background-color: color-mix(in srgb, var(--acc) 16%, var(--box)) !important; color: var(--acc) !important;
+}
+html.sx.sx .semesters-container .semester-item.button button mat-icon {
+  margin: 0 !important; width: 20px !important; height: 20px !important; font-size: 20px !important; line-height: 20px !important; color: inherit !important;
+}
+html.sx.sx .semesters-container .semester-item.button button .mdc-button__label { display: none !important; }
+@media (max-width: 760px) {
+  html.sx.sx .semesters-container .commandsh3 { font-size: 32px !important; white-space: normal; }
+  html.sx.sx .semesters-container .semesters { width: 100%; flex-wrap: wrap; }
+  html.sx.sx .semesters-container .semester-item:not(.button) { width: 100%; margin-right: 0 !important; }
+  html.sx.sx .semesters-container .semester-item.button { margin-top: 12px !important; }
+}
+
+/* ---------- Grade breakdown dialog (შეფასება) ---------- */
+html.sx .est-details-dialog { width: min(640px, 94vw) !important; max-width: 94vw !important; }
+html.sx est-details-dialog .mat-mdc-dialog-title {
+  margin: 0 !important; padding: 28px 32px 8px !important; height: auto !important; line-height: 1.3 !important;
+  font-size: 20px !important; font-weight: 500 !important; color: var(--fg) !important;
+}
+html.sx est-details-dialog .mat-mdc-dialog-title span { display: block; font-size: 13px !important; color: var(--fg3) !important; font-weight: 400 !important; margin-bottom: 4px; }
+html.sx est-details-dialog .mat-mdc-dialog-content { padding: 8px 32px 28px !important; max-height: 70vh !important; }
+html.sx est-details-dialog .est-dialog-wrapper:has(> .sx-est) > :not(.sx-est) { display: none !important; }
+html.sx est-details-dialog .est-dialog-wrapper { padding: 0 !important; margin: 0 !important; }
+html.sx .sx-est { display: flex !important; flex-direction: column !important; }
+/* Two columns; rows grow with wrapped Georgian text (no fixed heights anywhere).
+   !important so the layout also wins on the site's own .result-detail rows (inline subject details). */
+html.sx .sx-est-row { display: grid !important; grid-template-columns: minmax(180px, 42%) minmax(0, 1fr) !important; align-items: start !important; column-gap: 20px !important; height: auto !important; padding: 11px 0 !important; border-bottom: 1px solid var(--line) !important; }
+html.sx .sx-est-row:last-child { border-bottom: 0 !important; }
+html.sx .sx-est-name { font-size: 15px !important; line-height: 1.45 !important; color: var(--fg2) !important; overflow-wrap: break-word !important; }
