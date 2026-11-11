@@ -1158,3 +1158,148 @@ html.sx .page-finances .wrapper-row:last-child > div:first-child { display: none
 /* hide the site's own number (its inner span keeps a forced font size, so font-size: 0 on the cell is not enough) */
 html.sx.sx .page-finances .wrapper-row > div[data-sx-v] > * { display: none !important; }
 html.sx .page-finances .wrapper-row > div[data-sx-v] { font-size: 0 !important; }
+html.sx .page-finances .wrapper-row > div[data-sx-v]::after { content: attr(data-sx-v); font-family: var(--serif); font-size: 18px; color: var(--fg); }
+html.sx .page-finances .wrapper-row > div[data-sx-v].sx-fin-due::after { color: var(--clay); }
+
+/* ---------- Applications calendar: week strip + event list ---------- */
+html.sx hr-calendar-component .calendar table, html.sx hr-calendar-component .calendar :is(thead, tbody) { display: block !important; width: 100% !important; }
+html.sx hr-calendar-component .calendar tr.week_thead { display: grid !important; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin-bottom: 20px; }
+html.sx hr-calendar-component .calendar th.hours_th { display: none !important; }
+/* the site fixes the header cells at ~15px wide and 80px tall: free them, or the names stack one letter per line */
+html.sx hr-calendar-component .calendar :is(thead, tr.week_thead) { height: auto !important; }
+html.sx hr-calendar-component .calendar th.headInfo { width: auto !important; max-width: none !important; height: auto !important; box-sizing: border-box; }
+html.sx hr-calendar-component .calendar th.headInfo :is(.day-name, .day-number, .day-number *) { width: auto !important; height: auto !important; }
+html.sx hr-calendar-component .calendar th.headInfo { display: block !important; padding: 10px 4px !important; text-align: center !important; border-radius: 12px !important; min-width: 0; }
+html.sx hr-calendar-component .calendar th.headInfo * { text-align: center !important; }
+html.sx hr-calendar-component .calendar th.headInfo .day-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.sx hr-calendar-component .calendar th.headInfo.now { background-color: color-mix(in srgb, var(--sage) 12%, var(--box)) !important; }
+html.sx hr-calendar-component .calendar tr.week_tbody {
+  display: grid !important; grid-template-columns: 64px minmax(0, 1fr); align-items: start; gap: 16px;
+  height: auto !important; padding: 14px 0 !important; border-top: 1px solid var(--line) !important;
+}
+html.sx hr-calendar-component .calendar tr.week_tbody > td { height: auto !important; width: auto !important; padding: 0 !important; }
+html.sx hr-calendar-component .calendar tr.week_tbody > td:first-child {
+  white-space: nowrap; overflow-wrap: normal !important; word-break: normal !important;
+  font-family: var(--serif) !important; font-size: 18px !important; color: var(--fg) !important; padding-top: 2px !important;
+}
+html.sx hr-calendar-component .calendar td.week_tbody_td:not([data-sx-day]) { display: none !important; }
+html.sx hr-calendar-component .calendar td.week_tbody_td[data-sx-day] { display: block !important; grid-column: 2; min-width: 0; }
+html.sx hr-calendar-component .calendar td.week_tbody_td[data-sx-day]::before { content: attr(data-sx-day); display: block; margin-bottom: 6px; font-size: 13px; color: var(--fg3); }
+html.sx hr-calendar-component .calendar td.week_tbody_td.sx-cal-today::before { color: var(--sage); }
+html.sx hr-calendar-component .calendar td.week_tbody_td :is(div, .event) { width: auto !important; height: auto !important; min-height: 0 !important; max-width: none !important; position: static !important; }
+html.sx hr-calendar-component .calendar .event { padding: 10px 14px !important; cursor: pointer; }
+html.sx hr-calendar-component .calendar .event, html.sx hr-calendar-component .calendar .event * { overflow-wrap: break-word !important; word-break: normal !important; line-height: 1.45 !important; }
+
+/* ---------- Timetable: skeleton while the week loads ---------- */
+@keyframes sx-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+html.sx.sx-tt-loading .weeklist > .sx-empty { display: none !important; }
+html.sx.sx-tt-loading .weeklist::before, html.sx.sx-tt-loading .weeklist::after, html.sx .sx-tt-skel-day {
+  content: ""; display: block; border-radius: 10px !important;
+  background: linear-gradient(90deg, var(--line) 25%, var(--box-hi) 50%, var(--line) 75%) 0 0 / 200% 100% !important;
+  animation: sx-shimmer 1.4s linear infinite !important;
+}
+html.sx.sx-tt-loading .weeklist::before { height: 22px; width: 45%; margin: 4px 0 12px; }
+html.sx.sx-tt-loading .weeklist::after { height: 44px; width: 85%; }
+html.sx .sx-tt-skel { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+html.sx .sx-tt-skel-day { height: 320px; border-radius: 20px !important; opacity: .55; }
+@media (prefers-reduced-motion: reduce) {
+  html.sx.sx-tt-loading .weeklist::before, html.sx.sx-tt-loading .weeklist::after, html.sx .sx-tt-skel-day { animation: none !important; }
+}
+
+/* ---------- Academic registration ---------- */
+/* Student summary: one card — photo, name, facts as labelled tiles */
+html.sx registration-routes-component > .width { display: flex !important; flex-direction: column; gap: 20px; }
+html.sx registration-routes-component > .width > div:first-child mat-form-field { width: min(100%, 420px) !important; margin: 0 !important; }
+html.sx registration-routes-component > .width > div:first-child .mat-mdc-form-field-subscript-wrapper { display: none !important; }
+html.sx.sx registration-routes-component .info-Container {
+  display: block !important; padding: 28px 32px !important; border-radius: var(--r-lg) !important; box-sizing: border-box;
+  background-color: color-mix(in srgb, var(--acc) 7%, var(--box)) !important;
+  border: 1px solid color-mix(in srgb, var(--acc) 24%, var(--line)) !important;
+}
+html.sx registration-routes-component .info-Container :is(mat-card-header, mat-card-content) { padding: 0 !important; }
+html.sx.sx registration-routes-component .info-Container .mat-mdc-card-header-text { width: 100% !important; margin: 0 !important; }
+html.sx.sx registration-routes-component .info-Container mat-card-title {
+  margin: 0 0 20px !important; padding: 0 0 18px !important; display: block !important; font-size: 26px !important; font-weight: 500 !important; letter-spacing: -0.015em !important;
+  color: var(--fg) !important; border-bottom: 1px solid color-mix(in srgb, var(--acc) 30%, var(--line)) !important;
+}
+html.sx registration-routes-component .info { display: grid !important; grid-template-columns: 112px minmax(0, 1fr); gap: 28px; align-items: start; }
+html.sx registration-routes-component .student-avatar { width: 112px !important; height: auto !important; margin: 0 !important; padding: 0 !important; }
+html.sx.sx registration-routes-component .student-avatar img {
+  display: block; width: 112px !important; height: 140px !important; object-fit: cover; border-radius: 14px !important;
+  border: 1px solid color-mix(in srgb, var(--acc) 40%, var(--line)) !important;
+}
+html.sx registration-routes-component .student-info-card { width: auto !important; margin: 0 !important; padding: 0 !important; min-width: 0; }
+html.sx registration-routes-component .student-info-card .myDivider { display: none !important; }
+html.sx.sx registration-routes-component .student-info-card mat-list { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; width: 100% !important; max-width: none !important; padding: 0 !important; }
+html.sx.sx registration-routes-component .student-info-card mat-list-item {
+  display: flex !important; flex-direction: column; justify-content: center; gap: 2px; width: auto !important; max-width: none !important; min-width: 0;
+  height: auto !important; min-height: 0 !important; padding: 12px 14px !important; border-radius: 12px !important;
+  background-color: var(--bg) !important; border: 1px solid var(--line) !important;
+}
+/* content.js splits "label: value" into data-sx-k / data-sx-v; the site's own line is hidden */
+html.sx.sx registration-routes-component .student-info-card mat-list-item[data-sx-k] > * { display: none !important; }
+html.sx.sx registration-routes-component .student-info-card mat-list-item[data-sx-k]::before { content: attr(data-sx-k) !important; display: block !important; position: static !important; opacity: 1 !important; font-size: 12px; line-height: 1.4; color: var(--fg3); }
+html.sx.sx registration-routes-component .student-info-card mat-list-item[data-sx-k]::after { content: attr(data-sx-v) !important; display: block !important; position: static !important; opacity: 1 !important; font-family: var(--serif); font-size: 17px; line-height: 1.35; color: var(--fg); overflow-wrap: anywhere; }
+/* the facts that matter for registration get a tone: semester, GPA, chosen credits */
+html.sx.sx registration-routes-component .student-info-card mat-list-item[data-sx-fact="semester"] { background-color: color-mix(in srgb, var(--sage) 12%, var(--bg)) !important; border-color: color-mix(in srgb, var(--sage) 35%, var(--line)) !important; }
+html.sx.sx registration-routes-component .student-info-card mat-list-item[data-sx-fact="gpa"] { background-color: color-mix(in srgb, var(--acc) 12%, var(--bg)) !important; border-color: color-mix(in srgb, var(--acc) 35%, var(--line)) !important; }
+html.sx.sx registration-routes-component .student-info-card mat-list-item[data-sx-fact="credits"] { background-color: color-mix(in srgb, var(--clay) 12%, var(--bg)) !important; border-color: color-mix(in srgb, var(--clay) 35%, var(--line)) !important; }
+html.sx.sx registration-routes-component .student-info-card mat-list-item[data-sx-fact]::after { font-size: 24px; }
+html.sx.sx registration-routes-component mat-list-item[data-sx-fact="semester"]::after { color: var(--sage); }
+html.sx.sx registration-routes-component mat-list-item[data-sx-fact="gpa"]::after { color: var(--acc); }
+html.sx.sx registration-routes-component mat-list-item[data-sx-fact="credits"]::after { color: var(--clay); }
+
+/* Section tabs: one row of pills, active one filled */
+html.sx.sx registration-routes-component .academic-menu {
+  display: flex !important; flex-wrap: wrap; gap: 8px; margin: 4px 0 16px !important; padding: 6px !important; width: auto !important;
+  background-color: var(--box) !important; border: 1px solid var(--line) !important; border-radius: 999px !important;
+}
+html.sx.sx registration-routes-component .academic-menu-item {
+  flex: 1 1 auto !important; width: auto !important; margin: 0 !important; padding: 10px 16px !important; border-radius: 999px !important;
+  text-align: center !important; white-space: nowrap; font-size: 15px !important; color: var(--fg2) !important; cursor: pointer;
+  transition: background-color 150ms linear, color 150ms linear !important;
+}
+html.sx.sx registration-routes-component .academic-menu-item * { font-size: inherit !important; color: inherit !important; }
+html.sx.sx registration-routes-component .academic-menu-item:is(:hover, :focus-visible) { background-color: var(--box-hi) !important; color: var(--fg) !important; }
+html.sx.sx registration-routes-component .academic-menu-item.active { background-color: color-mix(in srgb, var(--acc) 18%, var(--box)) !important; color: var(--acc) !important; }
+
+/* Programme tree: module band → semester group → course rows, all on one column grid */
+html.sx.sx registration-routes-component .program-wrapper { padding: 12px 16px 24px !important; overflow-x: auto !important; }
+html.sx.sx registration-routes-component .program-item { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+html.sx.sx registration-routes-component .program-header {
+  display: grid !important; grid-template-columns: 40px 64px minmax(200px, 1fr) 96px minmax(90px, 160px) 72px; align-items: center; column-gap: 12px;
+  width: 100% !important; min-width: 640px; min-height: 0 !important; height: auto !important; margin: 0 !important; padding: 12px 14px !important; box-sizing: border-box;
+}
+html.sx.sx registration-routes-component .program-header > * { width: auto !important; min-width: 0 !important; max-width: none !important; margin: 0 !important; padding: 0 !important; flex: none !important; }
+/* every row type has a different number of cells: pin each cell to its column */
+html.sx.sx registration-routes-component .program-header > .program-panel { grid-column: 1; }
+html.sx.sx registration-routes-component .program-header > .num { grid-column: 2; }
+html.sx.sx registration-routes-component .program-header > .book-title { grid-column: 3; }
+html.sx.sx registration-routes-component .program-header > .ects { grid-column: 4; }
+html.sx.sx registration-routes-component .program-header > :is(.conditions, .conditions-content) { grid-column: 5; }
+html.sx.sx registration-routes-component .program-header > :is(.actions, .ects ~ .ects) { grid-column: 6; }
+html.sx.sx registration-routes-component .program-header-item { text-align: left !important; justify-content: flex-start !important; font-size: 15px !important; line-height: 1.4 !important; }
+html.sx.sx registration-routes-component .program-header-item * { text-align: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+html.sx.sx registration-routes-component .program-header-item:is(.ects, .actions) { text-align: center !important; justify-content: center !important; }
+html.sx.sx registration-routes-component .program-header-item.actions { justify-self: end; }
+/* column titles */
+html.sx.sx registration-routes-component .program-header-wrapper .program-header { padding-block: 10px !important; border-bottom: 1px solid var(--line) !important; }
+html.sx.sx registration-routes-component .program-header-wrapper .program-header-item { font-size: 12px !important; color: var(--fg3) !important; }
+/* module (A, B …): ochre band */
+html.sx.sx registration-routes-component .program-module-item {
+  margin-top: 14px !important; padding-block: 16px !important; border-radius: 14px !important; cursor: pointer;
+  background-color: color-mix(in srgb, var(--acc) 13%, var(--box)) !important; border: 1px solid color-mix(in srgb, var(--acc) 34%, var(--line)) !important;
+}
+html.sx.sx registration-routes-component .program-module-item .book-title { font-size: 18px !important; font-weight: 500 !important; color: var(--fg) !important; }
+html.sx.sx registration-routes-component .program-module-item :is(.num, .num *) { color: var(--acc) !important; font-weight: 500 !important; }
+/* semester group (A-1 …): sage sub-band */
+html.sx.sx registration-routes-component .program-group-item {
+  margin-top: 12px !important; border-radius: 12px !important; cursor: pointer;
+  background-color: color-mix(in srgb, var(--sage) 11%, var(--box)) !important; border: 1px solid color-mix(in srgb, var(--sage) 28%, var(--line)) !important;
+}
+html.sx.sx registration-routes-component .program-group-item .book-title { font-size: 16px !important; font-weight: 500 !important; color: var(--fg) !important; }
+html.sx.sx registration-routes-component .program-group-item :is(.num, .num *) { color: var(--sage) !important; }
+html.sx.sx registration-routes-component :is(.program-module-item, .program-group-item) .num br { display: none; }
+/* credit counters as chips */
+html.sx.sx registration-routes-component :is(.program-module-item, .program-group-item) .ects > * {
+  display: inline-block; padding: 3px 12px !important; border-radius: 999px !important; white-space: nowrap; background-color: var(--bg) !important;
