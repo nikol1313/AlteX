@@ -394,8 +394,8 @@ html.sx ::-webkit-scrollbar-thumb { background-color: var(--fg3) !important; bor
 
 /* Main boxes: each carries its own colour in --c */
 html.sx .dashboard-item-wrapper[href="/learningCard"] { --c: var(--acc); }
-html.sx .dashboard-item-wrapper[href="/tables"]       { --c: var(--tt); }
-html.sx .dashboard-item-wrapper[href="/tasks-books"]  { --c: var(--clay); }
+html.sx .dashboard-item-wrapper[href="/tables"]       { --c: var(--pri); }
+html.sx .dashboard-item-wrapper[href="/tasks-books"]  { --c: var(--pri); }
 html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) .dashboard-item {
   border-radius: var(--r-lg) !important;
   background-color: color-mix(in srgb, var(--c) 7%, var(--box)) !important;
