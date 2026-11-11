@@ -1,7 +1,4 @@
-/* Alte Portal — riddled.ai style
-   Four colours. No boxes, no borders, no shadows. Space separates things.
-   Everything lives in one cascade layer: important declarations inside a layer
-   beat the site's unlayered !important rules regardless of their specificity. */
+
 
 @font-face { font-family: "FiraGO"; font-weight: 400; font-style: normal; font-display: swap;
   src: local("FiraGO Regular"), local("FiraGO-Regular"), url("chrome-extension://__MSG_@@extension_id__/fonts/firago-400.woff2") format("woff2"); }
