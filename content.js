@@ -1018,3 +1018,342 @@
       const st = icons.includes('thumb_up') ? 'chosen' : icons.includes('done') ? 'done' : '';
       if (row.dataset.sxSt !== st) row.dataset.sxSt = st;
     }
+  };
+
+  // ---------- Timetable: loading state ----------
+  // The week arrives a moment after the page: until the site's own request finishes,
+  // show skeleton lessons instead of an empty week. Requests are seen through the
+  // browser's resource timing (read-only); a click on week navigation starts a new wait.
+  const TABLES_WAIT_MS = 6000;
+  let tablesHost = null, tablesSince = 0, tablesDone = -1;
+  try {
+    new PerformanceObserver((list) => {
+      for (const e of list.getEntries()) if (e.name.includes('/registration/getStudentTables')) tablesDone = Math.max(tablesDone, e.responseEnd);
+      schedule();
+    }).observe({ type: 'resource', buffered: true });
+  } catch { /* no resource timing: the timeout below ends the skeleton */ }
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('student-tables-component .calendar-navigation :is(button, a)')) { tablesSince = performance.now(); schedule(); }
+  }, true);
+  const enhanceTablesLoading = () => {
+    const comp = document.querySelector('student-tables-component');
+    if (comp !== tablesHost) { tablesHost = comp; tablesSince = performance.now(); }
+    let loading = false;
+    if (comp && !comp.querySelector('.day-item')) {
+      const waited = performance.now() - tablesSince;
+      loading = tablesDone < tablesSince - 1500 && waited < TABLES_WAIT_MS;
+      if (loading) setTimeout(schedule, TABLES_WAIT_MS - waited + 50);
+    }
+    if (root.classList.contains('sx-tt-loading') !== loading) root.classList.toggle('sx-tt-loading', loading);
+    // Before the site has drawn its day blocks there is nothing to put skeletons in: add our own row.
+    const cal = comp && comp.querySelector('.calendar');
+    const skel = comp && comp.querySelector('.sx-tt-skel');
+    const need = loading && cal && !cal.querySelector('.weeklist-container > .headInfo');
+    if (need && !skel) {
+      const s = el('div', 'sx-tt-skel');
+      s.setAttribute('aria-hidden', 'true');
+      for (let i = 0; i < 7; i++) s.append(el('div', 'sx-tt-skel-day'));
+      cal.append(s);
+    } else if (!need && skel) skel.remove();
+  };
+
+  // ---------- Welcome screen after a fresh login ----------
+  // Shown once, right after the user signs in through the login form in this tab.
+  // A page refresh or a restored session (token already stored) never shows it.
+  // Per-user "don't show again" lives in localStorage. Lives on <html> so it can
+  // sit above the page; the site's own popups (browser top layer) are held back meanwhile.
+  const FRESH_KEY = 'sx-fresh-login';
+  const offKey = (s) => `sx-welcome-off:${s.studentId}`;
+  const LOGIN_FORM = 'input[formcontrolname="password"], input[formcontrolname="username"]';
+  let freshLogin = false;
+  const noteLoginPage = () => {
+    freshLogin = true;
+    try { sessionStorage.setItem(FRESH_KEY, '1'); } catch { /* the in-memory flag still covers the SPA login */ }
+  };
+  const takeFreshLogin = () => {
+    let fresh = freshLogin;
+    try { fresh = fresh || sessionStorage.getItem(FRESH_KEY) === '1'; sessionStorage.removeItem(FRESH_KEY); } catch { /* ignore */ }
+    freshLogin = false;
+    return fresh;
+  };
+
+  const loadTodayLine = async (s) => {
+    const group = await api(s, '/student/registration/group/getGroupForRegistration', {});
+    if (!group || !group.selectedGroupId) return '';
+    const res = await api(s, '/student/registration/getStudentTables', { studentId: s.studentId, eduId: s.eduId, groupId: group.selectedGroupId, dates: weekDates(0) });
+    const now = new Date();
+    const today = ((res && res.data) || [])[(now.getDay() + 6) % 7] || [];
+    return todayLine(today.filter((e) => e?.data?.h != null).map((e) => {
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), e.data.h, e.data.m || 0).getTime();
+      return { start, end: start + (e.data.duration || 0) * 60000, name: e?.item?.book?.name };
+    }));
+  };
+
+  const showWelcome = (s, firstName) => {
+    const w = el('div', 'sx-welcome');
+    w.setAttribute('role', 'dialog');
+    w.setAttribute('aria-modal', 'true');
+    w.setAttribute('aria-labelledby', 'sx-w-title');
+    const logo = el('div', 'sx-w-logo', 'Alte');
+    logo.append(el('span', 'sx-w-x', 'X'));
+    const title = el('h1', 'sx-w-title', 'კეთილი იყოს თქვენი მობრძანება AlteX პორტალზე');
+    title.id = 'sx-w-title';
+    const today = el('p', 'sx-w-today');
+    const go = el('button', 'sx-w-go', 'გაგრძელება →');
+    go.type = 'button';
+    const off = el('label', 'sx-w-off');
+    const box = el('input');
+    box.type = 'checkbox';
+    off.append(box, el('span', null, 'აღარ მაჩვენო'));
+    const inner = el('div', 'sx-welcome-inner');
+    inner.append(logo, title, el('p', 'sx-w-sub', 'Welcome to AlteX Portal'),
+      el('p', 'sx-w-hello', firstName ? `გამარჯობა, ${firstName}` : 'გამარჯობა'), today, go, off);
+    w.append(inner);
+
+    root.classList.add('sx-welcoming');
+    root.append(w);
+    requestAnimationFrame(() => w.classList.add('sx-in'));
+    go.focus({ preventScroll: true }); // Enter continues
+
+    loadTodayLine(s).then((line) => { if (line) { today.textContent = line; today.classList.add('sx-show'); } }).catch(() => {});
+    load(); // dashboard card data, so it is ready behind the screen
+
+    let gone = false;
+    go.addEventListener('click', () => {
+      if (gone) return;
+      gone = true;
+      if (box.checked) { try { localStorage.setItem(offKey(s), '1'); } catch { /* per-viewer convenience */ } }
+      w.classList.add('sx-out');
+      setTimeout(() => {
+        w.remove();
+        root.classList.remove('sx-welcoming');
+        root.classList.add('sx-enter'); // dashboard entrance: header → nav → cards
+        setTimeout(() => root.classList.remove('sx-enter'), 1400);
+      }, 320);
+    });
+  };
+
+  const maybeWelcome = () => {
+    if (document.querySelector(LOGIN_FORM)) { noteLoginPage(); return; }
+    if (!document.querySelector('user-menu-component')) return; // not signed in yet
+    if (!takeFreshLogin()) return;                               // refresh / restored session
+    const s = session();
+    if (!s) return;
+    try { if (localStorage.getItem(offKey(s)) === '1') return; } catch { /* ignore */ }
+    showWelcome(s, firstNameOf(s));
+  };
+
+  // ---------- Dashboard greeting ----------
+  // Name, date, today's lectures (have / had) and the nearest exam period.
+  const mountHello = () => {
+    const cont = document.querySelector('dashboard-component .dashboard-item-container');
+    let box = document.querySelector('.sx-hello');
+    if (!cont) { box?.remove(); return; }
+    const s = session();
+    const now = new Date();
+    const name = s ? firstNameOf(s) : '';
+    const date = `${WEEKDAYS[(now.getDay() + 6) % 7]}, ${now.getDate()} ${MONTHS[now.getMonth()]}`;
+    const line = knownLessons ? todayLine(knownLessons.filter((l) => isToday(l.start.getTime())).map((l) => ({ start: l.start.getTime(), end: l.end, name: l.course }))) : '';
+    const exam = EXAMS.map((e) => ({ e, p: nextPeriod(e.periods) })).filter((x) => x.p).sort((x, y) => x.p.days - y.p.days)[0];
+    const examText = !exam ? '' : exam.p.state === 'now' ? 'მიმდინარეობს' : daysWord(exam.p.days);
+    const key = [name, date, line, exam && exam.e.key, examText].join('|');
+    if (box && box.dataset.key === key && box.nextElementSibling === cont) return;
+    if (!box) box = el('div', 'sx-hello');
+    box.dataset.key = key;
+    const text = el('div', 'sx-hello-text');
+    text.append(el('span', 'sx-hello-date', date), el('h1', 'sx-hello-title', name ? `გამარჯობა, ${name}` : 'გამარჯობა'));
+    if (line) text.append(el('p', 'sx-hello-line', line));
+    box.replaceChildren(text);
+    if (exam) {
+      const chip = el('div', 'sx-hello-exam');
+      chip.append(el('span', 'sx-hello-exam-cap', `${exam.e.ka} · ${exam.e.en}`), el('span', 'sx-hello-exam-val', examText), el('span', 'sx-hello-exam-sub', rangeText(exam.p.start, exam.p.end)));
+      box.append(chip);
+    }
+    if (box.nextElementSibling !== cont) cont.before(box);
+  };
+
+  // ---------- Timetable: exam countdowns ----------
+  // Three tiles above the week (midterm, midterm retake, final) and the next day off.
+  const mountExamStrip = () => {
+    const comp = document.querySelector('student-tables-component');
+    if (!comp) return;
+    const tiles = EXAMS.map((e) => {
+      const p = nextPeriod(e.periods);
+      if (!p) return { e, big: '—', unit: '', sub: 'თარიღი ჯერ არ არის გამოქვეყნებული', pct: 0, state: 'none' };
+      if (p.state === 'now') return { e, big: 'ახლა', unit: '', sub: `${rangeText(p.start, p.end)} · ${p.left === 0 ? 'ბოლო დღე' : `დარჩა ${p.left} დღე`}`, pct: 100, state: 'now' };
+      // Bar: how much of the wait since the semester began is already behind.
+      const from = SEMESTER_STARTS.map(dayOf).filter((d) => d <= today0() && d < p.start).pop();
+      const pct = from ? Math.max(0, Math.min(100, ((today0() - from) / (p.start - from)) * 100)) : 0;
+      return { e, big: String(p.days), unit: 'დღე დარჩა', sub: `${rangeText(p.start, p.end)} ${p.start.getFullYear()}`, pct, state: 'soon' };
+    });
+    const off = nextPeriod(DAYS_OFF);
+    const offDef = off && DAYS_OFF.find(([a]) => dayOf(a).getTime() === off.start.getTime());
+    const key = JSON.stringify([tiles.map((t) => [t.big, t.sub, Math.round(t.pct)]), off && [off.state, off.days, off.start.getTime()]]);
+    let strip = comp.querySelector(':scope > .sx-exams');
+    if (strip && strip.dataset.key === key) { if (comp.firstElementChild !== strip) comp.prepend(strip); return; }
+    if (!strip) { strip = el('section', 'sx-exams'); strip.setAttribute('aria-label', 'გამოცდებამდე დარჩენილი დრო · Exam countdowns'); }
+    strip.dataset.key = key;
+    const nearest = tiles.filter((t) => t.state !== 'none').sort((x, y) => (x.state === 'now' ? -1 : +x.big) - (y.state === 'now' ? -1 : +y.big))[0];
+    strip.replaceChildren(...tiles.map((t) => {
+      const tile = el('div', 'sx-exam');
+      tile.dataset.exam = t.e.key;
+      tile.dataset.state = t.state;
+      if (t === nearest) tile.dataset.next = '1';
+      const head = el('div', 'sx-exam-head');
+      head.append(el('span', 'sx-exam-ka', t.e.ka), el('span', 'sx-exam-en', t.e.en));
+      const count = el('div', 'sx-exam-count');
+      count.append(el('span', 'sx-exam-num', t.big));
+      if (t.unit) count.append(el('span', 'sx-exam-unit', t.unit));
+      const bar = el('div', 'sx-exam-bar');
+      const fill = el('i'); fill.style.width = `${t.pct}%`; bar.append(fill);
+      tile.append(head, count, bar, el('span', 'sx-exam-sub', t.sub));
+      return tile;
+    }));
+    if (off && offDef) {
+      const tile = el('div', 'sx-exam sx-exam-off');
+      const head = el('div', 'sx-exam-head');
+      head.append(el('span', 'sx-exam-ka', 'შემდეგი დასვენების დღე'), el('span', 'sx-exam-en', 'Next day off'));
+      const name = el('div', 'sx-exam-offname', offDef[2]);
+      tile.append(head, name, el('span', 'sx-exam-sub', `${offDef[3]} · ${rangeText(off.start, off.end)} · ${off.state === 'now' ? 'დღეს' : daysWord(off.days)}`));
+      strip.append(tile);
+    }
+    if (comp.firstElementChild !== strip) comp.prepend(strip);
+  };
+
+  // ---------- Assignments page ----------
+  // Each course row gets a fold with its five latest assignments (read-only, same endpoints
+  // as the portal's own task pages). The row's "info" button still opens the full list.
+  const TASKS_SHOWN = 5;
+  const taskItem = (t) => {
+    const item = el('div', 'sx-tf-item');
+    const meta = el('div', 'sx-tf-meta');
+    if (t.posted) meta.append(el('span', 'sx-tf-date', `დაემატა ${dmy(t.posted)} · ${agoText(t.posted)}`));
+    if (t.end) {
+      const due = el('span', 'sx-tf-due', `ვადა ${dmy(t.end)} ${hm(t.end)}`);
+      if (t.end.getTime() < Date.now()) due.classList.add('sx-past');
+      meta.append(due);
+    }
+    const files = (t.files || []).length;
+    if (files) meta.append(el('span', 'sx-tf-files', `${files} ფაილი`));
+    item.append(el('div', 'sx-tf-name', t.name || 'დავალება'), meta);
+    // The portal stores the text as HTML (tags, numeric entities): read it as plain text, never insert it as markup.
+    const text = (new DOMParser().parseFromString(String(t.text || ''), 'text/html').body.textContent || '').replace(/\s+/g, ' ').trim();
+    if (/^https?:\/\/\S+$/.test(text)) {
+      const a = el('a', 'sx-tf-link', 'ბმულის გახსნა ↗');
+      a.href = text; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      item.append(a);
+    } else if (text) item.append(el('p', 'sx-tf-text', text));
+    return item;
+  };
+  let taskBookMap = null; // row id -> course, once loaded
+  const enhanceTasks = () => {
+    const page = document.querySelector('tasks-mini-component');
+    if (!page) return;
+    const s = session();
+    if (!s) return;
+    if (!taskBookMap) {
+      taskBooks(s).then((list) => { taskBookMap = new Map(list.map((b) => [String(b.id), b])); schedule(); }).catch(() => {});
+      return;
+    }
+    for (const row of page.querySelectorAll('mat-row')) {
+      const id = row.querySelector('.mat-column-id')?.textContent.trim();
+      const book = taskBookMap.get(id);
+      let fold = row.querySelector(':scope > .sx-tf');
+      if (fold && fold.dataset.id !== id) { fold.remove(); fold = null; }
+      if (!book || fold) continue;
+      fold = el('details', 'sx-tf');
+      fold.dataset.id = id;
+      const summary = el('summary', 'sx-tf-sum');
+      const count = el('span', 'sx-tf-count', '…');
+      summary.append(el('span', 'sx-tf-label', 'ბოლო დავალებები'), el('span', 'sx-tf-en', 'Latest assignments'), count, el('span', 'sx-chev'));
+      const list = el('div', 'sx-tf-list');
+      fold.append(summary, list);
+      row.append(fold);
+      courseTasks(s, book.listId).then((tasks) => {
+        const shown = tasks.slice(0, TASKS_SHOWN);
+        count.textContent = String(shown.length);
+        fold.classList.toggle('sx-tf-none', !shown.length);
+        if (shown.length) list.replaceChildren(...shown.map(taskItem));
+        else list.replaceChildren(el('p', 'sx-tf-empty', 'ამ საგანში დავალება ჯერ არ დადებულა · No assignments posted yet'));
+      }).catch(() => {
+        count.textContent = '!';
+        list.replaceChildren(el('p', 'sx-tf-empty', 'დავალებები ვერ ჩაიტვირთა · Could not load assignments'));
+      });
+    }
+  };
+
+  // ---------- Login page ----------
+  // Brand panel beside the form: the wordmark and a small animated week, the thing the
+  // portal is opened for. Decorative only; the form itself is the site's own.
+  const LOGIN_WEEK = [ // per weekday: [top %, height %] of each lesson block
+    [[6, 22], [44, 26]],
+    [[18, 30], [64, 20]],
+    [[4, 18], [34, 22], [70, 22]],
+    [[26, 28]],
+    [[10, 24], [52, 30]],
+  ];
+  const mountLogin = () => {
+    const page = document.querySelector('login-component');
+    if (root.classList.contains('sx-login') !== !!page) root.classList.toggle('sx-login', !!page);
+    if (!page || page.querySelector(':scope > .sx-login-art')) return;
+    const art = el('div', 'sx-login-art');
+    art.setAttribute('aria-hidden', 'true');
+    const brand = el('div', 'sx-la-brand', 'Alte');
+    brand.append(el('span', 'sx-la-x', 'X'));
+    const week = el('div', 'sx-la-week');
+    ['ორშ', 'სამ', 'ოთხ', 'ხუთ', 'პარ'].forEach((day, i) => {
+      const col = el('div', 'sx-la-col');
+      col.append(el('span', 'sx-la-day', day));
+      const track = el('div', 'sx-la-track');
+      for (const [top, height] of LOGIN_WEEK[i]) {
+        const b = el('i', 'sx-la-block');
+        b.style.top = `${top}%`; b.style.height = `${height}%`;
+        b.style.setProperty('--at', String(top / 100)); // lights up when the time line reaches it
+        track.append(b);
+      }
+      col.append(track);
+      week.append(col);
+    });
+    week.append(el('span', 'sx-la-now'));
+    const copy = el('div', 'sx-la-copy');
+    copy.append(el('p', 'sx-la-title', 'შენი სემესტრი — ერთ ეკრანზე.'), el('p', 'sx-la-sub', 'ლექციები, შეფასებები, დავალებები და გამოცდები. Lectures, grades, assignments and exams in one place.'));
+    art.append(brand, week, copy);
+    page.prepend(art);
+  };
+
+  // ---------- loop ----------
+  let queued = false;
+  const run = () => {
+    queued = false;
+    tagZeroCounts();
+    mountIdc();
+    mountUserMenu();
+    mountDashNav();
+    mountNav();
+    mountRail();
+    enhanceWeek();
+    enhanceExams();
+    enhanceCard();
+    enhanceEstDialog();
+    enhanceCardHeader();
+    enhanceFinances();
+    enhanceCalendar();
+    enhanceTablesLoading();
+    enhanceRegistration();
+    enhanceTasks();
+    mountExamStrip();
+    mountHello();
+    mountLogin();
+    goStatementList();
+    maybeWelcome();
+    if (document.querySelector('a.dashboard-item-wrapper[href="/learningCard"]')) { render(); load(); }
+  };
+  const schedule = () => { if (!queued) { queued = true; requestAnimationFrame(run); } };
+
+  const start = () => {
+    run();
+    new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true, characterData: true });
+    setInterval(schedule, 60 * 1000); // keeps Now / Next on the timetable current
+  };
+  document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', start) : start();
+})();
