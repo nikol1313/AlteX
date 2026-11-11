@@ -143,3 +143,148 @@ html.sx :is(h2, h3:not(.commandsh3), .card-title, .program-title) {
   font-size: 26px !important; font-weight: 500 !important; line-height: 1.3 !important;
   letter-spacing: -0.015em !important; color: var(--fg) !important; margin: 0 0 20px !important;
 }
+
+/* ---------- Pills (top menu, buttons) ----------
+   :where() keeps these at low specificity so state rules (active) win predictably. */
+html.sx :where(.topMenuItem > a, .mat-mdc-button-base:not(.mat-mdc-icon-button):not(.mat-mdc-tab-link):not(.mat-mdc-tab),
+            .details-button, .ini-button, .create_new_journal) {
+  display: inline-flex !important; align-items: center !important; gap: 8px;
+  width: auto !important; height: auto !important; min-width: 0 !important; min-height: 0 !important;
+  margin: 0 !important; padding: 8px 16px !important;
+  border-radius: 999px !important;
+  color: var(--fg2) !important; font-size: 15px !important; line-height: 1.4 !important;
+  transition: background-color 150ms linear, color 150ms linear !important;
+}
+html.sx :where(.topMenuItem > a, .mat-mdc-button-base:not(.mat-mdc-icon-button):not(.mat-mdc-tab-link):not(.mat-mdc-tab),
+            .details-button, .ini-button, .create_new_journal) * { color: inherit !important; font-size: 15px !important; line-height: 1.4 !important; }
+html.sx :where(.topMenuItem > a, .mat-mdc-button-base:not(.mat-mdc-icon-button):not(.mat-mdc-tab-link):not(.mat-mdc-tab),
+            .details-button, .ini-button, .create_new_journal):is(:hover, :focus-visible) {
+  background-color: var(--box-hi) !important; color: var(--fg) !important; text-decoration: none !important;
+}
+
+/* Counts: ochre; zero is hidden (content.js marks it) */
+html.sx :is(.notify, .mat-badge-content) {
+  position: static !important; inset: auto !important; transform: none !important; order: 3;
+  display: inline !important; width: auto !important; height: auto !important; min-width: 0 !important;
+  margin: 0 !important; padding: 0 !important; color: var(--acc) !important; font-size: 15px !important; line-height: 1.4 !important;
+}
+html.sx :is(.notify, .mat-badge-content)[data-sx-zero],
+html.sx .mat-badge-hidden .mat-badge-content { display: none !important; }
+
+/* ---------- Navigation bar (inner pages) ----------
+   One pinned row: six main sections, the rest under "მეტი · More" (built by content.js).
+   The site's mobile drawer and hamburger are replaced by this bar on every width. */
+html.sx user-menu-component {
+  display: block; position: sticky; top: -88px; z-index: 45; background-color: var(--bg) !important;
+}
+html.sx .topMenuTo { position: static !important; background-color: var(--bg) !important; border-bottom: 1px solid var(--line) !important; }
+html.sx .topMenu {
+  position: static !important; transform: none !important; height: auto !important; width: auto !important;
+  min-width: 0 !important; max-width: none !important; overflow: visible !important;
+}
+html.sx :is(.toggleButton, .topMenu .user-area-wrapper) { display: none !important; }
+html.sx .topMenuItems {
+  display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center; gap: 4px !important;
+  margin: 0 !important; padding: 10px 0 !important; justify-content: safe center !important; text-align: left !important; /* centred, never clipped when it scrolls */
+  overflow-x: auto; scrollbar-width: none;
+}
+html.sx .topMenuItems::-webkit-scrollbar { display: none; }
+html.sx .topMenuItem { flex: 0 0 auto !important; width: auto !important; list-style: none; order: 10; }
+/* Five sections in the bar; everything else is under "More" or on the main page */
+html.sx .topMenuItem:not(:has(> a:is([href="/calendar"], [href="/registration"], [href="/programs"], [href="/finances"], [href="/chancellery"]))) { display: none !important; }
+html.sx .topMenuItem:has(> a[href="/calendar"]) { order: 1; }
+html.sx .topMenuItem:has(> a[href="/registration"]) { order: 2; }
+html.sx .topMenuItem:has(> a[href="/programs"]) { order: 3; }
+html.sx .topMenuItem:has(> a[href="/finances"]) { order: 4; }
+html.sx .topMenuItem:has(> a[href="/chancellery"]) { order: 5; }
+html.sx .topMenuItems > .sx-more { order: 20; }
+html.sx .topMenuItems, html.sx .topMenuItems > li { list-style: none !important; } /* the More <li> is ours; no bullet */
+html.sx .menu-text { margin: 0 !important; white-space: nowrap; }
+html.sx .topMenuItem > a > div:has(> img) { display: none !important; }
+
+html.sx :is(.topMenuItem > a, .sx-more-btn) {
+  display: inline-flex !important; align-items: center !important; gap: 8px; height: auto !important; width: auto !important;
+  padding: 9px 16px !important; border-radius: 999px !important; cursor: pointer; white-space: nowrap;
+  color: var(--fg2) !important; font-size: 15px !important; line-height: 1.4 !important;
+  transition: background-color 150ms linear, color 150ms linear !important;
+}
+html.sx :is(.topMenuItem > a, .sx-more-btn) * { font-size: inherit !important; line-height: inherit !important; }
+html.sx :is(.topMenuItem > a, .sx-more-btn):is(:hover, :focus-visible) { background-color: var(--box-hi) !important; color: var(--fg) !important; }
+html.sx :is(.topMenuItem > a.active, .sx-more.sx-active > .sx-more-btn) {
+  background-color: color-mix(in srgb, var(--acc) 16%, var(--box)) !important; color: var(--acc) !important;
+}
+html.sx .sx-more-btn::after {
+  content: ""; width: 6px; height: 6px; margin: -3px 0 0 2px; border: solid currentColor !important; border-width: 0 1.5px 1.5px 0 !important;
+  transform: rotate(45deg); transition: transform 200ms var(--ease, ease) !important;
+}
+html.sx .sx-more.sx-open .sx-more-btn::after { transform: translateY(3px) rotate(225deg); }
+html.sx .sx-more.sx-open .sx-more-btn { background-color: var(--box-hi) !important; color: var(--fg) !important; }
+
+/* Dropdown: positioned by content.js (fixed), so the scrollable bar never clips it */
+@keyframes sx-drop { from { opacity: 0; transform: translateY(-6px) scale(.98); } to { opacity: 1; transform: none; } }
+html.sx .sx-more-menu {
+  position: fixed; z-index: 70; display: none; min-width: 300px; padding: 8px !important;
+  background-color: var(--box) !important; border: 1px solid var(--line) !important; border-radius: 16px !important;
+}
+html.sx .sx-more.sx-open .sx-more-menu { display: flex; flex-direction: column; gap: 2px; animation: sx-drop 180ms var(--ease, ease) both !important; transform-origin: top left; }
+html.sx .sx-more-item {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; padding: 10px 14px !important;
+  border-radius: 10px !important; text-align: left; cursor: pointer; transition: background-color 150ms linear !important;
+}
+html.sx .sx-more-item:is(:hover, :focus-visible) { background-color: var(--box-hi) !important; }
+html.sx .sx-more-item .sx-ka { font-size: 16px !important; color: var(--fg) !important; }
+html.sx .sx-more-item .sx-en { font-size: 13px !important; color: var(--fg3) !important; }
+html.sx .sx-more-item.sx-active .sx-ka { color: var(--acc) !important; }
+
+/* ---------- Dashboard ---------- */
+/* Row widths are built from the container's 16px gap + margins so each row fills exactly. */
+html.sx .dashboard-item-container {
+  display: flex !important; flex-wrap: wrap !important; align-items: stretch;
+  gap: 16px !important; padding: 0 !important; text-align: left !important;
+}
+html.sx .dashboard-item-wrapper { display: block !important; width: auto !important; height: auto !important; margin: 0 !important; padding: 0 !important; }
+html.sx .dashboard-item-wrapper, html.sx .dashboard-item-wrapper * { text-align: left !important; }
+html.sx .dashboard-item {
+  position: static !important; text-align: left !important; box-sizing: border-box !important;
+  background-color: var(--box) !important; border: 1px solid var(--line) !important;
+  transition: background-color 150ms linear, border-color 150ms linear !important;
+}
+html.sx .dashboard-item .title { position: static !important; margin: 0 !important; padding: 0 !important; width: auto !important; }
+
+/* Three main boxes: title on top, key value in ochre, caption at the bottom */
+html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) { flex: 0 0 calc((100% - 32px) / 3 - 0.5px) !important; margin: 0 0 32px !important; }
+html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"])[href="/learningCard"] { order: -3; }
+html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"])[href="/tables"] { order: -2; }
+html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"])[href="/tasks-books"] { order: -1; }
+html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) .dashboard-item {
+  display: flex !important; flex-direction: column !important; align-items: stretch !important; justify-content: flex-start !important;
+  width: auto !important; height: 100% !important; min-height: 400px; margin: 0 !important; padding: 40px 36px 36px !important;
+}
+html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]):is(:hover, :focus-visible) .dashboard-item { border-color: var(--acc) !important; }
+html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) :is(.mat-badge-content, .notify) { display: none !important; }
+html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) .title {
+  font-size: 48px !important; font-weight: 500 !important; line-height: 1.05 !important; letter-spacing: -0.03em !important;
+  color: var(--fg) !important; padding-bottom: 28px !important; border-bottom: 1px solid var(--line) !important;
+}
+html.sx .sx-data { display: flex; flex-direction: column; flex: 1; padding-top: 28px; }
+html.sx .sx-data .sx-val { display: block; font-family: var(--serif) !important; font-size: 20px !important; line-height: 1.5 !important; color: var(--fg2) !important; }
+html.sx .sx-data .sx-val:first-child { font-size: 30px !important; line-height: 1.25 !important; color: var(--acc) !important; margin-bottom: 10px; }
+html.sx .sx-data .sx-cap { display: block; margin-top: auto; padding-top: 28px; font-size: 14px !important; line-height: 1.5 !important; color: var(--fg3) !important; }
+
+/* Everything else: small quiet boxes, four per row */
+html.sx .dashboard-item-wrapper:not([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) { flex: 0 0 calc((100% - 48px) / 4 - 0.5px) !important; }
+html.sx .dashboard-item-wrapper:not([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) .dashboard-item {
+  display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important;
+  width: auto !important; height: 84px !important; margin: 0 !important; padding: 0 24px !important;
+}
+html.sx .dashboard-item-wrapper:not([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) .title { color: var(--fg3) !important; font-size: 15px !important; line-height: 1.35 !important; transition: color 150ms linear !important; }
+html.sx .dashboard-item-wrapper:not([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]):is(:hover, :focus-visible) .dashboard-item { background-color: var(--box-hi) !important; }
+html.sx .dashboard-item-wrapper:not([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]):is(:hover, :focus-visible) .title { color: var(--fg) !important; }
+html.sx .dashboard-item-wrapper:not([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) :is(.mat-badge-content, .notify) { margin-left: 12px !important; }
+
+/* ---------- Boxes on inner pages ---------- */
+html.sx :is(.mat-elevation-z8, .personalDataList .card, .mat-expansion-panel, .ini-block,
+            student-tables-component .mat-mdc-card, .calendar, .program-wrapper, .semester-wrapper, .template_panel, .page-messages) {
+  background-color: var(--box) !important; border: 1px solid var(--line) !important;
+  padding: 28px 32px !important; box-sizing: border-box !important;
+}
