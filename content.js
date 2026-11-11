@@ -686,7 +686,11 @@
     // Only the selectors' own container (first block of the lecture timetable), never the month picker.
     const comp = document.querySelector('student-tables-component');
     const selectors = comp && comp.querySelector(':scope > div > div:first-child:has(> mat-form-field)');
-    if (selectors) { selectors._sxHost = comp; filters.append(selectors); }
+    if (selectors) {
+      selectors._sxHost = comp;
+      // append() moves the node, which retriggers the MutationObserver: only when needed.
+      if (selectors.parentElement !== filters) filters.append(selectors);
+    }
     // Angular removes only the component, not nodes moved out of it: drop copies whose component is gone.
     for (const old of filters.querySelectorAll(':scope > div')) if (!old._sxHost || !old._sxHost.isConnected) old.remove();
     for (const a of menu.querySelectorAll('.tables-tab-menu a[href]')) {
@@ -1322,9 +1326,14 @@
   };
 
   // ---------- loop ----------
-  let queued = false;
+  let queued = false, lastRun = 0;
   const run = () => {
     queued = false;
+    lastRun = performance.now();
+    // Page-kind flags for CSS: :has() on <html> rescans the whole DOM on every style recalc.
+    for (const [cls, sel] of [['sx-dash', 'dashboard-component'], ['sx-tables', 'student-tables-component'], ['sx-ttdash', 'tables-dashboard-component'], ['sx-program', 'program-view']]) {
+      root.classList.toggle(cls, !!document.querySelector(sel));
+    }
     tagZeroCounts();
     mountIdc();
     mountUserMenu();
@@ -1348,7 +1357,12 @@
     maybeWelcome();
     if (document.querySelector('a.dashboard-item-wrapper[href="/learningCard"]')) { render(); load(); }
   };
-  const schedule = () => { if (!queued) { queued = true; requestAnimationFrame(run); } };
+  // The portal mutates the DOM constantly; each pass scans the whole document, so cap it at ~5/second.
+  const schedule = () => {
+    if (queued) return;
+    queued = true;
+    setTimeout(() => { if (document.hidden) { queued = false; return; } run(); }, Math.max(0, 200 - (performance.now() - lastRun)));
+  };
 
   const start = () => {
     run();
