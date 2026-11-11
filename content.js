@@ -150,6 +150,19 @@
   };
   const daysWord = (n) => (n === 1 ? 'ხვალ' : `${n} დღეში`);
 
+  // Exam tiles show only the running semester's periods: SEMESTER_STARTS bounds each window,
+  // so an exam whose semester is over drops off instead of counting down to next year's date.
+  const semesterWindow = () => {
+    const starts = SEMESTER_STARTS.map(dayOf);
+    const c = starts.filter((d) => d <= today0()).length; // semesters already begun
+    const i = Math.max(0, Math.min(c - 1, starts.length - 1));
+    return { lo: starts[i], hi: starts[i + 1] };
+  };
+  const currentPeriods = (periods) => {
+    const { lo, hi } = semesterWindow();
+    return periods.filter(([a]) => { const s = dayOf(a); return s >= lo && (!hi || s < hi); });
+  };
+
   // "You have / had today": past tense once every lecture of the day has ended.
   // lessons: [{ start, end (ms), name }] for today.
   const todayLine = (lessons) => {
@@ -1158,7 +1171,7 @@
     const name = s ? firstNameOf(s) : '';
     const date = `${WEEKDAYS[(now.getDay() + 6) % 7]}, ${now.getDate()} ${MONTHS[now.getMonth()]}`;
     const line = knownLessons ? todayLine(knownLessons.filter((l) => isToday(l.start.getTime())).map((l) => ({ start: l.start.getTime(), end: l.end, name: l.course }))) : '';
-    const exam = EXAMS.map((e) => ({ e, p: nextPeriod(e.periods) })).filter((x) => x.p).sort((x, y) => x.p.days - y.p.days)[0];
+    const exam = EXAMS.map((e) => ({ e, p: nextPeriod(currentPeriods(e.periods)) })).filter((x) => x.p).sort((x, y) => x.p.days - y.p.days)[0];
     const examText = !exam ? '' : exam.p.state === 'now' ? 'მიმდინარეობს' : daysWord(exam.p.days);
     const key = [name, date, line, exam && exam.e.key, examText].join('|');
     if (box && box.dataset.key === key && box.nextElementSibling === cont) return;
@@ -1181,9 +1194,7 @@
   const mountExamStrip = () => {
     const comp = document.querySelector('student-tables-component');
     if (!comp) return;
-    const tiles = EXAMS.map((e) => {
-      const p = nextPeriod(e.periods);
-      if (!p) return { e, big: '—', unit: '', sub: 'თარიღი ჯერ არ არის გამოქვეყნებული', pct: 0, state: 'none' };
+    const tiles = EXAMS.map((e) => ({ e, p: nextPeriod(currentPeriods(e.periods)) })).filter((x) => x.p).map(({ e, p }) => {
       if (p.state === 'now') return { e, big: 'ახლა', unit: '', sub: `${rangeText(p.start, p.end)} · ${p.left === 0 ? 'ბოლო დღე' : `დარჩა ${p.left} დღე`}`, pct: 100, state: 'now' };
       // Bar: how much of the wait since the semester began is already behind.
       const from = SEMESTER_STARTS.map(dayOf).filter((d) => d <= today0() && d < p.start).pop();
