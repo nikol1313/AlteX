@@ -1013,3 +1013,148 @@ html.sx .sx-est { display: flex !important; flex-direction: column !important; }
 html.sx .sx-est-row { display: grid !important; grid-template-columns: minmax(180px, 42%) minmax(0, 1fr) !important; align-items: start !important; column-gap: 20px !important; height: auto !important; padding: 11px 0 !important; border-bottom: 1px solid var(--line) !important; }
 html.sx .sx-est-row:last-child { border-bottom: 0 !important; }
 html.sx .sx-est-name { font-size: 15px !important; line-height: 1.45 !important; color: var(--fg2) !important; overflow-wrap: break-word !important; }
+html.sx .sx-est-val { font-size: 15px !important; line-height: 1.45 !important; color: var(--fg) !important; overflow-wrap: break-word !important; text-align: right !important; }
+html.sx .sx-est-row.sx-num .sx-est-val { font-family: var(--serif) !important; font-size: 19px !important; line-height: 1.25 !important; }
+html.sx .sx-est-row.sx-est-empty .sx-est-val { color: var(--fg3) !important; }
+html.sx .sx-est-row.sx-text .sx-est-val { text-align: left !important; color: var(--fg2) !important; }
+html.sx .sx-est-row.sx-denied .sx-est-val { text-align: left !important; color: color-mix(in srgb, var(--clay) 85%, var(--fg2)) !important; }
+html.sx .sx-est-row.sx-total { margin-top: 8px !important; padding: 14px 16px !important; border: 0 !important; border-radius: 12px !important; align-items: center !important; background-color: color-mix(in srgb, var(--acc) 12%, var(--box)) !important; }
+html.sx .sx-est-row.sx-total .sx-est-name { color: var(--fg) !important; font-weight: 500 !important; }
+html.sx .sx-est-row.sx-total .sx-est-val { font-family: var(--serif) !important; font-size: 26px !important; color: var(--acc) !important; }
+html.sx .sx-est-row.sx-grade { padding: 14px 16px !important; border: 0 !important; align-items: center !important; }
+html.sx .sx-est-row.sx-grade .sx-est-val { justify-self: end !important; display: inline-grid !important; place-items: center !important; min-width: 40px !important; height: 40px !important; padding: 0 8px !important; border-radius: 12px !important; font-family: var(--sans) !important; font-size: 18px !important; font-weight: 500 !important; background-color: color-mix(in srgb, var(--g, var(--fg3)) 18%, var(--box)) !important; color: var(--g, var(--fg)) !important; }
+@media (max-width: 480px) {
+  html.sx .sx-est-row { grid-template-columns: minmax(0, 1fr) !important; row-gap: 4px !important; }
+  html.sx .sx-est-row :is(.sx-est-val) { text-align: left !important; }
+}
+html.sx .sx-est-row:is([data-grade="A"], [data-grade="B"]) { --g: var(--sage); }
+html.sx .sx-est-row:is([data-grade="C"], [data-grade="D"]) { --g: var(--fg2); }
+html.sx .sx-est-row:is([data-grade="E"], [data-grade="FX"], [data-grade="F"]) { --g: var(--clay); }
+
+/* Learning card on phones: the site's single-cell .responsive-row, laid out like the desktop row */
+html.sx.sx .semester-child mat-row:has(> .responsive-row) { display: block !important; padding: 16px 0 !important; border-bottom: 1px solid var(--line) !important; }
+html.sx.sx .semester-child mat-cell.responsive-row {
+  display: grid !important; grid-template-columns: minmax(0, 1fr) auto; column-gap: 14px; row-gap: 6px; padding: 0 !important; width: 100% !important;
+  grid-template-areas: "name grade" "lect grade" "score credit";
+}
+html.sx.sx .semester-child .responsive-row .subj-name { grid-area: name; padding: 0 !important; font-family: var(--serif) !important; font-size: 18px !important; color: var(--fg) !important; text-align: left !important; }
+html.sx.sx .semester-child .responsive-row .icons-row { display: contents !important; }
+html.sx.sx .semester-child .responsive-row .icons-row > div { padding: 0 !important; }
+html.sx.sx .semester-child .sx-m-lect { grid-area: lect; display: flex; align-items: center; gap: 4px; font-size: 14px !important; color: var(--fg2) !important; }
+html.sx.sx .semester-child .sx-m-lect * { font-size: inherit !important; color: inherit !important; }
+html.sx.sx .semester-child .sx-m-credit { grid-area: credit; align-self: start; font-size: 13px !important; color: var(--fg3) !important; white-space: nowrap; }
+html.sx.sx .semester-child .sx-m-credit::after { content: "\00a0კრედიტი"; }
+html.sx.sx .semester-child .sx-m-score {
+  grid-area: score; display: grid !important; grid-template-columns: auto 1fr; align-items: baseline; column-gap: 4px; row-gap: 6px;
+  font-family: var(--serif) !important; font-size: 20px !important; color: var(--fg) !important; white-space: nowrap;
+}
+html.sx.sx .semester-child .sx-m-score::after { content: "/100"; font-family: var(--sans); font-size: 12px; color: var(--fg3); }
+html.sx.sx .semester-child .sx-m-grade { grid-area: grade; align-self: center; }
+html.sx.sx .semester-child .sx-m-grade .result-color {
+  display: inline-grid !important; place-items: center; min-width: 40px; height: 40px !important; padding: 0 8px !important;
+  border-radius: 12px !important; font-family: var(--sans) !important; font-size: 18px !important; font-weight: 500 !important;
+  background-color: color-mix(in srgb, var(--g, var(--fg3)) 18%, var(--box)) !important; color: var(--g, var(--fg2)) !important;
+}
+
+/* Learning card: a subject's inline details (click the subject). The site fixes each line at
+   30px with two 110px columns, so wrapped Georgian spilled over the next lines. Rows are tagged
+   with the breakdown-dialog classes (.sx-est-row …) and laid out the same way here. */
+html.sx.sx .semester-child .mat-column-expandedDetail { width: 100% !important; max-width: none !important; flex: 1 1 100% !important; }
+html.sx.sx .semester-child .result-detail-wrapper {
+  display: flex !important; flex-direction: column !important; width: 100% !important; height: auto !important; box-sizing: border-box;
+  margin: 2px 0 16px !important; padding: 10px 22px !important; border-radius: 14px !important; background-color: var(--bg) !important;
+}
+html.sx.sx .semester-child .result-detail { width: auto !important; height: auto !important; min-height: 0 !important; margin: 0 !important; }
+html.sx.sx .semester-child :is(.result-detail-name, .result-detail-result) { width: auto !important; height: auto !important; min-width: 0 !important; padding: 0 !important; margin: 0 !important; }
+html.sx.sx .semester-child .result-detail-result * { font-size: inherit !important; color: inherit !important; }
+html.sx.sx .semester-child .result-detail.sx-est-empty .result-detail-result::after { content: "—"; }
+
+/* Inline details: the site's own grade chip carries the colour; the cell around it stays plain */
+html.sx.sx .semester-child .result-detail.sx-grade .result-detail-result {
+  display: block !important; justify-self: end !important; min-width: 0 !important; height: auto !important; padding: 0 !important; background-color: transparent !important;
+}
+
+/* ---------- Narrow windows ---------- */
+@media (max-width: 1000px) {
+  html.sx .dashboard-item-wrapper:not([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) { flex-basis: calc((100% - 16px) / 2 - 0.5px) !important; }
+}
+@media (max-width: 860px) {
+  html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) { flex-basis: 100% !important; margin: 0 !important; }
+  html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"])[href="/tasks-books"] { margin-bottom: 32px !important; }
+  html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) .dashboard-item { min-height: 0; }
+  html.sx .listMenu { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  html.sx .all-page-container { padding-top: 56px !important; }
+}
+@media (max-width: 520px) {
+  html.sx { --pad: 16px; }
+  html.sx .dashboard-item-wrapper:not([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) { flex-basis: 100% !important; }
+  html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) .title, html.sx :is(.commandsh3, h1) { font-size: 40px !important; }
+}
+
+
+/* ---------- Dashboard: four answers (next lecture, nearest deadline, next payment, GPA) ---------- */
+html.sx .dashboard-item-wrapper[href="/finances"] { --c: var(--fg2); }
+html.sx.sx .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/finances"], [href="/learningCard"]) {
+  flex: 0 0 calc((100% - 16px) / 2 - 0.5px) !important; margin: 0 !important;
+}
+html.sx.sx .dashboard-item-wrapper[href="/tables"] { order: -4; }
+html.sx.sx .dashboard-item-wrapper[href="/tasks-books"] { order: -3; }
+html.sx.sx .dashboard-item-wrapper[href="/finances"] { order: -2; }
+html.sx.sx .dashboard-item-wrapper[href="/learningCard"] { order: -1; }
+html.sx.sx .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/finances"], [href="/learningCard"]) .dashboard-item { min-height: 260px; padding: 28px 32px !important; }
+html.sx.sx .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/finances"], [href="/learningCard"]) .title {
+  font-size: 15px !important; font-weight: 400 !important; letter-spacing: 0 !important; line-height: 1.4 !important;
+  color: var(--fg2) !important; padding-bottom: 16px !important;
+}
+html.sx.sx .sx-data { padding-top: 20px; }
+html.sx.sx .sx-data .sx-val:first-child { font-size: 40px !important; line-height: 1.15 !important; letter-spacing: -0.02em; margin-bottom: 12px; }
+html.sx.sx .sx-data .sx-cap { padding-top: 20px; }
+@media (max-width: 860px) {
+  html.sx.sx .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/finances"], [href="/learningCard"]) { flex-basis: 100% !important; margin: 0 !important; }
+  html.sx.sx .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/finances"], [href="/learningCard"]) .dashboard-item { min-height: 0; }
+  html.sx.sx .sx-data .sx-val:first-child { font-size: 32px !important; }
+}
+
+/* ---------- Learning card: running courses, points needed ---------- */
+html.sx.sx.sx .semester-child mat-row[data-sx-running] .result-color { font-size: 0 !important; color: var(--fg3) !important; background-color: transparent !important; border: 1px dashed var(--line) !important; }
+html.sx.sx.sx .semester-child mat-row[data-sx-running] .result-color::after { content: "—"; font-size: 18px; color: var(--fg3); }
+html.sx .sx-need {
+  margin-top: 12px; padding: 12px 16px; border-radius: 12px !important; font-size: 14px !important; line-height: 1.5 !important;
+  background-color: color-mix(in srgb, var(--clay) 12%, var(--box)) !important; color: var(--clay) !important;
+}
+html.sx .sx-need.sx-passed { background-color: color-mix(in srgb, var(--sage) 12%, var(--box)) !important; color: var(--sage) !important; }
+html.sx .sx-est > .sx-need { grid-column: 1 / -1; }
+
+/* ---------- Finances: one summary card, then the schedule ---------- */
+html.sx .page-finances { display: flex !important; flex-direction: column; gap: 16px; }
+html.sx .page-finances > mat-form-field { width: 220px !important; align-self: flex-start; margin: 0 !important; }
+html.sx .page-finances > mat-form-field .mat-mdc-form-field-subscript-wrapper { display: none !important; }
+html.sx .page-finances:has(> .sx-fin) .balance-wrapper { display: none !important; } /* shown inside the card */
+html.sx .sx-fin {
+  padding: 28px 32px; border-radius: var(--r-lg) !important; box-sizing: border-box;
+  background-color: color-mix(in srgb, var(--sage) 7%, var(--box)) !important;
+  border: 1px solid color-mix(in srgb, var(--sage) 22%, var(--line)) !important;
+}
+html.sx .sx-fin-head { display: flex; flex-direction: column; gap: 6px; }
+html.sx .sx-fin-cap { font-size: 13px !important; color: var(--fg3) !important; }
+html.sx .sx-fin-paid { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+html.sx .sx-fin-num { font-family: var(--serif) !important; font-size: 44px !important; line-height: 1.1 !important; color: var(--sage) !important; }
+html.sx .sx-fin-of { font-family: var(--serif) !important; font-size: 22px !important; color: var(--fg2) !important; }
+html.sx .sx-fin-bar { height: 8px; margin: 18px 0 24px; border-radius: 999px !important; overflow: hidden; background-color: var(--line) !important; }
+html.sx .sx-fin-bar > i { display: block; height: 100%; border-radius: 999px !important; background-color: var(--sage) !important; transition: width 600ms var(--ease, ease) !important; }
+html.sx .sx-fin-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 20px 24px; }
+html.sx .sx-fin-fact { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+html.sx .sx-fin-val { font-family: var(--serif) !important; font-size: 21px !important; line-height: 1.3 !important; color: var(--fg) !important; }
+html.sx .sx-fin-sub { font-size: 13px !important; color: var(--fg2) !important; }
+html.sx .sx-fin-fact.sx-late :is(.sx-fin-val, .sx-fin-sub) { color: var(--clay) !important; }
+/* Schedule rows: label over amount, three aligned columns; the site's raw numbers are replaced by data-sx-v */
+html.sx .page-finances .wrapper-menu { display: grid !important; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 4px 16px; width: 100%; }
+html.sx .page-finances .wrapper-row { display: contents !important; }
+html.sx .page-finances .wrapper-row > div { text-align: left !important; padding: 0 !important; width: auto !important; min-width: 0; }
+html.sx .page-finances .wrapper-row:first-child > div { font-size: 13px !important; color: var(--fg3) !important; }
+html.sx .page-finances .wrapper-row:first-child > div:first-child { grid-row: span 2; font-size: 16px !important; color: var(--fg) !important; }
+html.sx .page-finances .wrapper-row:first-child > div:first-child span:nth-of-type(2) { font-size: 13px !important; color: var(--fg2) !important; }
+html.sx .page-finances .wrapper-row:last-child > div:first-child { display: none !important; }
+/* hide the site's own number (its inner span keeps a forced font size, so font-size: 0 on the cell is not enough) */
+html.sx.sx .page-finances .wrapper-row > div[data-sx-v] > * { display: none !important; }
+html.sx .page-finances .wrapper-row > div[data-sx-v] { font-size: 0 !important; }
