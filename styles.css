@@ -1448,3 +1448,148 @@ html.sx.sx.sx dashboard-component .dashboard-item-wrapper:is([href="/tables"], [
 html.sx.sx.sx dashboard-component .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/learningCard"]) .title {
   display: flex !important; align-items: center; justify-content: space-between; gap: 16px;
   font-size: 15px !important; padding-bottom: 18px !important;
+}
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/learningCard"]) .title::after {
+  content: "→"; font-size: 20px; line-height: 1; color: inherit; transition: transform 220ms var(--ease) !important;
+}
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper:is(:hover, :focus-visible) .title::after { transform: translateX(5px); }
+html.sx.sx.sx dashboard-component .sx-data { padding-top: 24px; gap: 2px; }
+html.sx.sx.sx dashboard-component .sx-data .sx-val { font-size: 18px !important; overflow-wrap: anywhere; }
+html.sx.sx.sx dashboard-component .sx-data .sx-val:first-child {
+  font-size: 34px !important; font-weight: 500 !important; line-height: 1.18 !important; letter-spacing: -0.025em !important; margin-bottom: 12px;
+  display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden !important;
+}
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tables"] .sx-data .sx-val:first-child { font-size: clamp(44px, 5vw, 68px) !important; line-height: 1.05 !important; margin-bottom: 18px; }
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tables"] .sx-data .sx-val:nth-child(2) { font-size: 24px !important; line-height: 1.3 !important; color: var(--fg) !important; }
+html.sx.sx.sx dashboard-component .sx-data .sx-cap { font-size: 13px !important; padding-top: 24px; }
+/* nothing new: a quiet line instead of a big value */
+html.sx.sx.sx dashboard-component .sx-data.sx-none .sx-val:first-child { font-size: 22px !important; font-weight: 400 !important; letter-spacing: -0.01em !important; color: var(--fg2) !important; }
+
+/* Assignments: the purple section of the page */
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] .dashboard-item {
+  background-color: #7E4CD6 !important; background-image: linear-gradient(140deg, #8B57DE 0%, #7445CB 55%, #6238B6 100%) !important;
+  border-color: rgba(255, 255, 255, .16) !important; box-shadow: 0 24px 48px -24px rgba(123, 75, 208, .75) !important;
+}
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] .dashboard-item::before {
+  content: ""; position: absolute; right: -90px; top: -90px; width: 280px; height: 280px; border-radius: 999px !important; pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, .18) !important; box-shadow: 0 0 0 44px rgba(255, 255, 255, .05), 0 0 0 96px rgba(255, 255, 255, .035) !important;
+}
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] :is(.title, .sx-data) { position: relative !important; }
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] .title { color: rgba(255, 255, 255, .88) !important; border-bottom-color: rgba(255, 255, 255, .24) !important; }
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] .sx-data .sx-val { color: rgba(255, 255, 255, .9) !important; }
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] .sx-data .sx-val:first-child { color: #fff !important; }
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] .sx-data .sx-cap { color: rgba(255, 255, 255, .8) !important; }
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"]:is(:hover, :focus-visible) .dashboard-item { border-color: rgba(255, 255, 255, .4) !important; }
+
+/* Learning card: dark surface, lavender edge */
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/learningCard"] .dashboard-item {
+  background-color: var(--box) !important; background-image: linear-gradient(160deg, rgba(147, 96, 227, .14), transparent 55%) !important;
+  border-color: rgba(157, 110, 228, .34) !important;
+}
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/learningCard"] .sx-data .sx-val:first-child { color: var(--acc) !important; }
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/learningCard"] .sx-data.sx-none .sx-val:first-child { color: var(--fg2) !important; }
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/learningCard"] .sx-data .sx-cap { color: var(--fg3) !important; }
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/learningCard"]:is(:hover, :focus-visible) .dashboard-item { border-color: var(--pri2) !important; }
+
+@media (max-width: 900px) {
+  html.sx.sx.sx dashboard-component .dashboard-item-container { grid-template-columns: minmax(0, 1fr); grid-auto-rows: auto; }
+  html.sx.sx.sx dashboard-component .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/learningCard"]) { grid-column: 1; grid-row: auto; }
+  html.sx.sx.sx dashboard-component .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/learningCard"]) .dashboard-item { padding: 26px 24px !important; }
+  html.sx .sx-hello-exam { width: 100%; }
+}
+
+/* ---------- Timetable: exam countdowns above the week ---------- */
+html.sx .sx-exams { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.15fr); gap: 16px; margin: 0 0 32px; }
+html.sx .sx-exam {
+  position: relative; display: flex; flex-direction: column; gap: 14px; min-width: 0; padding: 22px 24px 20px; box-sizing: border-box; overflow: hidden;
+  border-radius: 20px !important; background-color: var(--box) !important; border: 1px solid var(--line) !important; box-shadow: var(--shadow) !important;
+  animation: sx-rise 520ms var(--ease) both !important;
+}
+html.sx .sx-exam:nth-child(2) { animation-delay: 60ms !important; }
+html.sx .sx-exam:nth-child(3) { animation-delay: 120ms !important; }
+html.sx .sx-exam:nth-child(4) { animation-delay: 180ms !important; }
+html.sx .sx-exam-head { display: flex; flex-direction: column; gap: 2px; }
+html.sx .sx-exam-ka { font-size: 16px !important; font-weight: 500 !important; line-height: 1.3 !important; color: var(--fg) !important; }
+html.sx .sx-exam-en { font-size: 13px !important; color: var(--fg2) !important; }
+html.sx .sx-exam-count { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-top: auto; }
+html.sx .sx-exam-num { font-size: 56px !important; font-weight: 500 !important; line-height: 1 !important; letter-spacing: -0.04em !important; color: var(--fg) !important; }
+html.sx .sx-exam-unit { font-size: 15px !important; color: var(--fg2) !important; }
+html.sx .sx-exam-bar { height: 6px; border-radius: 999px !important; overflow: hidden; background-color: var(--line) !important; }
+html.sx .sx-exam-bar > i { display: block; height: 100%; min-width: 6px; border-radius: 999px !important; background-color: var(--pri) !important; background-image: linear-gradient(90deg, #9360E3, #B99CF3) !important; }
+html.sx .sx-exam-sub { font-size: 14px !important; color: var(--fg2) !important; }
+/* the nearest exam period is the purple one */
+html.sx .sx-exam[data-next] {
+  background-color: #7E4CD6 !important; background-image: linear-gradient(140deg, #8B57DE 0%, #7445CB 55%, #6238B6 100%) !important;
+  border-color: rgba(255, 255, 255, .16) !important; box-shadow: 0 20px 40px -22px rgba(123, 75, 208, .8) !important;
+}
+html.sx .sx-exam[data-next] :is(.sx-exam-ka, .sx-exam-num) { color: #fff !important; }
+html.sx .sx-exam[data-next] :is(.sx-exam-en, .sx-exam-unit, .sx-exam-sub) { color: rgba(255, 255, 255, .86) !important; }
+html.sx .sx-exam[data-next] .sx-exam-bar { background-color: rgba(255, 255, 255, .22) !important; }
+html.sx .sx-exam[data-next] .sx-exam-bar > i { background-color: #fff !important; background-image: none !important; }
+html.sx .sx-exam[data-state="now"] .sx-exam-num { font-size: 40px !important; }
+html.sx .sx-exam[data-state="none"] .sx-exam-num { color: var(--fg3) !important; }
+html.sx .sx-exam-off { background-color: transparent !important; border-style: dashed !important; border-color: #4A4D55 !important; box-shadow: none !important; }
+html.sx .sx-exam-offname { margin-top: auto; font-size: 24px !important; font-weight: 500 !important; line-height: 1.25 !important; letter-spacing: -0.015em !important; color: var(--acc) !important; overflow-wrap: anywhere; }
+@media (max-width: 1280px) { html.sx .sx-exams { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { html.sx .sx-exams { grid-template-columns: minmax(0, 1fr); } html.sx .sx-exam-num { font-size: 44px !important; } }
+
+/* ---------- Finances: countdown to the next payment ---------- */
+html.sx.sx .sx-fin { background-color: var(--box) !important; background-image: linear-gradient(160deg, rgba(147, 96, 227, .12), transparent 50%) !important; border-color: rgba(157, 110, 228, .3) !important; }
+html.sx.sx .sx-fin-head { flex-direction: row; align-items: stretch; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+html.sx .sx-fin-paidbox { display: flex; flex-direction: column; justify-content: center; gap: 6px; min-width: 0; }
+html.sx.sx .sx-fin-num { font-weight: 500 !important; letter-spacing: -0.03em !important; }
+html.sx.sx .sx-fin-bar > i { background-color: var(--pri) !important; background-image: linear-gradient(90deg, #9360E3, #B99CF3) !important; }
+html.sx .sx-fin-count {
+  display: flex; flex-direction: column; gap: 6px; min-width: 260px; padding: 20px 26px; box-sizing: border-box; border-radius: 20px !important;
+  background-color: #7E4CD6 !important; background-image: linear-gradient(140deg, #8B57DE 0%, #7445CB 55%, #6238B6 100%) !important;
+  box-shadow: 0 20px 40px -22px rgba(123, 75, 208, .8) !important;
+}
+html.sx.sx .sx-fin-count .sx-fin-cap { color: rgba(255, 255, 255, .86) !important; }
+html.sx .sx-fin-count-n { display: flex; align-items: baseline; gap: 10px; }
+html.sx .sx-fin-count-num { font-size: 60px !important; font-weight: 500 !important; line-height: 1 !important; letter-spacing: -0.04em !important; color: #fff !important; }
+html.sx .sx-fin-count-unit { font-size: 16px !important; color: rgba(255, 255, 255, .86) !important; }
+html.sx.sx .sx-fin-count .sx-fin-sub { color: rgba(255, 255, 255, .9) !important; font-size: 14px !important; }
+html.sx.sx .sx-fin-count.sx-late { background-color: #3A2433 !important; background-image: none !important; border: 1px solid var(--clay) !important; box-shadow: none !important; }
+html.sx.sx .sx-fin-count.sx-late :is(.sx-fin-count-num, .sx-fin-cap, .sx-fin-count-unit, .sx-fin-sub) { color: #F3C3DC !important; }
+@media (max-width: 640px) { html.sx .sx-fin-count { width: 100%; min-width: 0; } }
+
+/* ---------- Assignments page: one card per course, latest five folded underneath ---------- */
+html.sx.sx tasks-mini-component .width { max-width: 1120px !important; }
+html.sx.sx tasks-mini-component :is(mat-table, .mat-mdc-table).mat-elevation-z8 {
+  display: flex !important; flex-direction: column; gap: 16px; background-color: transparent !important; border: 0 !important; padding: 0 !important;
+  overflow: visible !important; border-radius: 0 !important; box-shadow: none !important;
+}
+html.sx.sx tasks-mini-component mat-header-row { display: none !important; }
+html.sx.sx.sx tasks-mini-component .mat-column-id { display: none !important; }
+html.sx.sx tasks-mini-component mat-row {
+  display: grid !important; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name act" "fold fold"; align-items: center; column-gap: 20px;
+  min-height: 0 !important; padding: 28px 32px !important; box-sizing: border-box; border-radius: 22px !important;
+  background-color: var(--box) !important; border: 1px solid var(--line) !important; box-shadow: var(--shadow) !important;
+  animation: sx-rise 480ms var(--ease) both !important; transition: border-color 180ms linear !important;
+}
+html.sx.sx tasks-mini-component mat-row:hover { border-color: rgba(157, 110, 228, .5) !important; }
+html.sx.sx tasks-mini-component mat-row mat-cell { padding: 0 !important; min-width: 0 !important; flex: none !important; }
+html.sx.sx tasks-mini-component mat-row .mat-column-name { grid-area: name; font-size: 28px !important; font-weight: 500 !important; line-height: 1.25 !important; letter-spacing: -0.02em !important; color: var(--fg) !important; }
+html.sx.sx tasks-mini-component mat-row .mat-column-actions { grid-area: act; justify-self: end; }
+html.sx.sx tasks-mini-component .mat-button-toggle-button {
+  display: grid !important; place-items: center; width: 52px !important; height: 52px !important; padding: 0 !important; border-radius: 999px !important; cursor: pointer;
+  background-color: rgba(155, 110, 232, .16) !important; box-shadow: inset 0 0 0 1px rgba(155, 110, 232, .38) !important;
+  transition: background-color 150ms linear !important;
+}
+html.sx.sx tasks-mini-component .mat-button-toggle-button:is(:hover, :focus-visible) { background-color: var(--btn) !important; }
+html.sx.sx tasks-mini-component .mat-button-toggle-button mat-icon { color: #D9CAFA !important; width: 24px !important; height: 24px !important; font-size: 24px !important; line-height: 24px !important; }
+html.sx.sx tasks-mini-component .mat-button-toggle-button:is(:hover, :focus-visible) mat-icon { color: #fff !important; }
+html.sx.sx tasks-mini-component .mat-button-toggle-label-content { padding: 0 !important; line-height: 1 !important; display: grid !important; place-items: center; }
+html.sx.sx tasks-mini-component .mat-mdc-paginator { margin-top: 8px; }
+
+html.sx .sx-tf { grid-area: fold; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line) !important; min-width: 0; }
+html.sx .sx-tf-sum {
+  display: inline-flex; align-items: center; gap: 12px; padding: 12px 18px; border-radius: 14px !important; cursor: pointer; list-style: none; user-select: none;
+  background-color: var(--well) !important; border: 1px solid var(--line) !important; transition: border-color 150ms linear, background-color 150ms linear !important;
+}
+html.sx .sx-tf-sum::-webkit-details-marker { display: none; }
+html.sx .sx-tf-sum:hover { border-color: var(--pri2) !important; background-color: #191A1C !important; }
+html.sx .sx-tf-label { font-size: 16px !important; color: var(--fg) !important; }
+html.sx .sx-tf-en { font-size: 13px !important; color: var(--fg2) !important; }
+html.sx .sx-tf-count { min-width: 26px; padding: 2px 9px; box-sizing: border-box; text-align: center; border-radius: 999px !important; background-color: var(--pri) !important; color: #fff !important; font-size: 13px !important; font-weight: 500 !important; }
+html.sx .sx-tf.sx-tf-none .sx-tf-count { background-color: var(--line) !important; color: var(--fg2) !important; }
