@@ -120,7 +120,7 @@ html.sx .width, html.sx student-tables-component {
   text-align: left !important;
 }
 /* The dashboard needs room for three columns; its header follows it */
-html.sx:has(dashboard-component, student-tables-component, program-view) :is(.width, student-tables-component) { max-width: var(--wide) !important; }
+html.sx:is(.sx-dash, .sx-tables, .sx-program) :is(.width, student-tables-component) { max-width: var(--wide) !important; }
 html.sx .all-page-container { padding-top: 96px !important; padding-bottom: 96px !important; min-height: 0 !important; }
 
 /* ---------- Header ---------- */
@@ -394,8 +394,8 @@ html.sx ::-webkit-scrollbar-thumb { background-color: var(--fg3) !important; bor
 
 /* Main boxes: each carries its own colour in --c */
 html.sx .dashboard-item-wrapper[href="/learningCard"] { --c: var(--acc); }
-html.sx .dashboard-item-wrapper[href="/tables"]       { --c: var(--tt); }
-html.sx .dashboard-item-wrapper[href="/tasks-books"]  { --c: var(--clay); }
+html.sx .dashboard-item-wrapper[href="/tables"]       { --c: var(--pri); }
+html.sx .dashboard-item-wrapper[href="/tasks-books"]  { --c: var(--pri); }
 html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) .dashboard-item {
   border-radius: var(--r-lg) !important;
   background-color: color-mix(in srgb, var(--c) 7%, var(--box)) !important;
@@ -787,7 +787,7 @@ html.sx.sx-enter .dashboard-item-wrapper[href="/tasks-books"] { animation-delay:
 }
 
 /* ---------- Timetable page: no empty gap above the week ---------- */
-html.sx:has(student-tables-component) .all-page-container { padding-top: 32px !important; }
+html.sx.sx-tables .all-page-container { padding-top: 32px !important; }
 html.sx student-tables-component > div > :is(br, mat-divider) { display: none !important; }
 html.sx .calendar-navigation { justify-content: flex-start !important; gap: 12px !important; margin: 0 0 24px !important; padding: 0 !important; }
 html.sx .calendar-navigation > div { flex: 0 0 auto !important; width: auto !important; margin: 0 !important; padding: 0 !important; float: none !important; display: flex !important; align-items: center; }
@@ -890,7 +890,7 @@ html.sx.sx .semester-child .mat-column-expandedDetail > * { padding: 4px 0 12px 
 /* ---------- Dashboard: nav bar on top, only the three big boxes below ---------- */
 html.sx .dashboard-item-wrapper:not([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) { display: none !important; }
 html.sx dashboard-component .dashboard-item-container { padding-top: 24px !important; }
-html.sx:has(dashboard-component) .all-page-container { padding-top: 48px !important; }
+html.sx.sx-dash .all-page-container { padding-top: 48px !important; }
 
 /* ---------- Header: no greeting; name in a box that opens the site's user menu ---------- */
 html.sx .hello-text { display: none !important; }
@@ -928,12 +928,12 @@ html.sx.sx .user-subMenu > a.sx-um-logout { color: var(--clay) !important; }
 
 /* ---------- Timetable & exam routes: full width next to the rail ----------
    Header, nav and content all use .width, so lifting its cap keeps one shared edge. */
-html.sx.sx:has(tables-dashboard-component) :is(.width, student-tables-component) {
+html.sx.sx.sx-ttdash :is(.width, student-tables-component) {
   max-width: none !important; padding-inline: 32px !important;
 }
 html.sx student-tables-component > div { padding-inline: 0 !important; margin-inline: 0 !important; }
 @media (max-width: 520px) {
-  html.sx.sx:has(tables-dashboard-component) :is(.width, student-tables-component) { padding-inline: 16px !important; }
+  html.sx.sx.sx-ttdash :is(.width, student-tables-component) { padding-inline: 16px !important; }
 }
 
 /* Phones: keep the name box, just shorter */
@@ -943,8 +943,8 @@ html.sx student-tables-component > div { padding-inline: 0 !important; margin-in
 }
 
 /* ---------- Main page: a little wider than reading pages ---------- */
-html.sx.sx:has(dashboard-component) .width { max-width: min(1440px, 92vw) !important; padding-inline: 32px !important; }
-@media (max-width: 520px) { html.sx.sx:has(dashboard-component) .width { padding-inline: 16px !important; } }
+html.sx.sx.sx-dash .width { max-width: min(1440px, 92vw) !important; padding-inline: 32px !important; }
+@media (max-width: 520px) { html.sx.sx.sx-dash .width { padding-inline: 16px !important; } }
 
 /* ---------- Learning card header: title, programme selector, grouping toggle ---------- */
 html.sx.sx .page-learningCard > .semesters-container {
@@ -1409,7 +1409,7 @@ html.sx .mdc-switch__handle::before, html.sx .mdc-switch__handle::after { backgr
 
 /* ---------- Main page: greeting, then three boxes ---------- */
 html.sx.sx.sx .dashboard-item-wrapper[href="/finances"] { display: none !important; }
-html.sx.sx:has(dashboard-component) .all-page-container { padding-top: 40px !important; }
+html.sx.sx.sx-dash .all-page-container { padding-top: 40px !important; }
 html.sx .sx-hello {
   display: flex; align-items: flex-end; justify-content: space-between; gap: 24px 40px; flex-wrap: wrap;
   margin: 0 0 32px; animation: sx-rise 520ms var(--ease) both !important;
@@ -1437,12 +1437,15 @@ html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tables"] { grid
 html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] { grid-column: 2; grid-row: 1; animation-delay: 140ms !important; }
 html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/learningCard"] { grid-column: 2; grid-row: 2; animation-delay: 220ms !important; --c: var(--acc); }
 html.sx.sx.sx dashboard-component .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/learningCard"]) .dashboard-item {
-  position: relative !important; overflow: hidden; height: 100% !important; min-height: 0; padding: 32px 36px !important; border-radius: 24px !important;
+  position: relative !important; overflow: hidden; height: 100% !important; min-height: 0; padding: 40px 44px !important; border-radius: 24px !important;
   box-shadow: var(--shadow) !important;
   transition: transform 220ms var(--ease), border-color 180ms linear, box-shadow 220ms linear, background-color 180ms linear !important;
 }
+/* Lifted box must paint above the sticky nav bar (z-index 45), not slide under it */
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/learningCard"]):is(:hover, :focus-visible) { position: relative; z-index: 50; }
 html.sx.sx.sx dashboard-component .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/learningCard"]):is(:hover, :focus-visible) .dashboard-item {
-  transform: translateY(-4px) !important; box-shadow: 0 28px 48px -24px rgba(0, 0, 0, .8) !important;
+  transform: translateY(-4px) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04), 0 -16px 40px -24px rgba(0, 0, 0, .7), 0 28px 48px -24px rgba(0, 0, 0, .8) !important;
 }
 /* title row: section name left, arrow right */
 html.sx.sx.sx dashboard-component .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/learningCard"]) .title {
@@ -1465,21 +1468,23 @@ html.sx.sx.sx dashboard-component .sx-data .sx-cap { font-size: 13px !important;
 /* nothing new: a quiet line instead of a big value */
 html.sx.sx.sx dashboard-component .sx-data.sx-none .sx-val:first-child { font-size: 22px !important; font-weight: 400 !important; letter-spacing: -0.01em !important; color: var(--fg2) !important; }
 
-/* Assignments: the purple section of the page */
-html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] .dashboard-item {
-  background-color: #7E4CD6 !important; background-image: linear-gradient(140deg, #8B57DE 0%, #7445CB 55%, #6238B6 100%) !important;
-  border-color: rgba(255, 255, 255, .16) !important; box-shadow: 0 24px 48px -24px rgba(123, 75, 208, .75) !important;
+/* დავალებები box: lecturer → course → title → quoted description → meta */
+html.sx.sx.sx dashboard-component .sx-data :is(.sx-who, .sx-course, .sx-task-title, .sx-task-desc, .sx-task-meta) { display: block; }
+html.sx.sx.sx dashboard-component .sx-data .sx-who { font-size: 13px !important; font-weight: 500 !important; color: var(--acc) !important; }
+html.sx.sx.sx dashboard-component .sx-data .sx-course { font-size: 15px !important; color: var(--fg2) !important; }
+html.sx.sx.sx dashboard-component .sx-data .sx-task-title { margin: 6px 0 4px; font-size: 20px !important; font-weight: 500 !important; letter-spacing: -0.01em !important; color: var(--fg) !important; }
+html.sx.sx.sx dashboard-component .sx-data .sx-task-desc {
+  padding-left: 12px; border-left: 2px solid color-mix(in srgb, var(--pri) 55%, var(--line));
+  font-size: 14px !important; line-height: 1.55 !important; color: var(--fg2) !important;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
 }
-html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] .dashboard-item::before {
-  content: ""; position: absolute; right: -90px; top: -90px; width: 280px; height: 280px; border-radius: 999px !important; pointer-events: none;
-  border: 1px solid rgba(255, 255, 255, .18) !important; box-shadow: 0 0 0 44px rgba(255, 255, 255, .05), 0 0 0 96px rgba(255, 255, 255, .035) !important;
+html.sx.sx.sx dashboard-component .sx-data .sx-task-meta { margin-top: 12px; font-size: 13px !important; color: var(--fg3) !important; }
+html.sx.sx.sx dashboard-component .sx-data .sx-taskbox {
+  margin-top: 8px; padding: 14px 16px; box-sizing: border-box; border-radius: 14px !important;
+  background-color: rgba(255, 255, 255, .045) !important; border: 1px solid rgba(255, 255, 255, .14) !important;
 }
-html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] :is(.title, .sx-data) { position: relative !important; }
-html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] .title { color: rgba(255, 255, 255, .88) !important; border-bottom-color: rgba(255, 255, 255, .24) !important; }
-html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] .sx-data .sx-val { color: rgba(255, 255, 255, .9) !important; }
-html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] .sx-data .sx-val:first-child { color: #fff !important; }
-html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] .sx-data .sx-cap { color: rgba(255, 255, 255, .8) !important; }
-html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"]:is(:hover, :focus-visible) .dashboard-item { border-color: rgba(255, 255, 255, .4) !important; }
+html.sx.sx.sx dashboard-component .sx-data .sx-taskbox .sx-task-title { margin-top: 0; }
+html.sx.sx.sx dashboard-component .sx-data .sx-taskbox .sx-task-desc { margin-top: 8px; }
 
 /* Learning card: dark surface, lavender edge */
 html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/learningCard"] .dashboard-item {
@@ -1494,12 +1499,12 @@ html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/learningCard"]:
 @media (max-width: 900px) {
   html.sx.sx.sx dashboard-component .dashboard-item-container { grid-template-columns: minmax(0, 1fr); grid-auto-rows: auto; }
   html.sx.sx.sx dashboard-component .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/learningCard"]) { grid-column: 1; grid-row: auto; }
-  html.sx.sx.sx dashboard-component .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/learningCard"]) .dashboard-item { padding: 26px 24px !important; }
+  html.sx.sx.sx dashboard-component .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/learningCard"]) .dashboard-item { padding: 30px 28px !important; }
   html.sx .sx-hello-exam { width: 100%; }
 }
 
 /* ---------- Timetable: exam countdowns above the week ---------- */
-html.sx .sx-exams { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.15fr); gap: 16px; margin: 0 0 32px; }
+html.sx .sx-exams { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 0 0 32px; }
 html.sx .sx-exam {
   position: relative; display: flex; flex-direction: column; gap: 14px; min-width: 0; padding: 22px 24px 20px; box-sizing: border-box; overflow: hidden;
   border-radius: 20px !important; background-color: var(--box) !important; border: 1px solid var(--line) !important; box-shadow: var(--shadow) !important;
