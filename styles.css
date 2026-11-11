@@ -1303,3 +1303,148 @@ html.sx.sx registration-routes-component :is(.program-module-item, .program-grou
 /* credit counters as chips */
 html.sx.sx registration-routes-component :is(.program-module-item, .program-group-item) .ects > * {
   display: inline-block; padding: 3px 12px !important; border-radius: 999px !important; white-space: nowrap; background-color: var(--bg) !important;
+}
+html.sx.sx registration-routes-component :is(.program-module-item, .program-group-item) .ects :is(b, span) { font-family: var(--serif) !important; font-size: 15px !important; font-weight: 400 !important; color: var(--fg) !important; }
+/* course rows */
+html.sx.sx registration-routes-component .program-book-wrapper .program-header { border-bottom: 1px solid var(--line) !important; transition: background-color 150ms linear !important; border-radius: 10px !important; }
+html.sx.sx registration-routes-component .program-book-wrapper .program-header:hover { background-color: var(--box-hi) !important; }
+html.sx.sx registration-routes-component .program-book-wrapper .num { color: var(--fg3) !important; font-size: 13px !important; }
+html.sx.sx registration-routes-component .program-book-wrapper .book-title { font-family: var(--serif) !important; font-size: 17px !important; color: var(--fg) !important; }
+html.sx.sx registration-routes-component .program-book-wrapper .book-title * { font-family: inherit !important; }
+html.sx.sx registration-routes-component .program-book-wrapper .ects { font-family: var(--serif) !important; color: var(--fg2) !important; white-space: nowrap; }
+html.sx.sx registration-routes-component .program-book-wrapper .ects * { font-family: inherit !important; }
+html.sx.sx registration-routes-component .program-book-wrapper .conditions { font-size: 13px !important; color: var(--fg3) !important; overflow-wrap: anywhere; }
+/* status mark: passed (✓) sage, chosen (👍) ochre, open = empty ring */
+html.sx.sx registration-routes-component .program-panel { display: grid !important; place-items: center; }
+html.sx.sx registration-routes-component .program-book-wrapper .program-panel button {
+  display: grid !important; place-items: center; width: 28px !important; height: 28px !important; min-width: 0 !important; padding: 0 !important;
+  border-radius: 999px !important; border: 1px dashed var(--line) !important;
+}
+html.sx.sx registration-routes-component .program-book-wrapper .program-panel mat-icon { width: 18px !important; height: 18px !important; font-size: 18px !important; line-height: 18px !important; }
+html.sx.sx registration-routes-component [data-sx-st="done"] .program-panel button { border: 0 !important; background-color: color-mix(in srgb, var(--sage) 22%, var(--box)) !important; }
+html.sx.sx registration-routes-component [data-sx-st="done"] .program-panel mat-icon { color: var(--sage) !important; }
+html.sx.sx registration-routes-component [data-sx-st="chosen"] .program-panel button { border: 0 !important; background-color: color-mix(in srgb, var(--acc) 22%, var(--box)) !important; }
+html.sx.sx registration-routes-component [data-sx-st="chosen"] .program-panel mat-icon { color: var(--acc) !important; }
+html.sx.sx registration-routes-component [data-sx-st="chosen"] .program-header { background-color: color-mix(in srgb, var(--acc) 7%, var(--box)) !important; }
+html.sx.sx registration-routes-component [data-sx-st="done"] .book-title { color: var(--fg2) !important; }
+/* totals under the tree: two tiles */
+html.sx.sx registration-routes-component .program-wrapper > div { display: flex; flex-direction: column; }
+html.sx.sx registration-routes-component .program-wrapper div:has(> h3) {
+  margin: 20px 0 0 !important; padding: 16px 20px !important; border-radius: 12px !important; text-align: left !important;
+  background-color: var(--bg) !important; border: 1px solid var(--line) !important;
+}
+html.sx.sx registration-routes-component .program-wrapper div:has(> h3) + div:has(> h3) { margin-top: 10px !important; }
+/* <h3><span>label</span> number</h3>: the number is the h3's own text */
+html.sx.sx registration-routes-component .program-wrapper h3 {
+  display: flex !important; align-items: baseline; justify-content: space-between; gap: 16px; margin: 0 !important; text-align: left !important;
+  font-family: var(--serif) !important; font-size: 26px !important; line-height: 1.2 !important; color: var(--acc) !important;
+}
+html.sx.sx registration-routes-component .program-wrapper h3 > span { font-family: var(--sans) !important; font-size: 14px !important; line-height: 1.4 !important; color: var(--fg2) !important; }
+@media (max-width: 700px) {
+  html.sx registration-routes-component .info { grid-template-columns: minmax(0, 1fr); }
+  html.sx.sx registration-routes-component .academic-menu { border-radius: 18px !important; }
+}
+
+
+/* ================= Midnight Lavender ================= */
+/* Charcoal foundation with purple sections: soft glow behind the page, gradient fills on the
+   active page and primary actions, soft shadows under boxes. Timetable colours are untouched. */
+
+html.sx.sx body {
+  background: radial-gradient(900px 480px at 88% -8%, rgba(147, 96, 227, .20), transparent 62%),
+              radial-gradient(700px 420px at -6% 22%, rgba(157, 110, 228, .09), transparent 60%), var(--bg) !important;
+  background-attachment: fixed !important;
+}
+html.sx ::selection { background-color: var(--pri) !important; color: #fff !important; }
+
+/* Header + nav: translucent, so the glow shows through */
+html.sx.sx user-menu-component { background-color: rgba(28, 30, 31, .78) !important; backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); }
+html.sx.sx .topMenuTo { background-color: transparent !important; }
+/* the bar may be wider than a reading column, so five sections and "More" always fit */
+html.sx.sx user-menu-component .topMenuTo .width { max-width: var(--wide) !important; }
+html.sx.sx .topMenuItems { gap: 6px !important; padding: 12px 0 !important; }
+html.sx.sx :is(.topMenuItem > a, .sx-more-btn) { padding: 10px 18px !important; }
+html.sx.sx :is(.topMenuItem > a.active, .sx-more.sx-active > .sx-more-btn) {
+  background-color: var(--pri) !important; background-image: var(--grad) !important; color: #fff !important;
+  box-shadow: 0 8px 22px -10px rgba(147, 96, 227, .85) !important;
+}
+html.sx.sx .topMenuItem > a .notify {
+  display: inline-block !important; padding: 1px 9px !important; border-radius: 999px !important;
+  background-color: rgba(147, 96, 227, .26) !important; color: #E3D7FB !important; font-size: 13px !important;
+}
+html.sx.sx .topMenuItem > a.active .notify { background-color: rgba(255, 255, 255, .24) !important; color: #fff !important; }
+html.sx.sx .topMenuItem > a .notify[data-sx-zero] { display: none !important; }
+html.sx.sx .sx-more-menu, html.sx.sx.sx .user-subMenu { box-shadow: 0 24px 48px -20px rgba(0, 0, 0, .8) !important; }
+html.sx.sx .sx-more-item.sx-active { background-color: rgba(147, 96, 227, .18) !important; }
+
+/* Boxes: soft shadow */
+html.sx :is(.mat-elevation-z8, .personalDataList .card, .mat-expansion-panel, .ini-block, .calendar, .program-wrapper,
+            .semester-wrapper, .template_panel, .page-messages, .sx-fin, .semesters-container, .info-Container) { box-shadow: var(--shadow) !important; }
+html.sx :is(.mat-elevation-z8, .mat-expansion-panel) :is(.mat-elevation-z8, .mat-expansion-panel),
+html.sx.sx student-tables-component .calendar, html.sx.sx ac-tables-component .mat-elevation-z8 { box-shadow: none !important; }
+html.sx :is(.mat-mdc-dialog-surface, .mat-mdc-select-panel, .mat-mdc-menu-panel, .mat-datepicker-content) { box-shadow: 0 28px 64px -24px rgba(0, 0, 0, .85) !important; }
+
+/* Buttons: tinted purple, solid on hover; the main action of a dialog is solid */
+html.sx.sx :is(.mat-mdc-raised-button, .mat-mdc-unelevated-button, .mat-mdc-outlined-button, .details-button, .ini-button, .create_new_journal):not(:disabled, .mat-mdc-button-disabled, .day-title) {
+  background-color: rgba(155, 110, 232, .16) !important; color: #D9CAFA !important; box-shadow: inset 0 0 0 1px rgba(155, 110, 232, .38) !important;
+}
+html.sx.sx :is(.mat-mdc-raised-button, .mat-mdc-unelevated-button, .mat-mdc-outlined-button, .details-button, .ini-button, .create_new_journal):not(:disabled, .mat-mdc-button-disabled, .day-title):is(:hover, :focus-visible) {
+  background-color: var(--btn) !important; background-image: var(--grad) !important; color: #fff !important; box-shadow: 0 8px 20px -10px rgba(147, 96, 227, .8) !important;
+}
+html.sx.sx alert-dialog .mat-mdc-dialog-actions .mat-mdc-button-base,
+html.sx.sx alert-dialog .mat-mdc-dialog-actions .mat-mdc-button-base:is(:hover, :focus-visible) {
+  background-color: var(--btn) !important; background-image: var(--grad) !important; color: #fff !important; box-shadow: 0 8px 20px -10px rgba(147, 96, 227, .8) !important;
+}
+html.sx.sx .sx-w-go { background-color: var(--btn) !important; background-image: var(--grad) !important; color: #fff !important; box-shadow: 0 14px 30px -12px rgba(147, 96, 227, .85) !important; }
+html.sx.sx .sx-w-go:hover { background-color: var(--btn) !important; filter: brightness(1.08); }
+html.sx .sx-w-off input { accent-color: var(--btn); }
+html.sx :is(a:focus-visible, button:focus-visible, summary:focus-visible) { outline: 2px solid var(--acc) !important; outline-offset: 3px; }
+
+/* Switches: the reset removes their fills, so give the track and handle a colour again */
+html.sx .mdc-switch__track { border-radius: 999px !important; overflow: hidden; }
+html.sx .mdc-switch__track::before { background-color: #4A4D55 !important; }
+html.sx .mdc-switch__track::after { background-color: var(--btn) !important; }
+html.sx :is(.mdc-switch__handle, .mdc-switch__shadow) { border-radius: 999px !important; }
+html.sx .mdc-switch__handle::before, html.sx .mdc-switch__handle::after { background-color: #F2EDEF !important; border-radius: 999px !important; }
+
+/* ---------- Main page: greeting, then three boxes ---------- */
+html.sx.sx.sx .dashboard-item-wrapper[href="/finances"] { display: none !important; }
+html.sx.sx:has(dashboard-component) .all-page-container { padding-top: 40px !important; }
+html.sx .sx-hello {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 24px 40px; flex-wrap: wrap;
+  margin: 0 0 32px; animation: sx-rise 520ms var(--ease) both !important;
+}
+html.sx .sx-hello-text { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+html.sx .sx-hello-date { font-size: 15px !important; color: var(--acc) !important; }
+html.sx.sx .sx-hello-title { margin: 0 !important; font-size: clamp(36px, 4.6vw, 60px) !important; font-weight: 500 !important; line-height: 1.08 !important; letter-spacing: -0.035em !important; color: var(--fg) !important; }
+html.sx .sx-hello-line { margin: 6px 0 0; font-size: 18px !important; color: var(--fg2) !important; }
+html.sx .sx-hello-exam {
+  display: grid; grid-template-columns: auto; gap: 2px; padding: 16px 22px; border-radius: 18px !important; min-width: 240px; box-sizing: border-box;
+  background-color: var(--box) !important; border: 1px solid var(--line) !important; box-shadow: var(--shadow) !important;
+}
+html.sx .sx-hello-exam-cap { font-size: 13px !important; color: var(--fg2) !important; }
+html.sx .sx-hello-exam-val { font-size: 28px !important; font-weight: 500 !important; line-height: 1.2 !important; letter-spacing: -0.02em !important; color: var(--acc) !important; }
+html.sx .sx-hello-exam-sub { font-size: 13px !important; color: var(--fg3) !important; }
+
+html.sx.sx.sx dashboard-component .dashboard-item-container {
+  display: grid !important; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); grid-auto-rows: minmax(220px, auto);
+  gap: 20px !important; padding: 0 !important;
+}
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/learningCard"]) {
+  margin: 0 !important; min-width: 0; animation: sx-rise 560ms var(--ease) both !important;
+}
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tables"] { grid-column: 1; grid-row: 1 / span 2; animation-delay: 60ms !important; }
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] { grid-column: 2; grid-row: 1; animation-delay: 140ms !important; }
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/learningCard"] { grid-column: 2; grid-row: 2; animation-delay: 220ms !important; --c: var(--acc); }
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/learningCard"]) .dashboard-item {
+  position: relative !important; overflow: hidden; height: 100% !important; min-height: 0; padding: 32px 36px !important; border-radius: 24px !important;
+  box-shadow: var(--shadow) !important;
+  transition: transform 220ms var(--ease), border-color 180ms linear, box-shadow 220ms linear, background-color 180ms linear !important;
+}
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/learningCard"]):is(:hover, :focus-visible) .dashboard-item {
+  transform: translateY(-4px) !important; box-shadow: 0 28px 48px -24px rgba(0, 0, 0, .8) !important;
+}
+/* title row: section name left, arrow right */
+html.sx.sx.sx dashboard-component .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/learningCard"]) .title {
+  display: flex !important; align-items: center; justify-content: space-between; gap: 16px;
+  font-size: 15px !important; padding-bottom: 18px !important;
