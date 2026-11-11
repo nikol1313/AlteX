@@ -288,3 +288,148 @@ html.sx :is(.mat-elevation-z8, .personalDataList .card, .mat-expansion-panel, .i
   background-color: var(--box) !important; border: 1px solid var(--line) !important;
   padding: 28px 32px !important; box-sizing: border-box !important;
 }
+html.sx :is(.mat-elevation-z8, .mat-expansion-panel) :is(.mat-elevation-z8, .mat-expansion-panel) { background-color: transparent !important; border-color: transparent !important; padding: 0 !important; }
+
+/* ---------- Tables: space instead of lines ---------- */
+html.sx :is(.mat-mdc-table, mat-table, table) { width: 100% !important; }
+html.sx :is(.semester-child, .mat-elevation-z8, .curation_cont, .program-wrapper, .calendar) { overflow-x: auto !important; }
+html.sx :is(mat-header-row, .mat-mdc-header-row) { min-height: 0 !important; padding: 0 0 8px !important; }
+html.sx :is(mat-header-cell, .mat-mdc-header-cell, th) { color: var(--fg3) !important; font-size: 15px !important; padding: 0 12px 0 0 !important; text-align: left !important; }
+html.sx :is(mat-row, .mat-mdc-row) { min-height: 0 !important; padding: 10px 0 !important; }
+html.sx :is(mat-row, .mat-mdc-row):has(> .mat-column-expandedDetail) { padding: 0 !important; }
+html.sx :is(mat-cell, .mat-mdc-cell, td) { padding: 0 12px 0 0 !important; color: var(--fg) !important; }
+html.sx :is(mat-cell, .mat-mdc-cell, mat-header-cell, .mat-mdc-header-cell, td, th) { min-width: 0 !important; overflow-wrap: anywhere !important; overflow: visible !important; }
+html.sx :is(mat-cell, .mat-mdc-cell, mat-header-cell, .mat-mdc-header-cell, td, th) * { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
+html.sx :is(.curation_cont, .curation_cont *) { text-align: left !important; }
+html.sx .mat-mdc-paginator { color: var(--fg2) !important; }
+
+/* Learning card */
+html.sx .semesters-container { align-items: flex-end !important; margin-bottom: 48px !important; }
+html.sx .semesters { gap: 8px; }
+html.sx .semester-child { margin-bottom: 24px !important; }
+html.sx .semester-child :is(mat-header-row, .mat-mdc-header-row) .mat-column-bookName { color: var(--fg) !important; font-weight: 500 !important; }
+html.sx .semester-child :is(mat-header-row, .mat-mdc-header-row) .mat-column-bookName * { color: inherit !important; font-weight: inherit !important; }
+html.sx :is(mat-cell, .mat-mdc-cell).mat-column-bookName { font-family: var(--serif) !important; font-size: 17px !important; }
+html.sx :is(mat-cell, .mat-mdc-cell):is(.mat-column-prof, .mat-column-credit) { color: var(--fg2) !important; font-size: 14px !important; }
+html.sx :is(mat-cell, .mat-mdc-cell).mat-column-prof * { color: inherit !important; font-size: inherit !important; text-align: left !important; }
+html.sx .mat-column-prof { justify-content: flex-start !important; text-align: left !important; }
+/* learning card column proportions within 720px */
+html.sx .semester-child .mat-column-bookName { flex: 1.7 1 0 !important; }
+html.sx .semester-child .mat-column-prof { flex: 1.2 1 0 !important; }
+html.sx .semester-child :is(.mat-column-credit, .mat-column-score, .mat-column-result) { flex: 0 0 96px !important; justify-content: flex-start !important; }
+html.sx .semester-child .mat-column-details { flex: 0 0 150px !important; justify-content: flex-end !important; }
+html.sx :is(mat-cell, .mat-mdc-cell).mat-column-score { font-family: var(--serif) !important; }
+html.sx .result-color { display: inline !important; width: auto !important; height: auto !important; padding: 0 !important; font-family: var(--serif) !important; color: var(--fg) !important; }
+html.sx .book-label { color: var(--fg3) !important; }
+html.sx .result-color:is([data-grade="F"], [data-grade="FX"]) { color: var(--acc) !important; }
+html.sx .ini-block { margin-top: 24px; }
+html.sx .last-stat h3 { display: flex; align-items: baseline; gap: 12px; margin: 0 0 8px !important; font-size: 14px !important; color: var(--fg2) !important; letter-spacing: 0 !important; }
+html.sx .last-stat h3 mat-icon { display: none !important; }
+html.sx .last-stat h3 span:last-child { font-family: var(--serif) !important; font-size: 18px !important; color: var(--fg) !important; }
+
+/* Personal data */
+html.sx .personalDataList .card { margin: 0 !important; height: auto !important; }
+html.sx .listMenu { display: grid !important; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+html.sx .listMenu > :first-child { grid-column: 1 / -1; }
+html.sx .listMenu > * { width: auto !important; max-width: none !important; margin: 0 !important; }
+html.sx mat-progress-spinner circle { stroke: var(--fg2) !important; }
+html.sx .spinner-value { font-family: var(--serif) !important; font-size: 23px !important; color: var(--fg) !important; }
+html.sx .spinner-value * { font-family: var(--serif) !important; font-size: inherit !important; color: var(--fg2) !important; }
+html.sx .status-text { color: var(--fg3) !important; font-size: 13px !important; }
+html.sx .student-name, html.sx .student-name * { font-size: 23px !important; font-weight: 500 !important; letter-spacing: -0.015em !important; color: var(--fg) !important; }
+html.sx :is(.program-name, .doc-links, .doc-links *) { color: var(--fg2) !important; font-size: 14px !important; }
+html.sx .user-avatar-image img { border-radius: 999px !important; }
+html.sx .student-card-qr { display: flex !important; justify-content: flex-start !important; text-align: left !important; }
+html.sx .profile-data-line .title { color: var(--fg3) !important; font-size: 14px !important; }
+
+/* Finances */
+html.sx .wrapper-row { color: var(--fg) !important; }
+html.sx .mat-expansion-panel { margin: 0 0 16px !important; padding: 20px 32px !important; }
+html.sx .mat-expansion-panel-header { padding: 0 !important; height: auto !important; min-height: 48px !important; }
+
+/* Tabs: state by colour only */
+html.sx :is(.mdc-tab__text-label, .mdc-tab__text-label *) { color: var(--fg2) !important; }
+html.sx .mdc-tab--active :is(.mdc-tab__text-label, .mdc-tab__text-label *) { color: var(--fg) !important; }
+html.sx :is(.tables-tab-menu, .exam-type-links, .exam-type-link-wrapper, .page-messages ul, .academic-menu) :is(a, div, li) { color: var(--fg2) !important; }
+html.sx :is(.tables-tab-menu, .exam-type-links, .exam-type-link-wrapper, .page-messages ul, .academic-menu) :is(.active, .first, li.active > a) { color: var(--fg) !important; }
+html.sx :is(.program-header-item, .academic-menu-item) { color: var(--fg2) !important; }
+html.sx :is(.program-header-item, .academic-menu-item).active { color: var(--fg) !important; }
+
+/* Calendar / timetable */
+html.sx :is(.day-name, .status-text) { color: var(--fg3) !important; font-size: 13px !important; }
+html.sx .day-number, html.sx .day-number * { font-family: var(--serif) !important; font-size: 23px !important; color: var(--fg2) !important; }
+html.sx .now .day-number, html.sx .now .day-number * { color: var(--acc) !important; }
+html.sx :is(.event, .eventMine), html.sx :is(.event, .eventMine) * { font-family: var(--serif) !important; color: var(--fg) !important; font-size: 15px !important; }
+html.sx :is(.day-item, .week_tbody_td) { padding: 8px 12px 16px 0 !important; color: var(--fg2) !important; overflow-wrap: anywhere !important; min-width: 0 !important; }
+
+/* Study programme */
+html.sx :is(.module-header, .group-header) { color: var(--fg) !important; font-weight: 500 !important; padding: 24px 0 8px !important; }
+html.sx .pr__code { color: var(--fg3) !important; }
+
+/* Form fields */
+html.sx .mat-mdc-form-field { margin-bottom: 8px; }
+html.sx :is(.mat-mdc-floating-label, .mdc-floating-label, .mat-mdc-floating-label *) { color: var(--fg3) !important; font-size: 14px !important; }
+html.sx :is(.mat-mdc-select-value, .mat-mdc-input-element, .mat-mdc-select-value *) { color: var(--fg) !important; }
+html.sx :is(.mdc-text-field, .mat-mdc-form-field-flex) { padding-left: 0 !important; }
+
+/* Overlays keep the page colour so they stay readable */
+html.sx :is(.mat-mdc-dialog-surface, .mat-mdc-select-panel, .mat-mdc-menu-panel, .mat-datepicker-content, .mat-mdc-autocomplete-panel) { background-color: var(--bg) !important; }
+html.sx .cdk-overlay-backdrop.cdk-overlay-backdrop-showing { background-color: rgba(14, 15, 16, .82) !important; }
+html.sx .mat-mdc-dialog-title::before { display: none !important; }
+html.sx :is(.mat-mdc-option, .mat-mdc-menu-item) { color: var(--fg2) !important; transition: color 150ms linear !important; }
+html.sx :is(.mat-mdc-option, .mat-mdc-menu-item):is(:hover, .mdc-list-item--selected) { color: var(--fg) !important; }
+html.sx .mat-mdc-tooltip-surface, html.sx .mdc-tooltip__surface { background-color: var(--fg) !important; color: var(--bg) !important; }
+
+/* Footer */
+html.sx footer { position: static !important; }
+html.sx .footer-text { color: var(--fg3) !important; font-size: 13px !important; padding: 48px 24px !important; }
+
+/* Scrollbars */
+html.sx ::-webkit-scrollbar { width: 10px; height: 10px; }
+html.sx ::-webkit-scrollbar-thumb { background-color: var(--fg3) !important; border: 3px solid var(--bg) !important; border-radius: 999px !important; }
+
+/* ---------- Colour & shape ----------
+   Three muted earth tones, each tied to one main section and reused with the
+   same meaning elsewhere. Tints are mixed into the box colour; no gradients. */
+
+/* Main boxes: each carries its own colour in --c */
+html.sx .dashboard-item-wrapper[href="/learningCard"] { --c: var(--acc); }
+html.sx .dashboard-item-wrapper[href="/tables"]       { --c: var(--tt); }
+html.sx .dashboard-item-wrapper[href="/tasks-books"]  { --c: var(--clay); }
+html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) .dashboard-item {
+  border-radius: var(--r-lg) !important;
+  background-color: color-mix(in srgb, var(--c) 7%, var(--box)) !important;
+  border-color: color-mix(in srgb, var(--c) 22%, var(--line)) !important;
+}
+html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]):is(:hover, :focus-visible) .dashboard-item {
+  background-color: color-mix(in srgb, var(--c) 11%, var(--box)) !important;
+  border-color: var(--c) !important;
+}
+html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) .title { border-bottom-color: color-mix(in srgb, var(--c) 35%, var(--line)) !important; }
+html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) .sx-data .sx-val:first-child { color: var(--c) !important; }
+html.sx .dashboard-item-wrapper:is([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) .sx-data .sx-cap { color: color-mix(in srgb, var(--c) 55%, var(--fg3)) !important; }
+
+/* Small boxes: rounded; on hover each takes one of the three tones, in turn */
+html.sx .dashboard-item-wrapper:not([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]) .dashboard-item { border-radius: var(--r) !important; }
+html.sx .dashboard-item-wrapper:not([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]):nth-child(3n+1) { --c: var(--sage); }
+html.sx .dashboard-item-wrapper:not([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]):nth-child(3n+2) { --c: var(--acc); }
+html.sx .dashboard-item-wrapper:not([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]):nth-child(3n)   { --c: var(--clay); }
+html.sx .dashboard-item-wrapper:not([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]):is(:hover, :focus-visible) .dashboard-item {
+  background-color: color-mix(in srgb, var(--c) 9%, var(--box)) !important;
+  border-color: color-mix(in srgb, var(--c) 60%, var(--line)) !important;
+}
+html.sx .dashboard-item-wrapper:not([href="/learningCard"], [href="/tables"], [href="/tasks-books"], [href="/finances"]):is(:hover, :focus-visible) .title { color: var(--c) !important; }
+
+/* Inner-page boxes and overlays */
+html.sx :is(.mat-elevation-z8, .personalDataList .card, .mat-expansion-panel, .ini-block,
+            student-tables-component .mat-mdc-card, .calendar, .program-wrapper, .semester-wrapper, .template_panel, .page-messages) {
+  border-radius: var(--r-lg) !important; overflow: hidden;
+}
+html.sx .mat-expansion-panel { border-radius: var(--r) !important; }
+html.sx :is(.mat-mdc-dialog-surface, .mat-mdc-select-panel, .mat-mdc-menu-panel, .mat-datepicker-content) {
+  border-radius: var(--r) !important; border: 1px solid var(--line) !important; background-color: var(--box) !important;
+}
+
+/* Grades: a three-step scale */
+html.sx .result-color:is([data-grade="A"], [data-grade="B"]) { color: var(--sage) !important; }
+html.sx .result-color:is([data-grade="C"], [data-grade="D"]) { color: var(--fg2) !important; }
