@@ -338,3 +338,343 @@
     if (!tab) return;
     wantStatementList = 0;
     if (location.pathname !== '/calendar/statementList') tab.click();
+  };
+  const mountIdc = () => {
+    for (const actions of document.querySelectorAll('alert-dialog .mat-mdc-dialog-actions')) {
+      if (actions.querySelector(':scope > .sx-idc')) continue;
+      const view = actions.querySelector('button');
+      if (!/ნახვა/.test(view?.textContent || '')) continue; // e.g. lecturer info: Ok only
+      // The site's ნახვა opens the calendar tab; remember to switch to the statement list once there.
+      view.addEventListener('click', () => { wantStatementList = Date.now(); }, true);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'sx-idc';
+      btn.textContent = 'idc';
+      btn.addEventListener('click', () => {
+        document.body.dispatchEvent(new KeyboardEvent('keydown', ESCAPE));
+        goHome();
+      });
+      actions.append(btn);
+    }
+  };
+
+  // ---------- Navigation bar: "მეტი · More" ----------
+  // Secondary sections are hidden in the bar (CSS) and listed in a dropdown.
+  // Picking one clicks the site's own link, so Angular routes as usual.
+  // Bar: announcements, registration, programme, finances, e-office (order set in CSS).
+  // The learning card, timetable and assignments are the three boxes of the main page.
+  const NAV_MAIN = ['/calendar', '/registration', '/programs', '/finances', '/chancellery'];
+  const NAV_MORE = [
+    { href: '/lms', ka: 'LMS', en: 'Learning platform' },
+    { href: '/academic-calendar', ka: 'აკადემიური კალენდარი', en: 'Academic calendar' },
+    { href: '/gegma-documents', ka: 'დოკუმენტები', en: 'Documents' },
+    { href: '/bib', ka: 'ბიბლიოთეკა', en: 'Library' },
+    { href: '/commands', ka: 'ბრძანებები', en: 'Orders' },
+    { href: '/contracts', ka: 'ხელშეკრულება', en: 'Contracts' },
+    { href: '/notifications', ka: 'განცხადებები (არქივი)', en: 'Announcements archive' },
+    { href: '/logs', ka: 'ლოგები', en: 'Activity log' },
+  ];
+  // Route inside the portal: through the site's own link when the page has one, otherwise
+  // through the history API, which the Angular router follows without a reload.
+  const go = (href) => {
+    const a = document.querySelector(`.topMenuItem > a[href="${href}"]:not([data-sx-href]), a.dashboard-item-wrapper[href="${href}"]`);
+    if (a) { a.click(); return; }
+    history.pushState(null, '', href);
+    window.dispatchEvent(new PopStateEvent('popstate', { state: null }));
+  };
+  const closeMore = () => document.querySelector('.sx-more.sx-open')?.classList.remove('sx-open');
+  const placeMore = (li) => {
+    const r = li.querySelector('.sx-more-btn').getBoundingClientRect();
+    const menu = li.querySelector('.sx-more-menu');
+    menu.style.top = `${Math.round(r.bottom + 8)}px`;
+    menu.style.left = `${Math.round(Math.max(8, Math.min(r.left, window.innerWidth - 316)))}px`;
+  };
+  const mountNav = () => {
+    const list = document.querySelector('.topMenuItems');
+    if (!list) return;
+    let li = list.querySelector(':scope > .sx-more');
+    if (!li) {
+      li = el('li', 'sx-more');
+      const btn = el('button', 'sx-more-btn', 'მეტი');
+      btn.type = 'button';
+      btn.setAttribute('aria-haspopup', 'menu');
+      btn.setAttribute('aria-expanded', 'false');
+      const menu = el('div', 'sx-more-menu');
+      menu.setAttribute('role', 'menu');
+      menu.append(...NAV_MORE.map(({ href, ka, en }) => {
+        const b = el('button', 'sx-more-item');
+        b.type = 'button';
+        b.setAttribute('role', 'menuitem');
+        b.dataset.href = href;
+        b.append(el('span', 'sx-ka', ka), el('span', 'sx-en', en));
+        return b;
+      }));
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const open = !li.classList.contains('sx-open');
+        li.classList.toggle('sx-open', open);
+        btn.setAttribute('aria-expanded', String(open));
+        if (open) placeMore(li);
+      });
+      menu.addEventListener('click', (e) => {
+        const item = e.target.closest('.sx-more-item');
+        if (!item) return;
+        closeMore();
+        go(item.dataset.href);
+      });
+      li.append(btn, menu);
+      list.append(li);
+    }
+    const path = location.pathname;
+    let any = false;
+    for (const item of li.querySelectorAll('.sx-more-item')) {
+      const active = path === item.dataset.href || path.startsWith(item.dataset.href + '/');
+      any = any || active;
+      item.classList.toggle('sx-active', active);
+    }
+    li.classList.toggle('sx-active', any);
+  };
+  // Dashboard: the site shows no nav bar there, so build one from the dashboard's own
+  // links (same markup as the inner-page bar, so the same CSS and "More" apply).
+  // Each item clicks the original dashboard link, which Angular routes.
+  const mountDashNav = () => {
+    const existing = document.querySelector('.sx-dash-nav');
+    if (!document.querySelector('dashboard-component')) { existing?.remove(); return; }
+    const host = document.querySelector('user-menu-component .dashboard-page');
+    if (!host) return;
+    let nav = existing;
+    if (!nav) {
+      nav = el('div', 'topMenuTo sx-dash-nav');
+      const inner = el('div', 'topMenu');
+      const width = el('div', 'width');
+      const ul = el('ul', 'topMenuItems');
+      width.append(ul); inner.append(width); nav.append(inner); host.append(nav);
+      ul.addEventListener('click', (e) => {
+        const a = e.target.closest('a[data-sx-href]');
+        if (!a) return;
+        e.preventDefault();
+        go(a.dataset.sxHref);
+      });
+    }
+    const ul = nav.querySelector('ul');
+    const sources = NAV_MAIN.map((href) => document.querySelector(`a.dashboard-item-wrapper[href="${href}"]`)).filter(Boolean).map((src) => {
+      const badge = [...src.querySelectorAll('.notify, .mat-badge-content')].map((b) => b.textContent.trim()).find((t) => /^\d+$/.test(t) && t !== '0') || '';
+      return { href: src.getAttribute('href'), title: (src.querySelector('.title') || src).textContent.trim(), badge };
+    });
+    const key = sources.map((x) => `${x.href}=${x.title}=${x.badge}`).join('|');
+    if (ul.dataset.key === key) return;
+    ul.dataset.key = key;
+    const more = ul.querySelector(':scope > .sx-more');
+    ul.replaceChildren(...sources.map(({ href, title, badge }) => {
+      const li = el('li', 'topMenuItem');
+      const a = el('a');
+      a.href = href;
+      a.dataset.sxHref = href;
+      a.append(el('span', 'menu-text', title));
+      if (badge) a.append(el('span', 'notify', badge));
+      li.append(a);
+      return li;
+    }), ...(more ? [more] : []));
+  };
+  // User menu (the site's own dropdown under the name): "Profile" goes to personal data.
+  const goPersonal = () => {
+    const a = document.querySelector('.topMenuItem > a[href="/personal-data"]');
+    if (a) a.click(); else location.assign('/personal-data');
+  };
+  const mountUserMenu = () => {
+    const sub = document.querySelector('.user-subMenu');
+    if (!sub || sub.dataset.sxBound) return;
+    sub.dataset.sxBound = '1';
+    for (const a of sub.querySelectorAll('a')) {
+      const t = a.textContent.trim();
+      if (/პროფილი/.test(t)) {
+        a.dataset.en = 'Profile · პირადი მონაცემები';
+        a.classList.add('sx-um-profile');
+        // Capture on the link itself runs before the site's handler; replace its target.
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          document.querySelector('.user-menu')?.click(); // close the dropdown the site's way
+          goPersonal();
+        }, true);
+      } else if (/გასვლა/.test(t)) {
+        a.dataset.en = 'Log out';
+        a.classList.add('sx-um-logout');
+      }
+    }
+  };
+  document.addEventListener('click', (e) => { if (!e.target.closest('.sx-more')) closeMore(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMore(); });
+  window.addEventListener('resize', closeMore);
+  window.addEventListener('scroll', () => { const li = document.querySelector('.sx-more.sx-open'); if (li) placeMore(li); }, { passive: true });
+
+  // ---------- Timetable page ----------
+  // The site renders the week as .headInfo blocks (one per day, today = .now),
+  // each lesson as a .day-item of "<b>label</b>: value<br>" pairs. We read those,
+  // and add a clearer view next to them; the originals are hidden by CSS. Because
+  // we read the site's own DOM, week navigation keeps working unchanged.
+  const DAYS = [
+    { ka: 'ორშაბათი', en: 'Monday', key: 'mon' },
+    { ka: 'სამშაბათი', en: 'Tuesday', key: 'tue' },
+    { ka: 'ოთხშაბათი', en: 'Wednesday', key: 'wed' },
+    { ka: 'ხუთშაბათი', en: 'Thursday', key: 'thu' },
+    { ka: 'პარასკევი', en: 'Friday', key: 'fri' },
+    { ka: 'შაბათი', en: 'Saturday', key: 'sat' },
+    { ka: 'კვირა', en: 'Sunday', key: 'sun' },
+  ];
+  const LESSON_LABELS = { 'საათი': 'time', 'სასწ.კურსი': 'course', 'ჯგუფი': 'group', 'ლექტორი': 'lecturer', 'აუდიტორია': 'room', 'ტიპი': 'type', 'ხანგრძლივობა': 'duration' };
+
+  const toMin = (hhmm) => { const m = /^(\d{1,2}):(\d{2})/.exec(hhmm || ''); return m ? +m[1] * 60 + +m[2] : null; };
+  const fromMin = (min) => `${pad(Math.floor(min / 60) % 24)}:${pad(min % 60)}`;
+
+  const parseLesson = (item) => {
+    const out = {};
+    let key = null, buf = '';
+    const flush = () => { if (key) out[key] = buf.replace(/^\s*:\s*/, '').replace(/\s+/g, ' ').trim(); key = null; buf = ''; };
+    for (const n of item.childNodes) {
+      if (n.nodeName === 'B') { flush(); key = LESSON_LABELS[n.textContent.trim()] || n.textContent.trim(); }
+      else if (n.nodeName === 'BR') flush();
+      else buf += n.textContent;
+    }
+    flush();
+    return out;
+  };
+
+  const buildLesson = (l) => {
+    const start = toMin(l.time);
+    const dur = parseInt(l.duration, 10);
+    const box = el('div', 'sx-lesson');
+    const top = el('div', 'sx-lesson-top');
+    top.append(el('span', 'sx-time', l.time || '—'));
+    if (start != null && dur > 0) top.append(el('span', 'sx-until', '– ' + fromMin(start + dur)));
+    if (l.room) top.append(el('span', 'sx-room', l.room));
+    box.append(top, el('div', 'sx-course', l.course || ''));
+    if (l.lecturer) box.append(el('div', 'sx-lecturer', l.lecturer));
+    const meta = [l.type, dur > 0 ? `${dur} წთ` : ''].filter(Boolean).join(' · ');
+    if (meta) box.append(el('div', 'sx-meta', meta));
+    box._sx = { start, end: start != null && dur > 0 ? start + dur : start };
+    return box;
+  };
+
+  const enhanceWeek = () => {
+    const heads = [...document.querySelectorAll('.weeklist-container > .headInfo')];
+    if (!heads.length) return;
+    const nowIdx = heads.findIndex((h) => h.classList.contains('now'));
+    const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+
+    heads.forEach((h, i) => {
+      const ka = (h.querySelector('.day-name') || {}).textContent;
+      const day = DAYS.find((d) => d.ka === (ka || '').trim()) || DAYS[i] || DAYS[0];
+      const when = nowIdx < 0 ? 'week' : i < nowIdx ? 'past' : i === nowIdx ? 'today' : 'future';
+      if (h.dataset.day !== day.key) h.dataset.day = day.key;
+      if (h.dataset.when !== when) h.dataset.when = when;
+      h.style.setProperty('--i', i);
+
+      const label = h.querySelector('.day-title .mdc-button__label') || h.querySelector('.day-title');
+      if (label && !label.querySelector('.sx-en')) {
+        const chip = el('span', 'sx-today-chip', 'Today · დღეს');
+        label.prepend(chip, el('span', 'sx-en', day.en));
+      }
+
+      const list = h.querySelector('.weeklist');
+      if (!list) return;
+      // Drop views whose source lesson changed or disappeared (e.g. after week navigation).
+      for (const v of list.querySelectorAll(':scope > .sx-lesson')) {
+        const src = v.previousElementSibling;
+        if (!src || !src.classList.contains('day-item') || src.textContent !== v.dataset.src) v.remove();
+      }
+      const items = [...list.querySelectorAll(':scope > .day-item')];
+      const views = items.map((item) => {
+        let v = item.nextElementSibling;
+        if (!v || !v.classList.contains('sx-lesson')) {
+          v = buildLesson(parseLesson(item));
+          v.dataset.src = item.textContent;
+          item.after(v);
+        }
+        return v;
+      });
+      // Today: mark finished, live and next lessons.
+      let nextMarked = false;
+      for (const v of views) {
+        let status = '';
+        const t = v._sx || { start: toMin(v.querySelector('.sx-time').textContent), end: null };
+        if (when === 'today' && t.start != null) {
+          const end = t.end != null ? t.end : t.start;
+          if (end <= nowMin) status = 'done';
+          else if (t.start <= nowMin) { status = 'live'; nextMarked = true; }
+          else if (!nextMarked) { status = 'next'; nextMarked = true; }
+        }
+        if (v.dataset.status !== status) {
+          v.dataset.status = status;
+          v.querySelector('.sx-status')?.remove();
+          if (status === 'live') v.querySelector('.sx-lesson-top').append(el('span', 'sx-status', 'Now · ახლა'));
+        }
+      }
+      const empty = list.querySelector(':scope > .sx-empty');
+      if (!items.length && !empty) {
+        const e = el('div', 'sx-empty');
+        e.append(el('span', null, 'No classes'), el('span', null, 'თავისუფალი დღე'));
+        list.append(e);
+      } else if (items.length && empty) empty.remove();
+    });
+  };
+
+  // Exam tabs: tag each row with its weekday colour and whether it is past.
+  const enhanceExams = () => {
+    const today = isoDate(new Date());
+    for (const row of document.querySelectorAll('ac-tables-component mat-row')) {
+      const wd = row.querySelector('.exam-weekday');
+      const day = wd && DAYS.find((d) => d.ka === wd.textContent.trim());
+      if (day && row.dataset.day !== day.key) { row.dataset.day = day.key; wd.dataset.en = day.en; }
+      const dateNode = row.querySelector('.mat-column-day > div');
+      const date = dateNode && /\d{4}-\d{2}-\d{2}/.exec(dateNode.textContent);
+      const when = !date ? '' : date[0] < today ? 'past' : date[0] === today ? 'today' : 'future';
+      if (row.dataset.when !== when) row.dataset.when = when;
+    }
+  };
+
+  // Foldable left menu built from the site's own tab links (Angular keeps routing them).
+  const RAIL_KEY = 'sx-rail';
+  const TAB_EN = {
+    '/tables/learningTables': 'Lectures',
+    '/tables/ac-tables/1': 'Midterm',
+    '/tables/ac-tables/2': 'Midterm retake',
+    '/tables/ac-tables/3': 'Final',
+    '/tables/ac-tables/4': 'Final retake',
+    '/tables/ac-tables/quizzes': 'Quizzes',
+  };
+  const setRail = (open) => {
+    root.classList.toggle('sx-rail-open', open);
+    document.querySelector('.sx-rail-toggle')?.setAttribute('aria-expanded', String(open));
+    try { localStorage.setItem(RAIL_KEY, open ? '1' : '0'); } catch { /* per-viewer convenience only */ }
+  };
+  const mountRail = () => {
+    const menu = document.querySelector('.tables-dashboard');
+    root.classList.toggle('sx-has-rail', !!menu);
+    if (!menu) return;
+    if (!menu.querySelector(':scope > .sx-rail-toggle')) {
+      let stored = null;
+      try { stored = localStorage.getItem(RAIL_KEY); } catch { /* ignore */ }
+      const btn = el('button', 'sx-rail-toggle');
+      btn.type = 'button';
+      btn.setAttribute('aria-label', 'მენიუ / Menu');
+      btn.append(el('span', 'sx-burger'));
+      btn.addEventListener('click', () => setRail(!root.classList.contains('sx-rail-open')));
+      const head = el('div', 'sx-rail-head');
+      head.append(el('span', 'sx-rail-title', 'ცხრილი'), el('span', 'sx-rail-sub', 'Schedule'));
+      menu.prepend(btn, head);
+      menu.addEventListener('click', (e) => {
+        if (e.target.closest('.sx-rail-toggle')) return;
+        if (!root.classList.contains('sx-rail-open')) { setRail(true); return; } // the whole folded strip opens it
+        if (e.target.closest('.tables-tab-menu a') && window.innerWidth < 860) setRail(false);
+      });
+      document.addEventListener('click', (e) => {
+        if (window.innerWidth >= 860 || !root.classList.contains('sx-rail-open')) return;
+        if (e.target.closest('.tables-dashboard, .cdk-overlay-container')) return;
+        setRail(false);
+      });
+      menu.append(el('span', 'sx-rail-hint')); // handle + chevron shown while folded
+      setRail(stored != null ? stored === '1' : window.innerWidth > 1100);
+    }
+    // Semester and programme selectors of the lecture timetable live in the rail.
+    let filters = menu.querySelector(':scope > .sx-rail-filters');
