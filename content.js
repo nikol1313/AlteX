@@ -678,3 +678,343 @@
     }
     // Semester and programme selectors of the lecture timetable live in the rail.
     let filters = menu.querySelector(':scope > .sx-rail-filters');
+    if (!filters) {
+      filters = el('div', 'sx-rail-filters');
+      filters.append(el('span', 'sx-rail-label', 'სემესტრი და პროგრამა'));
+      menu.querySelector('.tables-tab-menu')?.after(filters);
+    }
+    // Only the selectors' own container (first block of the lecture timetable), never the month picker.
+    const comp = document.querySelector('student-tables-component');
+    const selectors = comp && comp.querySelector(':scope > div > div:first-child:has(> mat-form-field)');
+    if (selectors) { selectors._sxHost = comp; filters.append(selectors); }
+    // Angular removes only the component, not nodes moved out of it: drop copies whose component is gone.
+    for (const old of filters.querySelectorAll(':scope > div')) if (!old._sxHost || !old._sxHost.isConnected) old.remove();
+    for (const a of menu.querySelectorAll('.tables-tab-menu a[href]')) {
+      const en = TAB_EN[a.getAttribute('href')];
+      if (en && a.dataset.en !== en) a.dataset.en = en;
+    }
+  };
+
+  // ---------- Learning card ----------
+  // Current (top) semester open, older ones folded behind their header.
+  // Each course row gets a score bar; each header a short summary.
+  const toggleSemester = (sem) => {
+    const open = sem.dataset.sxFold !== 'open';
+    sem.dataset.sxFold = open ? 'open' : 'closed';
+    sem.querySelector('mat-header-row')?.setAttribute('aria-expanded', String(open));
+  };
+  // "You need X more points to pass (51)" under a score breakdown.
+  const PASS = 51;
+  const placeNeed = (host, totalText) => {
+    const total = parseFloat(String(totalText || '').replace(',', '.'));
+    let line = host.querySelector(':scope > .sx-need');
+    if (Number.isNaN(total)) { line?.remove(); return; }
+    const gap = Math.round((PASS - total) * 100) / 100;
+    const text = gap > 0 ? `ჩასაბარებლად გაკლია ${gap} ქულა · ზღვარი ${PASS}` : `ზღვარი ${PASS} გადალახულია · +${-gap} ქულა`;
+    if (!line) { line = el('div', 'sx-need'); host.append(line); }
+    if (line.textContent !== text) line.textContent = text;
+    line.classList.toggle('sx-passed', gap <= 0);
+    if (host.lastElementChild !== line) host.append(line);
+  };
+  const tagDetailRows = () => {
+    for (const d of document.querySelectorAll('.page-learningCard .result-detail')) {
+      const name = d.querySelector('.result-detail-name');
+      const val = d.querySelector('.result-detail-result');
+      if (!name || !val) continue;
+      const n = name.textContent.trim(), v = val.textContent.trim();
+      const kind = !v ? 'sx-est-empty' : /^[\d.,]+$/.test(v) ? 'sx-num' : /არა?\s+არის\s+დაშვ/.test(v) ? 'sx-denied' : 'sx-text';
+      for (const c of ['sx-est-empty', 'sx-num', 'sx-denied', 'sx-text']) d.classList.toggle(c, c === kind);
+      d.classList.add('sx-est-row');
+      d.classList.toggle('sx-total', n === 'ჯამი');
+      d.classList.toggle('sx-grade', n === 'შედეგი');
+      if (n === 'შედეგი' && d.dataset.grade !== v.toUpperCase()) d.dataset.grade = v.toUpperCase();
+      name.classList.add('sx-est-name');
+      val.classList.add('sx-est-val');
+    }
+    for (const wrap of document.querySelectorAll('.page-learningCard .result-detail-wrapper')) {
+      const total = [...wrap.querySelectorAll('.result-detail.sx-total .result-detail-result')].map((v) => v.textContent.trim())[0];
+      placeNeed(wrap, total);
+    }
+  };
+  // End of the running semester = the next payment date the portal reports while that
+  // semester is the newest one. Remembered per semester, so the date does not move on
+  // when the portal later starts reporting the following payment.
+  const semEnds = new Map(); // semester number -> Date | null (unknown) | undefined (not asked yet)
+  const semesterEnded = (no) => {
+    if (no == null) return false;
+    if (semEnds.get(no) === undefined) {
+      semEnds.set(no, null);
+      const s = session();
+      if (s) {
+        const key = `sx-sem-end:${s.studentId}:${no}`;
+        let stored = null;
+        try { stored = localStorage.getItem(key); } catch { /* ignore */ }
+        if (stored) semEnds.set(no, parseDate(stored));
+        else {
+          api(s, '/student/finances/paymentReminder').then((res) => {
+            const date = parseDate(res && res.paymentDate);
+            if (!date) return;
+            semEnds.set(no, date);
+            try { localStorage.setItem(key, res.paymentDate); } catch { /* still held for this page */ }
+            schedule();
+          }).catch(() => {});
+        }
+      }
+    }
+    const end = semEnds.get(no);
+    return !!end && Date.now() >= end.getTime();
+  };
+  const enhanceCard = () => {
+    tagDetailRows();
+    // Overview tiles: mark the numeric value of each stat so it can be the big number.
+    for (const sp of document.querySelectorAll('.page-learningCard .ini-block .last-stat h3 :is(span, b)')) {
+      const isVal = /^\s*[\d.,]+\s*$/.test(sp.textContent);
+      if (sp.classList.contains('sx-stat-val') !== isVal) sp.classList.toggle('sx-stat-val', isVal);
+    }
+    // Newest semester first: the site lists 5, 3, 4. Blocks without a semester number
+    // (recognised courses, grouping by year) keep the site's order, after the numbered ones.
+    const sems = [...document.querySelectorAll('.page-learningCard .semester-child')];
+    const semNo = sems.map((sem) => {
+      const m = /(\d+)\s*სემესტრი/.exec(sem.querySelector('mat-header-row .mat-column-bookName')?.textContent || '');
+      return m ? +m[1] : null;
+    });
+    const numbered = semNo.filter((n) => n != null);
+    const newest = numbered.length ? Math.max(...numbered) : null;
+    const ended = semesterEnded(newest);
+    const rank = sems.map((_, i) => i).sort((x, y) => (semNo[y] ?? -1) - (semNo[x] ?? -1) || x - y);
+    sems.forEach((sem, i) => {
+      const head = sem.querySelector('mat-header-row');
+      if (!head) return;
+      const current = newest != null ? semNo[i] === newest : i === 0;
+      const order = String(2 + rank.indexOf(i));
+      if (sem.style.order !== order) sem.style.order = order;
+      if (!sem.dataset.sxFold) sem.dataset.sxFold = current ? 'open' : 'closed';
+      if (!head.dataset.sxBound) {
+        head.dataset.sxBound = '1';
+        head.setAttribute('role', 'button');
+        head.tabIndex = 0;
+        head.setAttribute('aria-expanded', String(sem.dataset.sxFold === 'open'));
+        head.addEventListener('click', (e) => { if (!e.target.closest('button, a')) toggleSemester(sem); });
+        head.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSemester(sem); } });
+      }
+      let credits = 0, count = 0;
+      for (const row of sem.querySelectorAll('mat-row')) {
+        // Desktop rows have one cell per column; on phones the site renders a single
+        // .responsive-row cell: name + .icons-row [lecturer, credits, score, grade].
+        let scoreCell, creditText;
+        const rr = row.querySelector('.responsive-row');
+        if (rr) {
+          const [lect, credit, score, grade] = rr.querySelectorAll(':scope > .icons-row > div');
+          lect?.classList.add('sx-m-lect'); credit?.classList.add('sx-m-credit');
+          score?.classList.add('sx-m-score'); grade?.classList.add('sx-m-grade');
+          scoreCell = score; creditText = credit?.textContent;
+        } else {
+          if (!row.querySelector('.mat-column-bookName')) continue;
+          scoreCell = row.querySelector('.mat-column-score');
+          creditText = row.querySelector('.mat-column-credit')?.textContent;
+        }
+        if (!scoreCell) continue;
+        count++;
+        credits += parseFloat(creditText) || 0;
+        const score = Math.max(0, Math.min(100, parseFloat(scoreCell.textContent) || 0));
+        const chip = row.querySelector('.result-color');
+        let grade = (chip?.textContent || '').trim().toUpperCase();
+        // A running course has no result yet: the site prints F until the points add up.
+        // Once the semester has ended (next payment date reached), the F is real and shown.
+        const running = current && !ended && score < PASS && (grade === 'F' || grade === '');
+        if (running) grade = '';
+        if (row.dataset.grade !== grade) row.dataset.grade = grade;
+        if (row.hasAttribute('data-sx-running') !== running) {
+          row.toggleAttribute('data-sx-running', running);
+          if (running) { chip?.setAttribute('aria-label', 'მიმდინარე · In progress'); if (chip) chip.title = 'მიმდინარე · In progress'; }
+          else { chip?.removeAttribute('aria-label'); chip?.removeAttribute('title'); }
+        }
+        let bar = scoreCell.querySelector(':scope > .sx-bar');
+        if (!bar) { bar = el('span', 'sx-bar'); bar.append(el('i')); scoreCell.append(bar); }
+        const w = `${score}%`;
+        if (bar.firstChild.style.width !== w) bar.firstChild.style.width = w;
+      }
+      let sum = head.querySelector(':scope > .sx-sem-sum');
+      if (!sum) {
+        if (current) head.append(el('span', 'sx-sem-badge', 'მიმდინარე · Current'));
+        sum = el('span', 'sx-sem-sum');
+        head.append(sum, el('span', 'sx-chev'));
+      }
+      const text = `${count} საგანი · ${credits} კრედიტი`;
+      if (sum.textContent !== text) sum.textContent = text;
+    });
+  };
+
+  // ---------- Grade breakdown dialog (შეფასება) ----------
+  // The site renders component names (rotated 90°) and values as two parallel rows.
+  // We pair them into one list; the originals are hidden by CSS.
+  const enhanceEstDialog = () => {
+    for (const wrap of document.querySelectorAll('est-details-dialog .est-dialog-wrapper')) {
+      const names = [...wrap.querySelectorAll('.est-items .est-component-name')].map((n) => n.textContent.trim());
+      const values = [...wrap.querySelectorAll('.est-wrapper > .est-item')].map((v) => v.textContent.trim());
+      if (!names.length) continue;
+      const key = JSON.stringify([names, values]);
+      let list = wrap.querySelector(':scope > .sx-est');
+      if (list && list.dataset.key === key) continue;
+      if (!list) { list = el('div', 'sx-est'); wrap.append(list); }
+      list.dataset.key = key;
+      list.replaceChildren(...names.map((name, i) => {
+        const value = values[i] || '';
+        const row = el('div', 'sx-est-row');
+        if (!value) row.classList.add('sx-est-empty');
+        else if (/^[\d.,]+$/.test(value)) row.classList.add('sx-num');
+        else if (/არა?\s+არის\s+დაშვ/.test(value)) row.classList.add('sx-denied'); // "არ / არა არის დაშვებული"
+        else row.classList.add('sx-text');
+        if (/^ჯამი$/.test(name)) row.classList.add('sx-total');
+        if (/^შედეგი$/.test(name)) { row.classList.add('sx-grade'); row.dataset.grade = value.toUpperCase(); }
+        row.append(el('span', 'sx-est-name', name), el('span', 'sx-est-val', value || '—'));
+        return row;
+      }));
+      placeNeed(list, values[names.indexOf('ჯამი')]);
+    }
+  };
+
+  // ---------- Learning card header: grouping toggle labels + programme tooltip ----------
+  const HEADER_VIEWS = { list: 'სემესტრებით · By semester', date_range: 'სასწავლო წლებით · By academic year' };
+  const enhanceCardHeader = () => {
+    const box = document.querySelector('.page-learningCard .semesters');
+    if (!box) return;
+    for (const btn of box.querySelectorAll('.semester-item.button button')) {
+      const label = HEADER_VIEWS[(btn.querySelector('mat-icon')?.textContent || '').trim()];
+      if (label && btn.getAttribute('aria-label') !== label) { btn.setAttribute('aria-label', label); btn.title = label; }
+      const active = btn.classList.contains('mat-primary'); // the site marks the active grouping this way
+      if (btn.getAttribute('aria-pressed') !== String(active)) btn.setAttribute('aria-pressed', String(active));
+    }
+    const select = box.querySelector('.semester-item:not(.button)');
+    const value = select?.querySelector('.mat-mdc-select-value')?.textContent.trim();
+    if (select && value && select.title !== value) select.title = value; // full name when the value is cut off
+  };
+
+  // ---------- Finances ----------
+  // One summary card built from the site's own schedule rows (first panel = year total,
+  // the rest = instalments). Amounts in the rows get a ₾ sign and a readable "remaining".
+  const money = (n) => `${Math.round(n * 100) / 100} ₾`;
+  const num = (t) => { const n = parseFloat(String(t || '').replace(/[^\d.,-]/g, '').replace(',', '.')); return Number.isNaN(n) ? null : n; };
+  const enhanceFinances = () => {
+    const page = document.querySelector('.page-finances');
+    if (!page) return;
+    const rows = [...page.querySelectorAll('mat-expansion-panel-header .wrapper-menu')].map((menu) => {
+      const [labels, values] = menu.querySelectorAll(':scope > .wrapper-row');
+      if (!labels || !values) return null;
+      const first = [...labels.querySelectorAll(':scope > div:first-child span')].map((x) => x.textContent.trim());
+      const cells = [...values.querySelectorAll(':scope > div')].slice(1);
+      const due = num(cells[0]?.textContent), paid = num(cells[1]?.textContent) || 0;
+      const left = due == null ? null : Math.max(0, due - paid);
+      // Show: due, paid (0 when the site leaves it empty), remaining as a positive amount.
+      [due, paid, left].forEach((v, i) => {
+        const cell = cells[i];
+        if (!cell) return;
+        const show = v == null ? '—' : money(v);
+        if (cell.dataset.sxV !== show) cell.dataset.sxV = show;
+        cell.classList.toggle('sx-fin-due', i === 2 && v > 0);
+      });
+      const [d, m, y] = (/\d{2}\.\d{2}\.\d{4}/.exec(first[1] || '') || [''])[0].split('.').map(Number);
+      return { name: first[0], dateText: first[1] || '', date: y ? new Date(y, m - 1, d) : null, due, paid, left };
+    }).filter(Boolean);
+    const total = rows.find((r) => !r.date);
+    let card = page.querySelector(':scope > .sx-fin');
+    if (!total || total.due == null) { card?.remove(); return; }
+    const next = rows.filter((r) => r.date && r.left > 0).sort((x, y) => x.date - y.date)[0];
+    const balance = [...page.querySelectorAll('.balance-wrapper .info-wrapper > div')].map((x) => x.textContent.replace(/\s+/g, ' ').trim()).filter(Boolean);
+    const days = next ? Math.round((next.date - new Date().setHours(0, 0, 0, 0)) / 86400000) : null;
+    const key = JSON.stringify([total, next && [next.dateText, next.left], balance, days]);
+    if (card && card.dataset.key === key) return;
+    if (!card) { card = el('div', 'sx-fin'); page.querySelector('mat-tab-group')?.before(card); }
+    card.dataset.key = key;
+    const pct = total.due > 0 ? Math.max(0, Math.min(100, (total.paid / total.due) * 100)) : 0;
+    const head = el('div', 'sx-fin-head');
+    const big = el('div', 'sx-fin-paid');
+    big.append(el('span', 'sx-fin-num', String(total.paid)), el('span', 'sx-fin-of', ` / ${money(total.due)}`));
+    const paidBox = el('div', 'sx-fin-paidbox');
+    paidBox.append(el('span', 'sx-fin-cap', 'გადახდილია · Paid'), big);
+    head.append(paidBox);
+    if (next) {
+      // Countdown to the next instalment that still has something to pay.
+      const cd = el('div', 'sx-fin-count' + (days < 0 ? ' sx-late' : ''));
+      const n = el('div', 'sx-fin-count-n');
+      n.append(el('span', 'sx-fin-count-num', String(Math.abs(days))), el('span', 'sx-fin-count-unit', 'დღე'));
+      cd.append(
+        el('span', 'sx-fin-cap', days < 0 ? 'გადახდის ვადა გასულია · Overdue' : 'გადახდამდე დარჩა · Until next payment'),
+        n,
+        el('span', 'sx-fin-sub', `${next.dateText} · ${money(next.left)}`),
+      );
+      head.append(cd);
+    }
+    const bar = el('div', 'sx-fin-bar');
+    bar.setAttribute('role', 'progressbar');
+    bar.setAttribute('aria-valuemin', '0'); bar.setAttribute('aria-valuemax', String(total.due)); bar.setAttribute('aria-valuenow', String(total.paid));
+    const fill = el('i'); fill.style.width = `${pct}%`; bar.append(fill);
+    const facts = el('div', 'sx-fin-facts');
+    const fact = (cap, val, sub, cls) => {
+      const f = el('div', 'sx-fin-fact' + (cls ? ' ' + cls : ''));
+      f.append(el('span', 'sx-fin-cap', cap), el('span', 'sx-fin-val', val));
+      if (sub) f.append(el('span', 'sx-fin-sub', sub));
+      return f;
+    };
+    facts.append(
+      fact('დარჩენილია · Remaining', money(total.left), `${Math.round(pct)}% გადახდილია`),
+      next
+        ? fact('შემდეგი გადახდა · Next payment', next.dateText, `${money(next.left)} · ${days < 0 ? `ვადა გავიდა ${-days} დღის წინ` : days === 0 ? 'დღეს' : `${days} დღეში`}`, days < 0 ? 'sx-late' : '')
+        : fact('შემდეგი გადახდა · Next payment', 'არ არის', 'ყველაფერი გადახდილია'),
+    );
+    for (const b of balance) { const [cap, val] = b.split(/:\s*/); facts.append(fact(cap, val || '')); }
+    card.replaceChildren(head, bar, facts);
+  };
+
+  // ---------- Applications calendar (განცხადებები) ----------
+  // The site draws a 7-column week table with one row per event, so each event gets a
+  // ~100px column. We tag each event cell with its day; CSS turns the rows into a list.
+  const enhanceCalendar = () => {
+    const table = document.querySelector('hr-calendar-component .calendar table');
+    if (!table) return;
+    const days = [...table.querySelectorAll('thead th.headInfo')].map((th) => ({
+      name: (th.querySelector('.day-name.desktop') || th.querySelector('.day-name'))?.textContent.trim() || '',
+      number: th.querySelector('.day-number')?.textContent.trim() || '',
+      now: th.classList.contains('now'),
+    }));
+    let events = 0;
+    for (const tr of table.querySelectorAll('tbody tr')) {
+      [...tr.querySelectorAll(':scope > td.week_tbody_td')].forEach((td, i) => {
+        const has = !!td.querySelector('.event');
+        if (has) events++;
+        const label = has && days[i] ? `${days[i].name} ${days[i].number}` : '';
+        if ((td.dataset.sxDay || '') !== label) { if (label) td.dataset.sxDay = label; else delete td.dataset.sxDay; }
+        td.classList.toggle('sx-cal-today', has && !!days[i]?.now);
+      });
+    }
+    const wrap = table.parentElement;
+    let empty = wrap.querySelector(':scope > .sx-empty');
+    if (!events && !empty) {
+      empty = el('div', 'sx-empty');
+      empty.append(el('span', null, 'ამ კვირაში ღონისძიება არ არის'), el('span', null, 'No events this week'));
+      wrap.append(empty);
+    } else if (events && empty) empty.remove();
+  };
+
+  // ---------- Academic registration ----------
+  // Tags only: the student facts become label/value tiles, each course row gets its status
+  // (passed / chosen / open) from the site's own icon. Nothing is clicked or submitted.
+  const REG_FACTS = [[/^სემესტრი/, 'semester'], [/^GPA/, 'gpa'], [/^არჩეული კრედიტ/, 'credits']];
+  const enhanceRegistration = () => {
+    const page = document.querySelector('registration-routes-component');
+    if (!page) return;
+    for (const li of page.querySelectorAll('.student-info-card mat-list-item')) {
+      const text = li.textContent.replace(/\s+/g, ' ').trim();
+      const i = text.indexOf(':');
+      if (i <= 0) continue;
+      const k = text.slice(0, i).trim(), v = text.slice(i + 1).trim() || '—';
+      if (li.dataset.sxK !== k) li.dataset.sxK = k;
+      if (li.dataset.sxV !== v) li.dataset.sxV = v;
+      const fact = (REG_FACTS.find(([re]) => re.test(k)) || [])[1] || '';
+      if ((li.dataset.sxFact || '') !== fact) { if (fact) li.dataset.sxFact = fact; else delete li.dataset.sxFact; }
+    }
+    for (const row of page.querySelectorAll('.program-book-wrapper')) {
+      const icons = [...row.querySelectorAll('.program-panel mat-icon')].map((x) => x.textContent.trim());
+      const st = icons.includes('thumb_up') ? 'chosen' : icons.includes('done') ? 'done' : '';
+      if (row.dataset.sxSt !== st) row.dataset.sxSt = st;
+    }
