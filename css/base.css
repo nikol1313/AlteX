@@ -96,6 +96,13 @@ html.sx a { color: inherit !important; text-decoration: none !important; }
 html.sx ::selection { background-color: var(--pri) !important; color: #fff !important; }
 html.sx :is(input, textarea)::placeholder { color: var(--fg3) !important; -webkit-text-fill-color: var(--fg3); opacity: 1 !important; }
 html.sx mat-icon, html.sx .mat-icon { color: var(--fg2) !important; }
+/* Holding a control (link, button, card, tab, menu item) neither selects its label nor opens the
+   link menu; plain text elsewhere stays selectable. Inputs keep selection for editing. */
+html.sx :is(a, button, summary, label, [role="button"], [role="tab"], [role="menuitem"], [role="option"],
+  .mat-mdc-tab, .mat-mdc-tab-link, .mat-mdc-menu-item, .mat-mdc-option, .mat-button-toggle, .mat-mdc-chip, .sx-tile) {
+  -webkit-user-select: none !important; user-select: none !important; -webkit-touch-callout: none !important;
+}
+html.sx :is(a, button, label) :is(input, textarea) { -webkit-user-select: text !important; user-select: text !important; }
 /* No browser tap flash or focus ring on touch/mouse; keyboard focus (:focus-visible) keeps its ring */
 html.sx :focus:not(:focus-visible) { outline: none !important; }
 html.sx :is(a:focus-visible, button:focus-visible, summary:focus-visible) { outline: 2px solid var(--acc) !important; outline-offset: 3px; }
