@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- pwa/icons/icon.svg (pwa branch): dark square with a purple glow top-right. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+    <path
+        android:fillColor="#1C1E1F"
+        android:pathData="M0,0h512v512h-512z" />
+    <path android:pathData="M0,0h512v512h-512z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:centerX="399"
+                android:centerY="72"
+                android:gradientRadius="410"
+                android:type="radial">
+                <item android:color="#739360E3" android:offset="0" />
+                <item android:color="#009360E3" android:offset="0.6" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

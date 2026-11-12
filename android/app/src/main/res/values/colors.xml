@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Same as --bg in css/base.css, so no white flash before the portal paints. -->
+    <color name="bg">#1C1E1F</color>
+</resources>
