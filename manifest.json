@@ -5,16 +5,12 @@
   "description": "Visual redesign of the Alte University student portal.",
   "content_scripts": [
     {
-      "matches": [
-        "https://students.alte.edu.ge/*"
-      ],
+      "matches": ["https://students.alte.edu.ge/*"],
       "css": [
         "css/fonts.css",
-        "css/tokens.css",
         "css/base.css",
         "css/dashboard.css",
         "css/timetable.css",
-        "css/exam-strip.css",
         "css/applications.css",
         "css/learning-card.css",
         "css/finances.css",
@@ -25,10 +21,8 @@
         "css/login.css"
       ],
       "js": [
-        "shared/util.js",
-        "shared/academic-calendar.js",
-        "shared/exam-strip.js",
         "js/core.js",
+        "js/academic-calendar.js",
         "js/dashboard.js",
         "js/nav.js",
         "js/timetable.js",
@@ -45,12 +39,8 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": [
-        "fonts/*.woff2"
-      ],
-      "matches": [
-        "https://students.alte.edu.ge/*"
-      ]
+      "resources": ["fonts/*.woff2"],
+      "matches": ["https://students.alte.edu.ge/*"]
     }
   ]
 }

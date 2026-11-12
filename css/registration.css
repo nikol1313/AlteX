@@ -151,9 +151,4 @@ html.sx.sx registration-routes-component .program-wrapper h3 > span { font-famil
   html.sx.sx registration-routes-component .academic-menu { border-radius: 18px !important; }
 }
 
-/* touchscreens: every control at least 44px */
-@media (pointer: coarse), (max-width: 760px) {
-  html.sx.sx .sx-secret .sx-tile .sx-eye { width: 44px; height: 44px; }
-}
-
 }
