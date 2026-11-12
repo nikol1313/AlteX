@@ -131,3 +131,79 @@ const maybeWelcome = () => {
   store.set(LAST_KEY, String(s.studentId));
   showWelcome(s);
 };
+
+// Android app only: remember the login on this phone and sign in again when the portal's 24-hour session
+// ends. The app keeps it encrypted (Android Keystore) and exposes window.AltexApp to the portal origin only.
+// It is saved only after a login succeeds, and "გასვლა" (log out) forgets it.
+const altexApp = () => window.AltexApp || null;
+let savedLogin, pendingLogin = null, autoLoginTried = false;
+const appSend = (msg) => { try { altexApp()?.postMessage(JSON.stringify(msg)); } catch { /* bridge gone */ } };
+const forgetLogin = () => { savedLogin = null; pendingLogin = null; appSend({ type: 'forget' }); };
+const askSavedLogin = () => {
+  const app = altexApp();
+  if (!app || savedLogin !== undefined) return;
+  savedLogin = null;
+  app.onmessage = (e) => {
+    let m;
+    try { m = JSON.parse(e.data); } catch { return; }
+    if (m && m.type === 'login') { savedLogin = m.login && m.login.u && m.login.p ? m.login : null; schedule(); }
+  };
+  appSend({ type: 'get' });
+};
+// Angular reads the input event; a plain .value change would be ignored.
+const typeInto = (input, value) => {
+  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, value);
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+};
+const waitFor = (test, ms) => new Promise((resolve) => {
+  const until = Date.now() + ms;
+  const tick = () => { const v = test(); if (v || Date.now() > until) resolve(v); else setTimeout(tick, 120); };
+  tick();
+});
+const autoLogin = async (login) => {
+  const form = document.querySelector('login-component .login-form');
+  const user = form?.querySelector('input[formcontrolname="username"]');
+  const submit = () => form.querySelector('.buttonWrapper button:not(:disabled)');
+  if (!user) return;
+  typeInto(user, login.u);
+  (await waitFor(submit, 3000))?.click();
+  const pass = await waitFor(() => form.isConnected && form.classList.contains('step-2') && form.querySelector('input[formcontrolname="password"]'), 8000);
+  if (!pass) return;
+  typeInto(pass, login.p);
+  (await waitFor(submit, 3000))?.click();
+};
+const mountRemember = () => {
+  if (!altexApp()) return;
+  askSavedLogin();
+  const page = document.querySelector('login-component');
+  if (!page) {
+    // Signed in: keep (or drop) what was typed, as the checkbox said.
+    if (pendingLogin && session()) {
+      if (pendingLogin.keep) appSend({ type: 'save', login: { u: pendingLogin.u, p: pendingLogin.p } }); else forgetLogin();
+      pendingLogin = null;
+    }
+    return;
+  }
+  const form = page.querySelector('.login-form');
+  if (!form) return;
+  if (!form.querySelector('.sx-remember')) {
+    const label = el('label', 'sx-remember');
+    const box = el('input');
+    box.type = 'checkbox';
+    box.checked = true;
+    label.append(box, el('span', null, 'დამახსოვრება ამ ტელეფონზე'));
+    form.querySelector('.buttonWrapper')?.before(label);
+    const note = () => {
+      const u = form.querySelector('input[formcontrolname="username"]')?.value || '';
+      const p = form.querySelector('input[formcontrolname="password"]')?.value || '';
+      if (u && p) pendingLogin = { u, p, keep: box.checked };
+    };
+    form.addEventListener('submit', note, true);
+    form.addEventListener('click', (e) => { if (e.target.closest('.buttonWrapper button')) note(); }, true);
+    form.addEventListener('keydown', (e) => { if (e.key === 'Enter') note(); }, true);
+  }
+  if (savedLogin && !autoLoginTried) {
+    autoLoginTried = true;
+    autoLogin(savedLogin);
+  }
+};

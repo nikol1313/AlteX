@@ -140,7 +140,8 @@ const buildRail = (menu) => {
     setRail(false);
   });
   menu.append(el('span', 'sx-rail-hint'));
-  setRail(stored != null ? stored === '1' : window.innerWidth > 1100);
+  // Phones always start with the lessons visible: opened, the rail covers the whole page.
+  setRail(window.innerWidth > 760 && (stored != null ? stored === '1' : window.innerWidth > 1100));
 };
 const mountRail = () => {
   const menu = document.querySelector('.tables-dashboard');
