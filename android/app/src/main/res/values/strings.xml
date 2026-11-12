@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AlteX</string>
+    <string name="no_app_for_link">ამ ბმულის გასახსნელი აპი ვერ მოიძებნა</string>
+</resources>
