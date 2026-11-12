@@ -1,0 +1,154 @@
+@layer sx {
+
+html.sx registration-routes-component > .width { display: flex !important; flex-direction: column; gap: 20px; }
+html.sx registration-routes-component > .width > div:first-child mat-form-field { width: min(100%, 420px) !important; margin: 0 !important; }
+html.sx registration-routes-component > .width > div:first-child .mat-mdc-form-field-subscript-wrapper { display: none !important; }
+
+/* Registration group: only the season, as a chip */
+html.sx registration-routes-component .sx-reg-head > mat-form-field { display: none !important; }
+html.sx.sx registration-routes-component .sx-reg-season {
+  display: inline-flex; align-items: center; gap: 10px; padding: 8px 16px 8px 14px; border-radius: 999px !important;
+  background-color: rgba(147, 96, 227, .14) !important; border: 1px solid rgba(157, 110, 228, .38) !important;
+  font-size: 15px !important; font-weight: 500 !important; color: #E3D7FB !important;
+}
+html.sx registration-routes-component .sx-reg-season::before {
+  content: ""; width: 8px; height: 8px; border-radius: 999px !important; background-color: var(--acc) !important; box-shadow: 0 0 10px rgba(185, 156, 243, .8) !important;
+}
+
+/* Student card: same purple surface as the other main boxes, facts as calm tiles */
+html.sx.sx registration-routes-component .info-Container {
+  display: block !important; padding: 32px 36px !important; border-radius: 24px !important; box-sizing: border-box; box-shadow: var(--shadow) !important;
+  background-color: var(--box) !important; background-image: linear-gradient(160deg, rgba(147, 96, 227, .14), transparent 55%) !important;
+  border: 1px solid rgba(157, 110, 228, .34) !important;
+}
+html.sx registration-routes-component .info-Container :is(mat-card-header, mat-card-content) { padding: 0 !important; }
+html.sx.sx registration-routes-component .info-Container .mat-mdc-card-header-text { width: 100% !important; margin: 0 !important; }
+html.sx.sx registration-routes-component .info-Container mat-card-title {
+  display: block !important; margin: 0 0 24px !important; padding: 0 0 20px !important;
+  font-size: 30px !important; font-weight: 500 !important; line-height: 1.2 !important; letter-spacing: -0.02em !important; color: var(--fg) !important;
+  border-bottom: 1px solid rgba(157, 110, 228, .28) !important;
+}
+html.sx registration-routes-component .info { display: grid !important; grid-template-columns: 120px minmax(0, 1fr); gap: 28px; align-items: start; }
+html.sx registration-routes-component .student-avatar { width: 120px !important; height: auto !important; margin: 0 !important; padding: 0 !important; }
+html.sx.sx registration-routes-component .student-avatar img {
+  display: block; width: 120px !important; height: 150px !important; object-fit: cover; border-radius: 18px !important;
+  background-color: var(--well) !important; border: 1px solid rgba(157, 110, 228, .4) !important; box-shadow: 0 16px 32px -18px rgba(0, 0, 0, .9) !important;
+}
+html.sx registration-routes-component .student-info-card { width: auto !important; margin: 0 !important; padding: 0 !important; min-width: 0; }
+html.sx registration-routes-component .student-info-card .myDivider { display: none !important; }
+html.sx.sx registration-routes-component .student-info-card mat-list {
+  display: grid !important; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px;
+  width: 100% !important; max-width: none !important; padding: 0 !important;
+}
+html.sx.sx.sx registration-routes-component .student-info-card mat-list-item {
+  display: block !important; width: auto !important; max-width: none !important; min-width: 0; height: auto !important; min-height: 0 !important;
+  padding: 14px 16px !important; box-sizing: border-box; border-radius: 16px !important;
+  background-color: rgba(20, 21, 22, .72) !important; border: 1px solid var(--line) !important;
+  transition: border-color 150ms linear !important;
+}
+html.sx.sx.sx registration-routes-component .student-info-card mat-list-item:hover { border-color: rgba(157, 110, 228, .45) !important; }
+html.sx.sx registration-routes-component .student-info-card mat-list-item:has(> .sx-tile) > :not(.sx-tile) { display: none !important; }
+html.sx.sx.sx registration-routes-component .student-info-card mat-list-item[data-sx-fact] { background-color: rgba(147, 96, 227, .10) !important; border-color: rgba(157, 110, 228, .32) !important; }
+
+html.sx .sx-tile { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "k eye" "v eye"; align-items: center; column-gap: 8px; row-gap: 4px; }
+html.sx .sx-tile .sx-k { grid-area: k; font-size: 12px !important; line-height: 1.4 !important; color: var(--fg3) !important; }
+html.sx .sx-tile .sx-v { grid-area: v; font-size: 17px !important; line-height: 1.35 !important; color: var(--fg) !important; overflow-wrap: anywhere; }
+html.sx [data-sx-fact] > .sx-tile .sx-v { font-size: 24px !important; font-weight: 500 !important; letter-spacing: -0.02em !important; color: var(--acc) !important; }
+html.sx .sx-secret:not(:has(.sx-eye[aria-pressed="true"])) .sx-tile .sx-v { letter-spacing: .12em !important; color: var(--fg2) !important; }
+html.sx .sx-tile .sx-eye { display: none; }
+html.sx.sx .sx-secret .sx-tile .sx-eye {
+  grid-area: eye; display: grid; place-items: center; width: 36px; height: 36px; padding: 0 !important; cursor: pointer;
+  border-radius: 12px !important; color: var(--fg2) !important;
+  background-color: rgba(155, 110, 232, .12) !important; border: 1px solid rgba(155, 110, 232, .3) !important;
+  transition: background-color 150ms linear, color 150ms linear !important;
+}
+html.sx.sx .sx-secret .sx-tile .sx-eye:is(:hover, :focus-visible) { background-color: var(--btn) !important; color: #fff !important; }
+html.sx .sx-eye svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+html.sx .sx-eye[aria-pressed="false"] .sx-eye-shut, html.sx .sx-eye[aria-pressed="true"] .sx-eye-open { display: none; }
+
+html.sx.sx registration-routes-component .academic-menu {
+  display: flex !important; flex-wrap: wrap; gap: 8px; margin: 4px 0 16px !important; padding: 6px !important; width: auto !important;
+  background-color: var(--box) !important; border: 1px solid var(--line) !important; border-radius: 999px !important;
+}
+html.sx.sx registration-routes-component .academic-menu-item {
+  flex: 1 1 auto !important; width: auto !important; margin: 0 !important; padding: 10px 16px !important; border-radius: 999px !important;
+  text-align: center !important; white-space: nowrap; font-size: 15px !important; color: var(--fg2) !important; cursor: pointer;
+  transition: background-color 150ms linear, color 150ms linear !important;
+}
+html.sx.sx registration-routes-component .academic-menu-item * { font-size: inherit !important; color: inherit !important; }
+html.sx.sx registration-routes-component .academic-menu-item:is(:hover, :focus-visible) { background-color: var(--box-hi) !important; color: var(--fg) !important; }
+html.sx.sx registration-routes-component .academic-menu-item.active { background-color: color-mix(in srgb, var(--acc) 18%, var(--box)) !important; color: var(--acc) !important; }
+
+html.sx.sx registration-routes-component .program-wrapper { padding: 12px 16px 24px !important; overflow-x: auto !important; }
+html.sx.sx registration-routes-component .program-item { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+html.sx.sx registration-routes-component .program-header {
+  display: grid !important; grid-template-columns: 40px 64px minmax(200px, 1fr) 96px minmax(90px, 160px) 72px; align-items: center; column-gap: 12px;
+  width: 100% !important; min-width: 640px; min-height: 0 !important; height: auto !important; margin: 0 !important; padding: 12px 14px !important; box-sizing: border-box;
+}
+html.sx.sx registration-routes-component .program-header > * { width: auto !important; min-width: 0 !important; max-width: none !important; margin: 0 !important; padding: 0 !important; flex: none !important; }
+html.sx.sx registration-routes-component .program-header > .program-panel { grid-column: 1; }
+html.sx.sx registration-routes-component .program-header > .num { grid-column: 2; }
+html.sx.sx registration-routes-component .program-header > .book-title { grid-column: 3; }
+html.sx.sx registration-routes-component .program-header > .ects { grid-column: 4; }
+html.sx.sx registration-routes-component .program-header > :is(.conditions, .conditions-content) { grid-column: 5; }
+html.sx.sx registration-routes-component .program-header > :is(.actions, .ects ~ .ects) { grid-column: 6; }
+html.sx.sx registration-routes-component .program-header-item { text-align: left !important; justify-content: flex-start !important; font-size: 15px !important; line-height: 1.4 !important; }
+html.sx.sx registration-routes-component .program-header-item * { text-align: inherit !important; font-size: inherit !important; line-height: inherit !important; }
+html.sx.sx registration-routes-component .program-header-item:is(.ects, .actions) { text-align: center !important; justify-content: center !important; }
+html.sx.sx registration-routes-component .program-header-item.actions { justify-self: end; }
+html.sx.sx registration-routes-component .program-header-wrapper .program-header { padding-block: 10px !important; border-bottom: 1px solid var(--line) !important; }
+html.sx.sx registration-routes-component .program-header-wrapper .program-header-item { font-size: 12px !important; color: var(--fg3) !important; }
+html.sx.sx registration-routes-component .program-module-item {
+  margin-top: 14px !important; padding-block: 16px !important; border-radius: 14px !important; cursor: pointer;
+  background-color: color-mix(in srgb, var(--acc) 13%, var(--box)) !important; border: 1px solid color-mix(in srgb, var(--acc) 34%, var(--line)) !important;
+}
+html.sx.sx registration-routes-component .program-module-item .book-title { font-size: 18px !important; font-weight: 500 !important; color: var(--fg) !important; }
+html.sx.sx registration-routes-component .program-module-item :is(.num, .num *) { color: var(--acc) !important; font-weight: 500 !important; }
+html.sx.sx registration-routes-component .program-group-item {
+  margin-top: 12px !important; border-radius: 12px !important; cursor: pointer;
+  background-color: color-mix(in srgb, var(--sage) 11%, var(--box)) !important; border: 1px solid color-mix(in srgb, var(--sage) 28%, var(--line)) !important;
+}
+html.sx.sx registration-routes-component .program-group-item .book-title { font-size: 16px !important; font-weight: 500 !important; color: var(--fg) !important; }
+html.sx.sx registration-routes-component .program-group-item :is(.num, .num *) { color: var(--sage) !important; }
+html.sx.sx registration-routes-component :is(.program-module-item, .program-group-item) .num br { display: none; }
+html.sx.sx registration-routes-component :is(.program-module-item, .program-group-item) .ects > * {
+  display: inline-block; padding: 3px 12px !important; border-radius: 999px !important; white-space: nowrap; background-color: var(--bg) !important;
+}
+html.sx.sx registration-routes-component :is(.program-module-item, .program-group-item) .ects :is(b, span) { font-family: var(--serif) !important; font-size: 15px !important; font-weight: 400 !important; color: var(--fg) !important; }
+html.sx.sx registration-routes-component .program-book-wrapper .program-header { border-bottom: 1px solid var(--line) !important; transition: background-color 150ms linear !important; border-radius: 10px !important; }
+html.sx.sx registration-routes-component .program-book-wrapper .program-header:hover { background-color: var(--box-hi) !important; }
+html.sx.sx registration-routes-component .program-book-wrapper .num { color: var(--fg3) !important; font-size: 13px !important; }
+html.sx.sx registration-routes-component .program-book-wrapper .book-title { font-family: var(--serif) !important; font-size: 17px !important; color: var(--fg) !important; }
+html.sx.sx registration-routes-component .program-book-wrapper .book-title * { font-family: inherit !important; }
+html.sx.sx registration-routes-component .program-book-wrapper .ects { font-family: var(--serif) !important; color: var(--fg2) !important; white-space: nowrap; }
+html.sx.sx registration-routes-component .program-book-wrapper .ects * { font-family: inherit !important; }
+html.sx.sx registration-routes-component .program-book-wrapper .conditions { font-size: 13px !important; color: var(--fg3) !important; overflow-wrap: anywhere; }
+html.sx.sx registration-routes-component .program-panel { display: grid !important; place-items: center; }
+html.sx.sx registration-routes-component .program-book-wrapper .program-panel button {
+  display: grid !important; place-items: center; width: 28px !important; height: 28px !important; min-width: 0 !important; padding: 0 !important;
+  border-radius: 999px !important; border: 1px dashed var(--line) !important;
+}
+html.sx.sx registration-routes-component .program-book-wrapper .program-panel mat-icon { width: 18px !important; height: 18px !important; font-size: 18px !important; line-height: 18px !important; }
+html.sx.sx registration-routes-component [data-sx-st="done"] .program-panel button { border: 0 !important; background-color: color-mix(in srgb, var(--sage) 22%, var(--box)) !important; }
+html.sx.sx registration-routes-component [data-sx-st="done"] .program-panel mat-icon { color: var(--sage) !important; }
+html.sx.sx registration-routes-component [data-sx-st="chosen"] .program-panel button { border: 0 !important; background-color: color-mix(in srgb, var(--acc) 22%, var(--box)) !important; }
+html.sx.sx registration-routes-component [data-sx-st="chosen"] .program-panel mat-icon { color: var(--acc) !important; }
+html.sx.sx registration-routes-component [data-sx-st="chosen"] .program-header { background-color: color-mix(in srgb, var(--acc) 7%, var(--box)) !important; }
+html.sx.sx registration-routes-component [data-sx-st="done"] .book-title { color: var(--fg2) !important; }
+html.sx.sx registration-routes-component .program-wrapper > div { display: flex; flex-direction: column; }
+html.sx.sx registration-routes-component .program-wrapper div:has(> h3) {
+  margin: 20px 0 0 !important; padding: 16px 20px !important; border-radius: 12px !important; text-align: left !important;
+  background-color: var(--bg) !important; border: 1px solid var(--line) !important;
+}
+html.sx.sx registration-routes-component .program-wrapper div:has(> h3) + div:has(> h3) { margin-top: 10px !important; }
+html.sx.sx registration-routes-component .program-wrapper h3 {
+  display: flex !important; align-items: baseline; justify-content: space-between; gap: 16px; margin: 0 !important; text-align: left !important;
+  font-family: var(--serif) !important; font-size: 26px !important; line-height: 1.2 !important; color: var(--acc) !important;
+}
+html.sx.sx registration-routes-component .program-wrapper h3 > span { font-family: var(--sans) !important; font-size: 14px !important; line-height: 1.4 !important; color: var(--fg2) !important; }
+@media (max-width: 700px) {
+  html.sx registration-routes-component .info { grid-template-columns: minmax(0, 1fr); }
+  html.sx.sx registration-routes-component .academic-menu { border-radius: 18px !important; }
+}
+
+}
