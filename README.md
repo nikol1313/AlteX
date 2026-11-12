@@ -67,12 +67,12 @@ npm run icons       # re-render the PNG icons from pwa/icons/icon.svg
 
 The app must be served over **HTTPS**. `dist/` is plain static files, so any static host works.
 
-**GitHub Pages (set up in `.github/workflows/pwa.yml`)**
+**GitHub Pages (no build needed)**
 
-1. Repository **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-2. Merge to `main` (or run the "PWA" workflow by hand). The workflow runs `npm test`, `npm run build` and
-   publishes `dist/`.
-3. Open `https://<user>.github.io/<repo>/pwa/`. All paths are relative, so a sub-path is fine.
+1. Repository **Settings → Pages → Build and deployment → Source: Deploy from a branch**, branch `main`, folder `/ (root)`, **Save**.
+2. Wait a minute, then open `https://<user>.github.io/<repo>/pwa/`.
+3. Every push to `main` republishes. Served straight from the repo, the service worker keeps the version `dev`,
+   so after an update close and reopen the app (or deploy `dist/` from `npm run build` to get the update prompt).
 
 **Any other host** (Netlify, Cloudflare Pages, nginx…): run `npm run build` and upload `dist/`. Serve
 `*.webmanifest` as `application/manifest+json` and `pwa/sw.js` with `Cache-Control: no-cache`, so updates are
@@ -107,6 +107,7 @@ the app to its own scripts. The app never stores tokens or personal data.
 | `pwa/index.html`, `app.js`, `install.js`, `app.css` | PWA screens, install prompt, styles |
 | `pwa/sw.js`, `pwa/manifest.webmanifest`, `pwa/icons/` | Service worker, web app manifest, icons (192, 512, maskable, Apple 180) |
 | `tools/` | Build, static server, checks, icon renderer |
+| `.nojekyll` | Tells GitHub Pages to serve files as they are |
 | `tests/pwa.e2e.cjs` | Browser test of the built PWA |
 | `fonts/` | Self-hosted FiraGO and Noto Serif Georgian |
 
