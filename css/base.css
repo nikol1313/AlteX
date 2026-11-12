@@ -1,0 +1,403 @@
+@layer sx {
+
+/* ---------- Tokens ---------- */
+html.sx {
+  --bg: #1C1E1F;
+  --box: #25272A;
+  --box-hi: #2E3035;
+  --line: #393B41;
+  --well: #141516;
+  --fg: #F2EDEF;
+  --fg2: #A6A6AA;
+  --fg3: #93939A;
+  --pri: #9360E3;
+  --pri2: #9D6EE4;
+  --btn: #9B6EE8;
+  --acc: #B99CF3;
+  --red: #9D6EE4;
+  --sage: #CDBBF8;
+  --clay: #DE8DB8;
+  --grad: linear-gradient(135deg, #8B57DE 0%, #7445CB 100%);
+  --grad-hot: linear-gradient(140deg, #8B57DE 0%, #7445CB 55%, #6238B6 100%);
+  --shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 12px 32px -16px rgba(0, 0, 0, .65);
+  --glow: 0 8px 20px -10px rgba(147, 96, 227, .8);
+  --r-lg: 20px;
+  --r: 14px;
+  --sans: "FiraGO", "Noto Sans Georgian", sans-serif;
+  --serif: var(--sans);
+  --col: 880px;
+  --wide: 1200px;
+  --pad: 32px;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  color-scheme: dark;
+
+  --mat-sys-primary: var(--fg); --mat-sys-on-primary: var(--bg);
+  --mat-sys-surface: var(--bg); --mat-sys-on-surface: var(--fg); --mat-sys-on-surface-variant: var(--fg2);
+  --mat-table-background-color: transparent; --mat-table-header-headline-color: var(--fg3);
+  --mat-table-row-item-label-text-color: var(--fg); --mat-table-row-item-outline-color: transparent;
+  --mat-dialog-container-color: var(--bg); --mat-dialog-subhead-color: var(--fg); --mat-dialog-supporting-text-color: var(--fg2);
+  --mat-select-panel-background-color: var(--bg); --mat-select-enabled-trigger-text-color: var(--fg); --mat-select-enabled-arrow-color: var(--fg2);
+  --mat-option-label-text-color: var(--fg2); --mat-option-selected-state-label-text-color: var(--fg);
+  --mat-option-hover-state-layer-color: transparent; --mat-option-selected-state-layer-color: transparent; --mat-option-focus-state-layer-color: transparent;
+  --mat-menu-container-color: var(--bg); --mat-menu-item-label-text-color: var(--fg2);
+  --mat-form-field-filled-container-color: transparent; --mat-form-field-filled-input-text-color: var(--fg);
+  --mat-form-field-filled-label-text-color: var(--fg3); --mat-form-field-filled-focus-label-text-color: var(--fg2);
+  --mat-form-field-outlined-input-text-color: var(--fg); --mat-form-field-outlined-label-text-color: var(--fg3);
+  --mat-form-field-enabled-select-arrow-color: var(--fg2); --mat-form-field-state-layer-color: transparent;
+  --mat-tab-header-active-label-text-color: var(--fg); --mat-tab-header-inactive-label-text-color: var(--fg2);
+  --mat-tab-header-active-focus-label-text-color: var(--fg); --mat-tab-header-active-hover-label-text-color: var(--fg);
+  --mat-radio-selected-icon-color: var(--fg); --mat-radio-unselected-icon-color: var(--fg3); --mat-radio-label-text-color: var(--fg);
+  --mat-checkbox-selected-icon-color: var(--fg);
+  --mat-progress-spinner-active-indicator-color: var(--fg);
+  --mat-datepicker-calendar-container-background-color: var(--bg); --mat-datepicker-calendar-date-text-color: var(--fg2);
+  --mat-datepicker-calendar-date-selected-state-background-color: var(--fg); --mat-datepicker-calendar-date-selected-state-text-color: var(--bg);
+  --mat-datepicker-calendar-header-text-color: var(--fg); --mat-datepicker-calendar-body-label-text-color: var(--fg3);
+  --mat-tooltip-container-color: var(--fg); --mat-tooltip-supporting-text-color: var(--bg);
+}
+
+@keyframes sx-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes sx-drop { from { opacity: 0; transform: translateY(-6px) scale(.98); } to { opacity: 1; transform: none; } }
+
+/* ---------- Reset: one background, no site boxes; every rule below adds back what it needs ---------- */
+html.sx { background: var(--bg) !important; color: var(--fg) !important; }
+html.sx body {
+  color: var(--fg) !important; -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums;
+  background: radial-gradient(900px 480px at 88% -8%, rgba(147, 96, 227, .20), transparent 62%),
+              radial-gradient(700px 420px at -6% 22%, rgba(157, 110, 228, .09), transparent 60%), var(--bg) !important;
+  background-attachment: fixed !important;
+}
+html.sx *, html.sx *::before, html.sx *::after {
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  text-shadow: none !important;
+  border-radius: 0 !important;
+  transition: none !important;
+  animation: none !important;
+}
+html.sx :where(body *:not(svg, svg *)) { color: inherit !important; }
+html.sx :is(.mdc-radio__outer-circle, .mdc-checkbox__background) { border-color: var(--fg2) !important; border-radius: 999px !important; }
+html.sx .mdc-checkbox__background { border-radius: 0 !important; }
+html.sx .mdc-radio__inner-circle { border-color: var(--fg) !important; border-radius: 999px !important; }
+
+html.sx :where(body, body *:not(mat-icon, .material-icons, .mat-icon)) {
+  font-family: var(--sans) !important;
+  font-weight: 400 !important;
+  font-size: 17px !important;
+  line-height: 1.55 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+html.sx a { color: inherit !important; text-decoration: none !important; }
+html.sx ::selection { background-color: var(--pri) !important; color: #fff !important; }
+html.sx mat-icon, html.sx .mat-icon { color: var(--fg2) !important; }
+html.sx :is(a:focus-visible, button:focus-visible, summary:focus-visible) { outline: 2px solid var(--acc) !important; outline-offset: 3px; }
+
+html.sx :is(.topMenuItem img, .dashboard-item .icon-wrapper, .personalDataList .card > div > img,
+            .page-border, .user-menu .user-avatar, .user-menu mat-icon, .schoolName, .mat-mdc-button-persistent-ripple,
+            .mat-ripple-element, .mdc-line-ripple, .mat-mdc-form-field-focus-overlay, .mdc-tab-indicator, .hello-text) { display: none !important; }
+html.sx .flags img { filter: grayscale(1) brightness(1.5) !important; }
+
+/* ---------- Column ---------- */
+html.sx .width, html.sx student-tables-component {
+  display: block;
+  max-width: var(--col) !important; width: auto !important;
+  margin-inline: auto !important; padding-inline: var(--pad) !important; box-sizing: content-box !important;
+  text-align: left !important;
+}
+html.sx:is(.sx-dash, .sx-tables, .sx-program) :is(.width, student-tables-component) { max-width: var(--wide) !important; }
+html.sx .all-page-container { padding-top: 96px !important; padding-bottom: 96px !important; min-height: 0 !important; }
+
+/* ---------- Header: AlteX wordmark, name box that opens the site's user menu ---------- */
+html.sx .user-area-wrapper.navbar { height: 88px !important; min-height: 0 !important; padding: 0 !important; align-items: center !important; }
+html.sx .user-area { height: 100% !important; align-items: center !important; gap: 14px; margin: 0 !important; padding: 0 !important; }
+html.sx .company-logo { display: flex !important; align-items: baseline; width: auto !important; height: auto !important; margin: 0 !important; padding: 0 !important; }
+html.sx .company-logo img { display: none !important; }
+html.sx .company-logo::before, html.sx .company-logo::after { font-family: var(--sans); font-size: 34px; font-weight: 500; line-height: 1; letter-spacing: -0.035em; }
+html.sx .company-logo::before { content: "Alte"; color: var(--fg); }
+html.sx .company-logo::after { content: "X"; display: inline-block; color: var(--red); transition: transform 360ms var(--ease) !important; }
+html.sx .user-area:hover .company-logo::after { transform: rotate(90deg); }
+
+html.sx .topMenuItem:has(> a[href="/personal-data"]) { display: none !important; }
+html.sx .user-menu-top { position: relative !important; display: flex !important; align-self: center !important; align-items: center !important; height: auto !important; }
+html.sx.sx .user-menu {
+  display: flex !important; align-items: center; align-self: center !important; gap: 10px; height: auto !important; padding: 9px 16px 9px 18px !important; cursor: pointer;
+  background-color: var(--box) !important; border: 1px solid var(--line) !important; border-radius: 999px !important;
+  transition: background-color 150ms linear, border-color 150ms linear !important;
+}
+html.sx.sx .user-menu:hover { background-color: var(--box-hi) !important; }
+html.sx.sx .user-menu .userName { color: var(--fg) !important; font-size: 15px !important; }
+html.sx.sx .user-menu::after {
+  content: ""; width: 7px; height: 7px; margin: -4px 0 0 4px; border: solid var(--fg2) !important; border-width: 0 1.5px 1.5px 0 !important;
+  transform: rotate(45deg); transition: transform 220ms var(--ease) !important;
+}
+html.sx.sx .user-menu-top:has(.user-subMenu) .user-menu::after { transform: translateY(3px) rotate(225deg); }
+html.sx.sx.sx .user-subMenu {
+  position: absolute !important; top: calc(100% + 8px) !important; right: 0 !important; left: auto !important; z-index: 80;
+  display: flex !important; flex-direction: column; gap: 2px; min-width: 260px; width: auto !important; height: auto !important;
+  padding: 8px !important; margin: 0 !important; background-color: var(--box) !important;
+  border: 1px solid var(--line) !important; border-radius: 16px !important; box-shadow: 0 24px 48px -20px rgba(0, 0, 0, .8) !important;
+  animation: sx-drop 180ms var(--ease) both !important;
+}
+html.sx.sx .user-subMenu > a {
+  display: flex !important; flex-direction: column; align-items: flex-start; gap: 2px; width: auto !important; height: auto !important;
+  padding: 10px 14px !important; margin: 0 !important; border-radius: 10px !important; text-align: left !important;
+  color: var(--fg) !important; font-size: 16px !important; transition: background-color 150ms linear !important;
+}
+html.sx.sx .user-subMenu > a * { color: inherit !important; font-size: inherit !important; }
+html.sx.sx .user-subMenu > a :is(mat-icon, img) { display: none !important; }
+html.sx.sx .user-subMenu > a::after { content: attr(data-en); font-size: 13px; color: var(--fg3); }
+html.sx.sx .user-subMenu > a:hover { background-color: var(--box-hi) !important; }
+html.sx.sx .user-subMenu > a.sx-um-logout { color: var(--clay) !important; }
+
+/* ---------- Titles ---------- */
+html.sx :is(.commandsh3, h1) {
+  font-size: 52px !important; font-weight: 500 !important; line-height: 1.1 !important;
+  letter-spacing: -0.03em !important; color: var(--fg) !important; margin: 0 0 48px !important;
+}
+html.sx :is(h2, h3:not(.commandsh3), .card-title, .program-title) {
+  font-size: 26px !important; font-weight: 500 !important; line-height: 1.3 !important;
+  letter-spacing: -0.015em !important; color: var(--fg) !important; margin: 0 0 20px !important;
+}
+
+/* ---------- Buttons: pills, tinted purple, solid on hover ---------- */
+html.sx :where(.mat-mdc-button-base:not(.mat-mdc-icon-button):not(.mat-mdc-tab-link):not(.mat-mdc-tab), .details-button, .ini-button, .create_new_journal) {
+  display: inline-flex !important; align-items: center !important; gap: 8px;
+  width: auto !important; height: auto !important; min-width: 0 !important; min-height: 0 !important;
+  margin: 0 !important; padding: 8px 16px !important; border-radius: 999px !important;
+  color: var(--fg2) !important; font-size: 15px !important; line-height: 1.4 !important;
+  transition: background-color 150ms linear, color 150ms linear !important;
+}
+html.sx :where(.mat-mdc-button-base:not(.mat-mdc-icon-button):not(.mat-mdc-tab-link):not(.mat-mdc-tab), .details-button, .ini-button, .create_new_journal) * { color: inherit !important; font-size: 15px !important; line-height: 1.4 !important; }
+html.sx :where(.mat-mdc-button-base:not(.mat-mdc-icon-button):not(.mat-mdc-tab-link):not(.mat-mdc-tab), .details-button, .ini-button, .create_new_journal):is(:hover, :focus-visible) {
+  background-color: var(--box-hi) !important; color: var(--fg) !important;
+}
+html.sx.sx :is(.mat-mdc-raised-button, .mat-mdc-unelevated-button, .mat-mdc-outlined-button, .details-button, .ini-button, .create_new_journal):not(:disabled, .mat-mdc-button-disabled, .day-title) {
+  background-color: rgba(155, 110, 232, .16) !important; color: #D9CAFA !important; box-shadow: inset 0 0 0 1px rgba(155, 110, 232, .38) !important;
+}
+html.sx.sx :is(.mat-mdc-raised-button, .mat-mdc-unelevated-button, .mat-mdc-outlined-button, .details-button, .ini-button, .create_new_journal):not(:disabled, .mat-mdc-button-disabled, .day-title):is(:hover, :focus-visible) {
+  background-color: var(--btn) !important; background-image: var(--grad) !important; color: #fff !important; box-shadow: var(--glow) !important;
+}
+
+/* Counts; zero is hidden (content script marks it) */
+html.sx :is(.notify, .mat-badge-content) {
+  position: static !important; inset: auto !important; transform: none !important; order: 3;
+  display: inline !important; width: auto !important; height: auto !important; min-width: 0 !important;
+  margin: 0 !important; padding: 0 !important; color: var(--acc) !important; font-size: 15px !important; line-height: 1.4 !important;
+}
+html.sx :is(.notify, .mat-badge-content)[data-sx-zero], html.sx .mat-badge-hidden .mat-badge-content { display: none !important; }
+
+/* ---------- Navigation bar: five sections, the rest under "მეტი" ---------- */
+html.sx.sx user-menu-component {
+  display: block; position: sticky; top: -88px; z-index: 45;
+  background-color: rgba(28, 30, 31, .78) !important; backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2);
+}
+html.sx .topMenuTo { position: static !important; border-bottom: 1px solid var(--line) !important; }
+html.sx.sx user-menu-component .topMenuTo .width { max-width: var(--wide) !important; }
+html.sx .topMenu {
+  position: static !important; transform: none !important; height: auto !important; width: auto !important;
+  min-width: 0 !important; max-width: none !important; overflow: visible !important;
+}
+html.sx :is(.toggleButton, .topMenu .user-area-wrapper) { display: none !important; }
+html.sx .topMenuItems {
+  display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center; gap: 6px !important;
+  margin: 0 !important; padding: 12px 0 !important; justify-content: safe center !important; text-align: left !important;
+  overflow-x: auto; scrollbar-width: none;
+}
+html.sx .topMenuItems::-webkit-scrollbar { display: none; }
+html.sx .topMenuItems, html.sx .topMenuItems > li { list-style: none !important; }
+html.sx .topMenuItem { flex: 0 0 auto !important; width: auto !important; order: 10; }
+html.sx .topMenuItem:not(:has(> a:is([href="/calendar"], [href="/registration"], [href="/programs"], [href="/finances"], [href="/chancellery"]))) { display: none !important; }
+html.sx .topMenuItem:has(> a[href="/calendar"]) { order: 1; }
+html.sx .topMenuItem:has(> a[href="/registration"]) { order: 2; }
+html.sx .topMenuItem:has(> a[href="/programs"]) { order: 3; }
+html.sx .topMenuItem:has(> a[href="/finances"]) { order: 4; }
+html.sx .topMenuItem:has(> a[href="/chancellery"]) { order: 5; }
+html.sx .topMenuItems > .sx-more { order: 20; }
+html.sx .menu-text { margin: 0 !important; white-space: nowrap; }
+html.sx .topMenuItem > a > div:has(> img) { display: none !important; }
+
+html.sx :is(.topMenuItem > a, .sx-more-btn) {
+  display: inline-flex !important; align-items: center !important; gap: 8px; height: auto !important; width: auto !important;
+  padding: 10px 18px !important; border-radius: 999px !important; cursor: pointer; white-space: nowrap;
+  color: var(--fg2) !important; font-size: 15px !important; line-height: 1.4 !important;
+  transition: background-color 150ms linear, color 150ms linear !important;
+}
+html.sx :is(.topMenuItem > a, .sx-more-btn) * { font-size: inherit !important; line-height: inherit !important; }
+html.sx :is(.topMenuItem > a, .sx-more-btn):is(:hover, :focus-visible) { background-color: var(--box-hi) !important; color: var(--fg) !important; }
+html.sx.sx :is(.topMenuItem > a.active, .sx-more.sx-active > .sx-more-btn) {
+  background-color: var(--pri) !important; background-image: var(--grad) !important; color: #fff !important;
+  box-shadow: 0 8px 22px -10px rgba(147, 96, 227, .85) !important;
+}
+html.sx.sx .topMenuItem > a .notify {
+  display: inline-block !important; padding: 1px 9px !important; border-radius: 999px !important;
+  background-color: rgba(147, 96, 227, .26) !important; color: #E3D7FB !important; font-size: 13px !important;
+}
+html.sx.sx .topMenuItem > a.active .notify { background-color: rgba(255, 255, 255, .24) !important; color: #fff !important; }
+html.sx.sx .topMenuItem > a .notify[data-sx-zero] { display: none !important; }
+
+html.sx .sx-more-btn::after {
+  content: ""; width: 6px; height: 6px; margin: -3px 0 0 2px; border: solid currentColor !important; border-width: 0 1.5px 1.5px 0 !important;
+  transform: rotate(45deg); transition: transform 200ms var(--ease) !important;
+}
+html.sx .sx-more.sx-open .sx-more-btn::after { transform: translateY(3px) rotate(225deg); }
+html.sx .sx-more.sx-open .sx-more-btn { background-color: var(--box-hi) !important; color: var(--fg) !important; }
+html.sx .sx-more-menu {
+  position: fixed; z-index: 70; display: none; min-width: 300px; padding: 8px !important;
+  background-color: var(--box) !important; border: 1px solid var(--line) !important; border-radius: 16px !important;
+  box-shadow: 0 24px 48px -20px rgba(0, 0, 0, .8) !important;
+}
+html.sx .sx-more.sx-open .sx-more-menu { display: flex; flex-direction: column; gap: 2px; animation: sx-drop 180ms var(--ease) both !important; transform-origin: top left; }
+html.sx .sx-more-item {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; padding: 10px 14px !important;
+  border-radius: 10px !important; text-align: left; cursor: pointer; transition: background-color 150ms linear !important;
+}
+html.sx .sx-more-item:is(:hover, :focus-visible) { background-color: var(--box-hi) !important; }
+html.sx.sx .sx-more-item.sx-active { background-color: rgba(147, 96, 227, .18) !important; }
+html.sx .sx-more-item .sx-ka { font-size: 16px !important; color: var(--fg) !important; }
+html.sx .sx-more-item .sx-en { font-size: 13px !important; color: var(--fg3) !important; }
+html.sx .sx-more-item.sx-active .sx-ka { color: var(--acc) !important; }
+
+/* ---------- Boxes on inner pages ---------- */
+html.sx :is(.mat-elevation-z8, .personalDataList .card, .mat-expansion-panel, .ini-block,
+            student-tables-component .mat-mdc-card, .calendar, .program-wrapper, .semester-wrapper, .template_panel, .page-messages) {
+  background-color: var(--box) !important; border: 1px solid var(--line) !important; border-radius: var(--r-lg) !important;
+  padding: 28px 32px !important; box-sizing: border-box !important; overflow: hidden; box-shadow: var(--shadow) !important;
+}
+html.sx :is(.mat-elevation-z8, .mat-expansion-panel) :is(.mat-elevation-z8, .mat-expansion-panel) {
+  background-color: transparent !important; border-color: transparent !important; padding: 0 !important; box-shadow: none !important;
+}
+
+/* ---------- Tables: space instead of lines ---------- */
+html.sx :is(.mat-mdc-table, mat-table, table) { width: 100% !important; }
+html.sx :is(.semester-child, .mat-elevation-z8, .curation_cont, .program-wrapper, .calendar, .page-messages) { overflow-x: auto !important; }
+html.sx :is(mat-header-row, .mat-mdc-header-row) { min-height: 0 !important; padding: 0 0 8px !important; }
+html.sx :is(mat-header-cell, .mat-mdc-header-cell, th) { color: var(--fg3) !important; font-size: 15px !important; padding: 0 12px 0 0 !important; text-align: left !important; }
+html.sx :is(mat-row, .mat-mdc-row) { min-height: 0 !important; padding: 10px 0 !important; }
+html.sx :is(mat-row, .mat-mdc-row):has(> .mat-column-expandedDetail) { padding: 0 !important; }
+html.sx :is(mat-cell, .mat-mdc-cell, td) { padding: 0 12px 0 0 !important; color: var(--fg) !important; }
+html.sx :is(mat-cell, .mat-mdc-cell, mat-header-cell, .mat-mdc-header-cell, td, th) { min-width: 0 !important; overflow-wrap: anywhere !important; overflow: visible !important; }
+html.sx :is(mat-cell, .mat-mdc-cell, mat-header-cell, .mat-mdc-header-cell, td, th) * { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
+html.sx :is(mat-cell, .mat-mdc-cell):is(.mat-column-prof, .mat-column-credit) { color: var(--fg2) !important; font-size: 14px !important; }
+html.sx :is(mat-cell, .mat-mdc-cell).mat-column-prof * { color: inherit !important; font-size: inherit !important; text-align: left !important; }
+html.sx :is(.curation_cont, .curation_cont *) { text-align: left !important; }
+html.sx .mat-mdc-paginator { color: var(--fg2) !important; }
+
+/* Grades and money */
+html.sx .result-color { display: inline !important; width: auto !important; height: auto !important; padding: 0 !important; font-family: var(--serif) !important; color: var(--fg) !important; }
+html.sx .result-color:is([data-grade="A"], [data-grade="B"]) { color: var(--sage) !important; }
+html.sx .result-color:is([data-grade="C"], [data-grade="D"]) { color: var(--fg2) !important; }
+html.sx .result-color:is([data-grade="E"], [data-grade="F"], [data-grade="FX"]) { color: var(--clay) !important; }
+html.sx .book-label { color: var(--fg3) !important; }
+html.sx .positive-balance, html.sx .positive-balance * { color: var(--sage) !important; }
+html.sx :is(.negative-balance, .debt), html.sx :is(.negative-balance, .debt) * { color: var(--clay) !important; }
+
+/* Personal data */
+html.sx .personalDataList .card { margin: 0 !important; height: auto !important; }
+html.sx .listMenu { display: grid !important; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+html.sx .listMenu > :first-child { grid-column: 1 / -1; }
+html.sx .listMenu > * { width: auto !important; max-width: none !important; margin: 0 !important; }
+html.sx mat-progress-spinner circle { stroke: var(--fg2) !important; }
+html.sx .listMenu > :nth-child(3n+2) mat-progress-spinner circle { stroke: var(--sage) !important; }
+html.sx .listMenu > :nth-child(3n) mat-progress-spinner circle { stroke: var(--acc) !important; }
+html.sx .listMenu > :nth-child(3n+1) mat-progress-spinner circle { stroke: var(--clay) !important; }
+html.sx .spinner-value { font-family: var(--serif) !important; font-size: 23px !important; color: var(--fg) !important; }
+html.sx .spinner-value * { font-family: var(--serif) !important; font-size: inherit !important; color: var(--fg2) !important; }
+html.sx .status-text { color: var(--fg3) !important; font-size: 13px !important; }
+html.sx .student-name, html.sx .student-name * { font-size: 23px !important; font-weight: 500 !important; letter-spacing: -0.015em !important; color: var(--fg) !important; }
+html.sx :is(.program-name, .doc-links, .doc-links *) { color: var(--fg2) !important; font-size: 14px !important; }
+html.sx .user-avatar-image img { border-radius: 999px !important; }
+html.sx .student-card-qr { display: flex !important; justify-content: flex-start !important; text-align: left !important; }
+html.sx .profile-data-line .title { color: var(--fg3) !important; font-size: 14px !important; }
+
+/* Tabs: state by colour only */
+html.sx :is(.mdc-tab__text-label, .mdc-tab__text-label *) { color: var(--fg2) !important; }
+html.sx .mdc-tab--active :is(.mdc-tab__text-label, .mdc-tab__text-label *) { color: var(--acc) !important; }
+html.sx :is(.tables-tab-menu, .exam-type-links, .exam-type-link-wrapper, .page-messages ul, .academic-menu) :is(a, div, li) { color: var(--fg2) !important; }
+html.sx :is(.tables-tab-menu, .exam-type-links, .exam-type-link-wrapper, .page-messages ul, .academic-menu) :is(.active, .first, li.active > a) { color: var(--fg) !important; }
+html.sx :is(.program-header-item, .academic-menu-item) { color: var(--fg2) !important; }
+html.sx :is(.program-header-item, .academic-menu-item).active { color: var(--fg) !important; }
+
+/* Form fields */
+html.sx .mat-mdc-form-field { margin-bottom: 8px; }
+html.sx :is(.mat-mdc-floating-label, .mdc-floating-label, .mat-mdc-floating-label *) { color: var(--fg3) !important; font-size: 14px !important; }
+html.sx :is(.mat-mdc-select-value, .mat-mdc-input-element, .mat-mdc-select-value *) { color: var(--fg) !important; }
+html.sx :is(.mdc-text-field, .mat-mdc-form-field-flex) { padding-left: 0 !important; }
+html.sx .mdc-switch__track { border-radius: 999px !important; overflow: hidden; }
+html.sx .mdc-switch__track::before { background-color: #4A4D55 !important; }
+html.sx .mdc-switch__track::after { background-color: var(--btn) !important; }
+html.sx :is(.mdc-switch__handle, .mdc-switch__shadow) { border-radius: 999px !important; }
+html.sx .mdc-switch__handle::before, html.sx .mdc-switch__handle::after { background-color: #F2EDEF !important; border-radius: 999px !important; }
+
+/* ---------- Overlays ---------- */
+html.sx :is(.mat-mdc-dialog-surface, .mat-mdc-select-panel, .mat-mdc-menu-panel, .mat-datepicker-content) {
+  border-radius: var(--r) !important; border: 1px solid var(--line) !important; background-color: var(--box) !important;
+  box-shadow: 0 28px 64px -24px rgba(0, 0, 0, .85) !important;
+}
+html.sx .mat-mdc-autocomplete-panel { background-color: var(--bg) !important; }
+html.sx .cdk-overlay-backdrop.cdk-overlay-backdrop-showing { background-color: rgba(14, 15, 16, .82) !important; }
+html.sx .mat-mdc-dialog-title::before { display: none !important; }
+html.sx :is(.mat-mdc-option, .mat-mdc-menu-item) { color: var(--fg2) !important; transition: color 150ms linear !important; }
+html.sx :is(.mat-mdc-option, .mat-mdc-menu-item):is(:hover, .mdc-list-item--selected) { color: var(--fg) !important; }
+html.sx :is(.mat-mdc-tooltip-surface, .mdc-tooltip__surface) { background-color: var(--fg) !important; color: var(--bg) !important; }
+
+/* Notification popup: text in a box, ნახვა as the main action, idc beside it */
+html.sx alert-dialog { display: block; }
+html.sx alert-dialog > div { width: auto !important; margin: 0 !important; padding: 32px 32px 28px !important; align-items: flex-start !important; min-width: 320px; }
+html.sx alert-dialog > br { display: none; }
+html.sx alert-dialog .mat-mdc-dialog-title { margin: 0 0 8px !important; padding: 0 !important; font-size: 14px !important; color: var(--fg3) !important; }
+html.sx alert-dialog .mat-mdc-dialog-content { padding: 0 !important; overflow: visible !important; }
+html.sx alert-dialog .mat-mdc-dialog-content > div { text-align: left !important; font-size: 20px !important; color: var(--fg) !important; }
+html.sx alert-dialog .mat-mdc-dialog-actions { justify-content: flex-start !important; gap: 8px; padding: 24px 0 0 !important; min-height: 0 !important; }
+html.sx.sx alert-dialog .mat-mdc-dialog-actions .mat-mdc-button-base,
+html.sx.sx alert-dialog .mat-mdc-dialog-actions .mat-mdc-button-base:is(:hover, :focus-visible) {
+  background-color: var(--btn) !important; background-image: var(--grad) !important; color: #fff !important; box-shadow: var(--glow) !important;
+}
+html.sx .sx-idc {
+  display: inline-flex; align-items: center; padding: 8px 18px !important; border-radius: 999px !important;
+  border: 1px solid var(--line) !important; color: var(--fg2) !important; font-size: 15px !important; line-height: 1.4 !important; cursor: pointer;
+  transition: background-color 150ms linear, color 150ms linear !important;
+}
+html.sx .sx-idc:is(:hover, :focus-visible) { background-color: var(--box-hi) !important; color: var(--fg) !important; }
+
+/* ---------- Footer: our own line replaces the site's copyright ---------- */
+html.sx footer { position: static !important; }
+html.sx.sx .footer-text {
+  display: flex !important; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px 14px;
+  padding: 48px 24px !important; font-size: 0 !important; color: var(--fg3) !important;
+}
+html.sx .footer-text > span[translate] { display: none !important; }
+html.sx .footer-text::before {
+  content: "2026 N.A. — დამზადებულია სტუდენტის მიერ, სტუდენტებისთვის.";
+  font-family: var(--sans); font-size: 13px; line-height: 1.5; color: var(--fg3);
+}
+
+html.sx ::-webkit-scrollbar { width: 10px; height: 10px; }
+html.sx ::-webkit-scrollbar-thumb { background-color: var(--fg3) !important; border: 3px solid var(--bg) !important; border-radius: 999px !important; }
+
+/* ---------- Shared bits ---------- */
+html.sx .sx-chev {
+  width: 10px; height: 10px; margin: 0 6px 4px 4px; border: solid var(--fg2) !important; border-width: 0 2px 2px 0 !important;
+  transform: rotate(45deg); transition: transform 240ms var(--ease) !important;
+}
+html.sx .sx-empty { margin: auto 0; padding: 24px 0 8px; display: flex; flex-direction: column; gap: 2px; }
+html.sx .sx-empty span:first-child { font-size: 18px !important; color: var(--fg2) !important; }
+html.sx .sx-empty span:last-child { font-size: 14px !important; color: var(--fg3) !important; }
+
+@media (max-width: 860px) {
+  html.sx .listMenu { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  html.sx .all-page-container { padding-top: 56px !important; }
+}
+@media (max-width: 760px) {
+  html.sx.sx .user-menu .userName { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+  html.sx .company-logo::before, html.sx .company-logo::after { font-size: 28px; }
+}
+@media (max-width: 520px) {
+  html.sx { --pad: 16px; }
+  html.sx :is(.commandsh3, h1) { font-size: 40px !important; }
+}
+
+}

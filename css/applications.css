@@ -1,0 +1,37 @@
+@layer sx {
+
+html.sx :is(.day-name, .status-text) { color: var(--fg3) !important; font-size: 13px !important; }
+html.sx .day-number, html.sx .day-number * { font-family: var(--serif) !important; font-size: 23px !important; color: var(--fg2) !important; }
+html.sx .now .day-number, html.sx .now .day-number * { color: var(--sage) !important; }
+html.sx :is(.event, .eventMine), html.sx :is(.event, .eventMine) * { font-family: var(--serif) !important; color: var(--fg) !important; font-size: 15px !important; }
+html.sx :is(.event, .eventMine) { background-color: color-mix(in srgb, var(--sage) 12%, var(--box)) !important; border-radius: 8px !important; padding: 6px 8px !important; }
+html.sx :is(.day-item, .week_tbody_td) { padding: 8px 12px 16px 0 !important; color: var(--fg2) !important; overflow-wrap: anywhere !important; min-width: 0 !important; }
+
+html.sx hr-calendar-component .calendar table, html.sx hr-calendar-component .calendar :is(thead, tbody) { display: block !important; width: 100% !important; }
+html.sx hr-calendar-component .calendar tr.week_thead { display: grid !important; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin-bottom: 20px; }
+html.sx hr-calendar-component .calendar th.hours_th { display: none !important; }
+html.sx hr-calendar-component .calendar :is(thead, tr.week_thead) { height: auto !important; }
+html.sx hr-calendar-component .calendar th.headInfo { width: auto !important; max-width: none !important; height: auto !important; box-sizing: border-box; }
+html.sx hr-calendar-component .calendar th.headInfo :is(.day-name, .day-number, .day-number *) { width: auto !important; height: auto !important; }
+html.sx hr-calendar-component .calendar th.headInfo { display: block !important; padding: 10px 4px !important; text-align: center !important; border-radius: 12px !important; min-width: 0; }
+html.sx hr-calendar-component .calendar th.headInfo * { text-align: center !important; }
+html.sx hr-calendar-component .calendar th.headInfo .day-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.sx hr-calendar-component .calendar th.headInfo.now { background-color: color-mix(in srgb, var(--sage) 12%, var(--box)) !important; }
+html.sx hr-calendar-component .calendar tr.week_tbody {
+  display: grid !important; grid-template-columns: 64px minmax(0, 1fr); align-items: start; gap: 16px;
+  height: auto !important; padding: 14px 0 !important; border-top: 1px solid var(--line) !important;
+}
+html.sx hr-calendar-component .calendar tr.week_tbody > td { height: auto !important; width: auto !important; padding: 0 !important; }
+html.sx hr-calendar-component .calendar tr.week_tbody > td:first-child {
+  white-space: nowrap; overflow-wrap: normal !important; word-break: normal !important;
+  font-family: var(--serif) !important; font-size: 18px !important; color: var(--fg) !important; padding-top: 2px !important;
+}
+html.sx hr-calendar-component .calendar td.week_tbody_td:not([data-sx-day]) { display: none !important; }
+html.sx hr-calendar-component .calendar td.week_tbody_td[data-sx-day] { display: block !important; grid-column: 2; min-width: 0; }
+html.sx hr-calendar-component .calendar td.week_tbody_td[data-sx-day]::before { content: attr(data-sx-day); display: block; margin-bottom: 6px; font-size: 13px; color: var(--fg3); }
+html.sx hr-calendar-component .calendar td.week_tbody_td.sx-cal-today::before { color: var(--sage); }
+html.sx hr-calendar-component .calendar td.week_tbody_td :is(div, .event) { width: auto !important; height: auto !important; min-height: 0 !important; max-width: none !important; position: static !important; }
+html.sx hr-calendar-component .calendar .event { padding: 10px 14px !important; cursor: pointer; }
+html.sx hr-calendar-component .calendar .event, html.sx hr-calendar-component .calendar .event * { overflow-wrap: break-word !important; word-break: normal !important; line-height: 1.45 !important; }
+
+}

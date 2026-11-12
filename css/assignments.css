@@ -1,0 +1,65 @@
+@layer sx {
+
+html.sx.sx tasks-mini-component .width { max-width: 1120px !important; }
+html.sx.sx tasks-mini-component :is(mat-table, .mat-mdc-table).mat-elevation-z8 {
+  display: flex !important; flex-direction: column; gap: 16px; background-color: transparent !important; border: 0 !important; padding: 0 !important;
+  overflow: visible !important; border-radius: 0 !important; box-shadow: none !important;
+}
+html.sx.sx tasks-mini-component mat-header-row { display: none !important; }
+html.sx.sx.sx tasks-mini-component .mat-column-id { display: none !important; }
+html.sx.sx tasks-mini-component mat-row {
+  display: grid !important; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name act" "fold fold"; align-items: center; column-gap: 20px;
+  min-height: 0 !important; padding: 28px 32px !important; box-sizing: border-box; border-radius: 22px !important;
+  background-color: var(--box) !important; border: 1px solid var(--line) !important; box-shadow: var(--shadow) !important;
+  animation: sx-rise 480ms var(--ease) both !important; transition: border-color 180ms linear !important;
+}
+html.sx.sx tasks-mini-component mat-row:hover { border-color: rgba(157, 110, 228, .5) !important; }
+html.sx.sx tasks-mini-component mat-row mat-cell { padding: 0 !important; min-width: 0 !important; flex: none !important; }
+html.sx.sx tasks-mini-component mat-row .mat-column-name { grid-area: name; font-size: 28px !important; font-weight: 500 !important; line-height: 1.25 !important; letter-spacing: -0.02em !important; color: var(--fg) !important; }
+html.sx.sx tasks-mini-component mat-row .mat-column-actions { grid-area: act; justify-self: end; }
+html.sx.sx tasks-mini-component .mat-button-toggle-button {
+  display: grid !important; place-items: center; width: 52px !important; height: 52px !important; padding: 0 !important; border-radius: 999px !important; cursor: pointer;
+  background-color: rgba(155, 110, 232, .16) !important; box-shadow: inset 0 0 0 1px rgba(155, 110, 232, .38) !important;
+  transition: background-color 150ms linear !important;
+}
+html.sx.sx tasks-mini-component .mat-button-toggle-button:is(:hover, :focus-visible) { background-color: var(--btn) !important; }
+html.sx.sx tasks-mini-component .mat-button-toggle-button mat-icon { color: #D9CAFA !important; width: 24px !important; height: 24px !important; font-size: 24px !important; line-height: 24px !important; }
+html.sx.sx tasks-mini-component .mat-button-toggle-button:is(:hover, :focus-visible) mat-icon { color: #fff !important; }
+html.sx.sx tasks-mini-component .mat-button-toggle-label-content { padding: 0 !important; line-height: 1 !important; display: grid !important; place-items: center; }
+html.sx.sx tasks-mini-component .mat-mdc-paginator { margin-top: 8px; }
+
+html.sx .sx-tf { grid-area: fold; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line) !important; min-width: 0; }
+html.sx .sx-tf-sum {
+  display: inline-flex; align-items: center; gap: 12px; padding: 12px 18px; border-radius: 14px !important; cursor: pointer; list-style: none; user-select: none;
+  background-color: var(--well) !important; border: 1px solid var(--line) !important; transition: border-color 150ms linear, background-color 150ms linear !important;
+}
+html.sx .sx-tf-sum::-webkit-details-marker { display: none; }
+html.sx .sx-tf-sum:hover { border-color: var(--pri2) !important; background-color: #191A1C !important; }
+html.sx .sx-tf-label { font-size: 16px !important; color: var(--fg) !important; }
+html.sx .sx-tf-en { font-size: 13px !important; color: var(--fg2) !important; }
+html.sx .sx-tf-count { min-width: 26px; padding: 2px 9px; box-sizing: border-box; text-align: center; border-radius: 999px !important; background-color: var(--pri) !important; color: #fff !important; font-size: 13px !important; font-weight: 500 !important; }
+html.sx .sx-tf.sx-tf-none .sx-tf-count { background-color: var(--line) !important; color: var(--fg2) !important; }
+html.sx .sx-tf .sx-chev { margin: 0 2px 4px 2px; border-color: var(--fg2) !important; transform: rotate(45deg); }
+html.sx .sx-tf[open] .sx-chev { transform: rotate(225deg); margin-bottom: -4px; }
+html.sx .sx-tf-list { display: grid; gap: 12px; margin-top: 16px; }
+html.sx .sx-tf-item {
+  display: flex; flex-direction: column; gap: 8px; padding: 18px 22px; border-radius: 16px !important; min-width: 0;
+  background-color: var(--well) !important; border: 1px solid var(--line) !important; border-left: 3px solid var(--pri) !important;
+  animation: sx-rise 320ms var(--ease) both !important;
+}
+html.sx .sx-tf-name { font-size: 19px !important; font-weight: 500 !important; line-height: 1.35 !important; color: var(--fg) !important; overflow-wrap: anywhere; }
+html.sx .sx-tf-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+html.sx .sx-tf-meta > span { font-size: 14px !important; color: var(--fg2) !important; }
+html.sx .sx-tf-meta > .sx-tf-due { padding: 3px 12px; border-radius: 999px !important; background-color: rgba(147, 96, 227, .22) !important; color: #E3D7FB !important; }
+html.sx .sx-tf-meta > .sx-tf-due.sx-past { background-color: rgba(222, 141, 184, .16) !important; color: var(--clay) !important; }
+html.sx .sx-tf-text { margin: 0; font-size: 15px !important; line-height: 1.55 !important; color: var(--fg2) !important; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+html.sx.sx .sx-tf-link { align-self: flex-start; font-size: 15px !important; color: var(--acc) !important; text-decoration: underline 1px rgba(185, 156, 243, .5) !important; text-underline-offset: 4px !important; }
+html.sx.sx .sx-tf-link:hover { color: #fff !important; }
+html.sx .sx-tf-empty { margin: 0; padding: 4px 2px; font-size: 15px !important; color: var(--fg2) !important; }
+@media (max-width: 640px) {
+  html.sx.sx tasks-mini-component mat-row { padding: 22px 20px !important; }
+  html.sx.sx tasks-mini-component mat-row .mat-column-name { font-size: 22px !important; }
+  html.sx .sx-tf-sum { flex-wrap: wrap; }
+}
+
+}
