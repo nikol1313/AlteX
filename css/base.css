@@ -60,9 +60,9 @@ html.sx {
 @keyframes sx-drop { from { opacity: 0; transform: translateY(-6px) scale(.98); } to { opacity: 1; transform: none; } }
 
 /* ---------- Reset: one background, no site boxes; every rule below adds back what it needs ---------- */
-html.sx { background: var(--bg) !important; color: var(--fg) !important; }
+html.sx { background: var(--bg) !important; color: var(--fg) !important; -webkit-tap-highlight-color: transparent; }
 html.sx body {
-  color: var(--fg) !important; -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums;
+  color: var(--fg) !important; -webkit-tap-highlight-color: transparent; -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums;
   background: radial-gradient(900px 480px at 88% -8%, rgba(147, 96, 227, .20), transparent 62%),
               radial-gradient(700px 420px at -6% 22%, rgba(157, 110, 228, .09), transparent 60%), var(--bg) !important;
 }
@@ -74,6 +74,7 @@ html.sx *, html.sx *::before, html.sx *::after {
   box-shadow: none !important;
   outline: none !important;
   text-shadow: none !important;
+  -webkit-tap-highlight-color: transparent !important;
   border-radius: 0 !important;
   transition: none !important;
   animation: none !important;
@@ -95,6 +96,8 @@ html.sx a { color: inherit !important; text-decoration: none !important; }
 html.sx ::selection { background-color: var(--pri) !important; color: #fff !important; }
 html.sx :is(input, textarea)::placeholder { color: var(--fg3) !important; -webkit-text-fill-color: var(--fg3); opacity: 1 !important; }
 html.sx mat-icon, html.sx .mat-icon { color: var(--fg2) !important; }
+/* No browser tap flash or focus ring on touch/mouse; keyboard focus (:focus-visible) keeps its ring */
+html.sx :focus:not(:focus-visible) { outline: none !important; }
 html.sx :is(a:focus-visible, button:focus-visible, summary:focus-visible) { outline: 2px solid var(--acc) !important; outline-offset: 3px; }
 
 html.sx :is(.topMenuItem img, .dashboard-item .icon-wrapper, .personalDataList .card > div > img,
@@ -199,7 +202,7 @@ html.sx.sx user-menu-component {
   background-color: rgba(28, 30, 31, .78) !important; backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2);
 }
 /* Header (AlteX + navigation): a long press neither selects text nor flashes a highlight */
-html.sx user-menu-component { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+html.sx user-menu-component { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 html.sx .topMenuTo { position: static !important; border-bottom: 1px solid var(--line) !important; }
 html.sx.sx user-menu-component .topMenuTo .width { max-width: var(--wide) !important; }
 html.sx .topMenu {

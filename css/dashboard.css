@@ -36,6 +36,8 @@ html.sx.sx dashboard-component .dashboard-item-wrapper {
 html.sx.sx dashboard-component .dashboard-item-wrapper, html.sx.sx dashboard-component .dashboard-item-wrapper * { text-align: left !important; }
 html.sx.sx dashboard-component .dashboard-item-wrapper[href="/tables"] { grid-column: 1; grid-row: 1 / span 2; animation-delay: 60ms !important; }
 html.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] { grid-column: 2; grid-row: 1; animation-delay: 140ms !important; }
+/* Press feedback instead of the browser's tap highlight; follows the card's radius */
+html.sx.sx dashboard-component .dashboard-item-wrapper:active .dashboard-item { transform: scale(.98) !important; }
 html.sx.sx dashboard-component .dashboard-item-wrapper[href="/learningCard"] { grid-column: 2; grid-row: 2; animation-delay: 220ms !important; --c: var(--acc); }
 html.sx.sx dashboard-component .dashboard-item-wrapper:is(:hover, :focus-visible) { z-index: 50; }
 
