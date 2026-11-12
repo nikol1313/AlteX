@@ -22,6 +22,14 @@ The extension activates automatically on `https://students.alte.edu.ge/*`.
 
 ## instalation on Android
 
+**[Download AlteX for Android (APK)](https://github.com/nikol1313/AlteX-chrome-extension/releases/latest/download/AlteX.apk)**
+
+1. Open the link above on your phone; it always downloads the newest version.
+2. Open the downloaded `AlteX.apk`. The first time, Android asks to allow installs from your browser: allow it.
+3. Tap **Install**, open AlteX and log in. Tick "დამახსოვრება ამ ტელეფონზე" to stay logged in.
+
+Newer versions install over the old one and keep you logged in.
+
 `android/` wraps the portal in an Android WebView and injects this same extension code, so phones get the
 redesign and live data too. It is built from `manifest.json` (no separate copy of the code) and released as an
 APK on GitHub Releases. See [`android/README.md`](android/README.md).
