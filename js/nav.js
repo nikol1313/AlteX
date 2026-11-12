@@ -18,30 +18,14 @@ const tapDashOnly = () => {
   if (a) { dashTap = null; a.click(); }
 };
 
-// "idc" on the notification popup: close it like Material does (Escape) and go home.
+// The portal's notification popup ("ნახვა") opens on every visit: close it at once, like Material does on Escape.
+// css/base.css keeps it hidden meanwhile so it never flashes.
 const ESCAPE = { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true, cancelable: true };
-let wantStatementList = 0;
-const goStatementList = () => {
-  if (!wantStatementList) return;
-  if (Date.now() - wantStatementList > 15000) { wantStatementList = 0; return; }
-  const tab = document.querySelector('a[href="/calendar/statementList"]');
-  if (!tab) return;
-  wantStatementList = 0;
-  if (location.pathname !== '/calendar/statementList') tab.click();
-};
-const mountIdc = () => {
-  for (const actions of document.querySelectorAll('alert-dialog .mat-mdc-dialog-actions')) {
-    if (actions.querySelector(':scope > .sx-idc')) continue;
-    const view = actions.querySelector('button');
-    if (!/ნახვა/.test(view?.textContent || '')) continue;
-    view.addEventListener('click', () => { wantStatementList = Date.now(); }, true);
-    const btn = el('button', 'sx-idc', 'idc');
-    btn.type = 'button';
-    btn.addEventListener('click', () => {
-      document.body.dispatchEvent(new KeyboardEvent('keydown', ESCAPE));
-      if (location.pathname !== '/dashboard') go('/dashboard');
-    });
-    actions.append(btn);
+const dismissNotice = () => {
+  for (const dialog of document.querySelectorAll('alert-dialog:not([data-sx-closed])')) {
+    if (!/ნახვა/.test(dialog.querySelector('.mat-mdc-dialog-actions button')?.textContent || '')) continue;
+    dialog.dataset.sxClosed = '';
+    document.body.dispatchEvent(new KeyboardEvent('keydown', ESCAPE));
   }
 };
 

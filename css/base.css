@@ -351,24 +351,8 @@ html.sx :is(.mat-mdc-option, .mat-mdc-menu-item) { color: var(--fg2) !important;
 html.sx :is(.mat-mdc-option, .mat-mdc-menu-item):is(:hover, .mdc-list-item--selected) { color: var(--fg) !important; }
 html.sx :is(.mat-mdc-tooltip-surface, .mdc-tooltip__surface) { background-color: var(--fg) !important; color: var(--bg) !important; }
 
-/* Notification popup: text in a box, ნახვა as the main action, idc beside it */
-html.sx alert-dialog { display: block; }
-html.sx alert-dialog > div { width: auto !important; margin: 0 !important; padding: 32px 32px 28px !important; align-items: flex-start !important; min-width: 320px; }
-html.sx alert-dialog > br { display: none; }
-html.sx alert-dialog .mat-mdc-dialog-title { margin: 0 0 8px !important; padding: 0 !important; font-size: 14px !important; color: var(--fg3) !important; }
-html.sx alert-dialog .mat-mdc-dialog-content { padding: 0 !important; overflow: visible !important; }
-html.sx alert-dialog .mat-mdc-dialog-content > div { text-align: left !important; font-size: 20px !important; color: var(--fg) !important; }
-html.sx alert-dialog .mat-mdc-dialog-actions { justify-content: flex-start !important; gap: 8px; padding: 24px 0 0 !important; min-height: 0 !important; }
-html.sx.sx alert-dialog .mat-mdc-dialog-actions .mat-mdc-button-base,
-html.sx.sx alert-dialog .mat-mdc-dialog-actions .mat-mdc-button-base:is(:hover, :focus-visible) {
-  background-color: var(--btn) !important; background-image: var(--grad) !important; color: #fff !important; box-shadow: var(--glow) !important;
-}
-html.sx .sx-idc {
-  display: inline-flex; align-items: center; padding: 8px 18px !important; border-radius: 999px !important;
-  border: 1px solid var(--line) !important; color: var(--fg2) !important; font-size: 15px !important; line-height: 1.4 !important; cursor: pointer;
-  transition: background-color 150ms linear, color 150ms linear !important;
-}
-html.sx .sx-idc:is(:hover, :focus-visible) { background-color: var(--box-hi) !important; color: var(--fg) !important; }
+/* Notification popup: closed by js/nav.js (dismissNotice) on every visit; hidden until then */
+html.sx .cdk-overlay-container:has(alert-dialog) { visibility: hidden !important; }
 
 /* ---------- Footer: our own line replaces the site's copyright ---------- */
 html.sx footer { position: static !important; }
