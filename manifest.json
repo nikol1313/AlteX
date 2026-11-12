@@ -1,13 +1,39 @@
 {
   "manifest_version": 3,
   "name": "AlteX Student Portal",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Visual redesign of the Alte University student portal.",
   "content_scripts": [
     {
       "matches": ["https://students.alte.edu.ge/*"],
-      "css": ["styles.css"],
-      "js": ["content.js"],
+      "css": [
+        "css/fonts.css",
+        "css/base.css",
+        "css/dashboard.css",
+        "css/timetable.css",
+        "css/applications.css",
+        "css/learning-card.css",
+        "css/finances.css",
+        "css/registration.css",
+        "css/programs.css",
+        "css/chancellery.css",
+        "css/assignments.css",
+        "css/login.css"
+      ],
+      "js": [
+        "js/core.js",
+        "js/academic-calendar.js",
+        "js/dashboard.js",
+        "js/nav.js",
+        "js/timetable.js",
+        "js/learning-card.js",
+        "js/finances.js",
+        "js/applications.js",
+        "js/registration.js",
+        "js/assignments.js",
+        "js/login.js",
+        "js/main.js"
+      ],
       "run_at": "document_start"
     }
   ],
