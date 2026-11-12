@@ -175,17 +175,23 @@ const SECTIONS = { '/tables': loadNextLecture, '/tasks-books': loadTasks, '/lear
 const FALLBACK = () => ({ lines: [], caption: 'გახსენით სანახავად' });
 let cache = null;
 let loading = null;
+let lastTry = { token: null, at: 0 };
 
+// Cached per login token: results fetched before signing in (no token, or an expired one) never stick.
 const load = () => {
-  if (cache && Date.now() - cache.at < CACHE_MS) return Promise.resolve();
-  if (loading) return loading;
   const s = session();
-  if (!s || !s.eduId) { cache = { at: Date.now(), results: {} }; render(); return Promise.resolve(); }
+  if (!s || !s.eduId) { if (cache) { cache = null; render(); } return Promise.resolve(); }
+  if (cache && cache.token === s.token && Date.now() - cache.at < CACHE_MS) return Promise.resolve();
+  if (loading) return loading;
+  if (!cache && lastTry.token === s.token && Date.now() - lastTry.at < 30000) return Promise.resolve();
+  if (lastTry.token !== s.token || (cache && cache.token !== s.token)) { cache = null; taskBooksCache = null; taskCache.clear(); }
+  lastTry = { token: s.token, at: Date.now() };
   const hrefs = Object.keys(SECTIONS);
   loading = Promise.allSettled(hrefs.map((h) => SECTIONS[h](s))).then((settled) => {
     const results = {};
     settled.forEach((r, i) => { if (r.status === 'fulfilled' && r.value) results[hrefs[i]] = r.value; });
-    cache = { at: Date.now(), results };
+    // Nothing came back (e.g. the token was refused): try again on the next pass instead of caching emptiness.
+    cache = Object.keys(results).length ? { at: Date.now(), token: s.token, results } : null;
     loading = null;
     render();
   });
