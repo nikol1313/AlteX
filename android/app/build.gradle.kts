@@ -121,6 +121,9 @@ androidComponents {
 }
 
 dependencies {
+    // AndroidX pulls in kotlin-stdlib 1.8 plus old kotlin-stdlib-jdk7/jdk8 1.6 (duplicate classes).
+    // The Kotlin plugin normally aligns them; this Java-only app does it with the BOM.
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.22"))
     implementation("androidx.activity:activity:1.9.3")
     implementation("androidx.core:core:1.15.0")
     implementation("androidx.webkit:webkit:1.12.1")
