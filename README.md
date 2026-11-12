@@ -2,6 +2,11 @@
 
 Visual redesign of the Alte University student portal (`students.alte.edu.ge`).
 
+## Problem
+The Alte University student portal is functional, but the experience is far from user-friendly. Its outdated design, cluttered layout, confusing navigation, and unnecessary clicks make even simple tasks frustrating. Important information is harder to find than it should be, the timetable is difficult to read, and several interface elements lack the clarity students need.
+
+Students shouldn't have to fight the portal just to keep up with university life.
+
 ## What it does
 
 - Injects stylesheets (`css/`) that restyle the portal UI.
