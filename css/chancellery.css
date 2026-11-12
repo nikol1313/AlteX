@@ -78,4 +78,10 @@ html.sx .page-chancellery .chancellery_history > div:last-child { justify-conten
   html.sx.sx .page-chancellery mat-row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 10px; }
 }
 
+/* touchscreens: every control at least 44px */
+@media (pointer: coarse), (max-width: 760px) {
+  html.sx.sx .page-chancellery mat-cell.mat-column-actions .mat-mdc-icon-button { width: 44px !important; height: 44px !important; padding: 10px !important; }
+  html.sx.sx .page-chancellery .commentButton { min-height: 44px; }
+}
+
 }
