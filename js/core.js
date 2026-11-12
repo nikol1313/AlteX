@@ -59,6 +59,7 @@ const api = async (s, path, body) => {
     headers: { Authorization: 'Bearer ' + s.token, ...(body ? { 'Content-Type': 'application/json' } : {}) },
     body: body ? JSON.stringify(body) : undefined,
     credentials: 'same-origin',
+    cache: 'no-store',
   });
   if (!res.ok) throw new Error(path + ' ' + res.status);
   return res.json();

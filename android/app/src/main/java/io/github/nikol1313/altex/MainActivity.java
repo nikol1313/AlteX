@@ -61,6 +61,8 @@ import java.util.regex.Pattern;
  * except the portal's own traffic.
  */
 public class MainActivity extends ComponentActivity {
+    private static final long RESUME_RELOAD_MS = 60_000;
+    private long pausedAt;
     private static final String PORTAL_HOST = "students.alte.edu.ge";
     private static final String PORTAL_ORIGIN = "https://" + PORTAL_HOST;
     /** Where the bundled CSS loads its fonts from; served from assets/fonts/ (see build.gradle.kts). */
@@ -207,7 +209,17 @@ public class MainActivity extends ComponentActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        pausedAt = System.currentTimeMillis();
         CookieManager.getInstance().flush();
+    }
+
+    /** Back after a while (the app stays open in the background for days): reload so the portal shows fresh data. */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        boolean away = pausedAt != 0 && System.currentTimeMillis() - pausedAt > RESUME_RELOAD_MS;
+        pausedAt = 0;
+        if (away && pendingUpload == null && (offline == null || offline.getVisibility() != View.VISIBLE)) web.reload();
     }
 
     @Override
