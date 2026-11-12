@@ -14,7 +14,14 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.GradientDrawable;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.ComponentActivity;
@@ -149,6 +156,7 @@ public class MainActivity extends ComponentActivity {
         if (savedInstanceState == null || web.restoreState(savedInstanceState) == null) {
             web.loadUrl(PORTAL_ORIGIN + "/");
         }
+        UpdateCheck.run(this, installedVersion(), version -> showUpdateBanner(root, version));
     }
 
     @Override
@@ -231,6 +239,53 @@ public class MainActivity extends ComponentActivity {
                 view.evaluateJavascript(bundle, null);
             }
         }
+    }
+
+    private String installedVersion() {
+        try {
+            return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            return null;
+        }
+    }
+
+    /** Purple bar at the bottom: tap to download the new APK, ✕ to hide it until the next launch. */
+    private void showUpdateBanner(FrameLayout root, String version) {
+        if (root.findViewWithTag("update-banner") != null) return;
+        int pad = dp(14);
+        LinearLayout bar = new LinearLayout(this);
+        bar.setTag("update-banner");
+        bar.setGravity(Gravity.CENTER_VERTICAL);
+        bar.setPadding(dp(18), pad, dp(6), pad);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(getColor(R.color.update));
+        bg.setCornerRadius(dp(16));
+        bar.setBackground(bg);
+        bar.setElevation(dp(6));
+
+        TextView text = new TextView(this);
+        text.setText(getString(R.string.update_available, version));
+        text.setTextColor(0xFFFFFFFF);
+        text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        bar.addView(text, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+
+        TextView close = new TextView(this);
+        close.setText("✕");
+        close.setTextColor(0xFFFFFFFF);
+        close.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        close.setGravity(Gravity.CENTER);
+        close.setContentDescription(getString(R.string.update_dismiss));
+        close.setOnClickListener(v -> root.removeView(bar));
+        bar.addView(close, new LinearLayout.LayoutParams(dp(44), dp(44)));
+
+        bar.setOnClickListener(v -> openOutside(Uri.parse(UpdateCheck.DOWNLOAD_URL)));
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM);
+        lp.setMargins(dp(12), 0, dp(12), dp(12));
+        root.addView(bar, lp);
+    }
+
+    private int dp(int v) {
+        return Math.round(v * getResources().getDisplayMetrics().density);
     }
 
     private void openOutside(Uri uri) {
