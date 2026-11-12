@@ -132,23 +132,48 @@ const maybeWelcome = () => {
   showWelcome(s);
 };
 
-// Android app only: remember the login on this phone and sign in again when the portal's 24-hour session
-// ends. The app keeps it encrypted (Android Keystore) and exposes window.AltexApp to the portal origin only.
-// It is saved only after a login succeeds, and "გასვლა" (log out) forgets it.
-const altexApp = () => window.AltexApp || null;
-let savedLogin, pendingLogin = null, autoLoginTried = false;
-const appSend = (msg) => { try { altexApp()?.postMessage(JSON.stringify(msg)); } catch { /* bridge gone */ } };
-const forgetLogin = () => { savedLogin = null; pendingLogin = null; appSend({ type: 'forget' }); };
-const askSavedLogin = () => {
-  const app = altexApp();
-  if (!app || savedLogin !== undefined) return;
-  savedLogin = null;
-  app.onmessage = (e) => {
-    let m;
-    try { m = JSON.parse(e.data); } catch { return; }
-    if (m && m.type === 'login') { savedLogin = m.login && m.login.u && m.login.p ? m.login : null; schedule(); }
+// Remember the login and sign in again when the portal's 24-hour session ends. It is saved only after a
+// login succeeds, and "გასვლა" (log out) forgets it.
+// Android app: kept encrypted (Android Keystore) behind window.AltexApp, exposed to the portal origin only.
+// Desktop extension: kept in chrome.storage.local, which the portal's own scripts cannot read, but which is
+// not encrypted on disk (it lives in the Chrome profile).
+const LOGIN_STORE_KEY = 'sx-login';
+const extStorage = () => { try { return globalThis.chrome?.storage?.local || null; } catch { return null; } };
+const loginStore = () => {
+  const app = window.AltexApp;
+  if (app) {
+    const send = (msg) => { try { app.postMessage(JSON.stringify(msg)); } catch { /* bridge gone */ } };
+    return {
+      where: 'ამ ტელეფონზე',
+      get: (done) => {
+        app.onmessage = (e) => {
+          let m;
+          try { m = JSON.parse(e.data); } catch { return; }
+          if (m && m.type === 'login') done(m.login);
+        };
+        send({ type: 'get' }); // the app answers only on the login page
+      },
+      save: (login) => send({ type: 'save', login }),
+      forget: () => send({ type: 'forget' }),
+    };
+  }
+  const local = extStorage();
+  if (!local) return null;
+  const quiet = (p) => { try { p?.catch?.(() => {}); } catch { /* extension reloaded */ } };
+  return {
+    where: 'ამ კომპიუტერზე',
+    get: (done) => { try { local.get(LOGIN_STORE_KEY).then((r) => done(r && r[LOGIN_STORE_KEY]), () => done(null)); } catch { done(null); } },
+    save: (login) => { try { quiet(local.set({ [LOGIN_STORE_KEY]: login })); } catch { /* extension reloaded */ } },
+    forget: () => { try { quiet(local.remove(LOGIN_STORE_KEY)); } catch { /* extension reloaded */ } },
   };
-  appSend({ type: 'get' });
+};
+let savedLogin, pendingLogin = null, autoLoginTried = false;
+const forgetLogin = () => { savedLogin = null; pendingLogin = null; loginStore()?.forget(); };
+const askSavedLogin = () => {
+  const ls = loginStore();
+  if (!ls || savedLogin !== undefined) return;
+  savedLogin = null;
+  ls.get((login) => { savedLogin = login && login.u && login.p ? { u: login.u, p: login.p } : null; schedule(); });
 };
 // Angular reads the input event; a plain .value change would be ignored.
 const typeInto = (input, value) => {
@@ -173,25 +198,26 @@ const autoLogin = async (login) => {
   (await waitFor(submit, 3000))?.click();
 };
 const mountRemember = () => {
-  if (!altexApp()) return;
+  const ls = loginStore();
+  if (!ls) return;
   const page = document.querySelector('login-component');
   if (!page) {
     // Signed in: keep (or drop) what was typed, as the checkbox said.
     if (pendingLogin && session()) {
-      if (pendingLogin.keep) appSend({ type: 'save', login: { u: pendingLogin.u, p: pendingLogin.p } }); else forgetLogin();
+      if (pendingLogin.keep) ls.save({ u: pendingLogin.u, p: pendingLogin.p }); else forgetLogin();
       pendingLogin = null;
     }
     return;
   }
   const form = page.querySelector('.login-form');
   if (!form) return;
-  askSavedLogin(); // the app answers only on the login page
+  askSavedLogin();
   if (!form.querySelector('.sx-remember')) {
     const label = el('label', 'sx-remember');
     const box = el('input');
     box.type = 'checkbox';
     box.checked = true;
-    label.append(box, el('span', null, 'დამახსოვრება ამ ტელეფონზე'));
+    label.append(box, el('span', null, `დამახსოვრება ${ls.where}`));
     form.querySelector('.buttonWrapper')?.before(label);
     const note = () => {
       const u = form.querySelector('input[formcontrolname="username"]')?.value || '';
