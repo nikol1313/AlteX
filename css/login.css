@@ -164,6 +164,15 @@ html.sx.sx login-component .student-userName-wrapper {
 }
 html.sx.sx login-component .student-userName-wrapper img { border-radius: 999px !important; border: 1px solid var(--line) !important; }
 html.sx.sx login-component .clearForm { color: var(--acc) !important; font-size: 14px !important; }
+/* Step 2: photo + name, "სხვა მომხმარებელი" under the name (side by side they spilled past both edges). */
+html.sx.sx login-component .student-userName-wrapper { flex-wrap: wrap; gap: 4px 12px; padding: 12px 14px !important; }
+html.sx.sx login-component .student-userName-wrapper > div { flex: 1 1 auto !important; min-width: 0; gap: 12px; padding: 0 !important; }
+html.sx.sx login-component .student-userName-wrapper img { flex: 0 0 auto; width: 48px !important; height: 48px !important; margin: 0 !important; object-fit: cover; }
+html.sx.sx login-component .student-userName-wrapper img + div { min-width: 0; overflow-wrap: anywhere; font-size: 16px !important; line-height: 1.35 !important; }
+html.sx.sx login-component .student-userName-wrapper > div:last-child { flex-basis: 100% !important; justify-content: flex-start !important; padding-left: 60px !important; }
+/* Android app only: "remember me" (js/login.js) */
+html.sx.sx login-component .sx-remember { display: flex; align-items: center; gap: 10px; min-height: 44px; margin: 0 0 6px; cursor: pointer; font-size: 15px !important; color: var(--fg2) !important; }
+html.sx.sx login-component .sx-remember input { width: 20px !important; height: 20px !important; margin: 0; accent-color: var(--btn); }
 html.sx.sx login-component div.step-3-form:not(.ini-form-field) { margin: 0 0 14px !important; color: var(--fg2) !important; }
 html.sx.sx login-component div.step-3-form:not(.ini-form-field) > span { cursor: pointer; font-size: 15px !important; }
 html.sx.sx login-component .sms-progress { background-color: rgba(147, 96, 227, .3) !important; border-radius: 14px !important; }
@@ -238,6 +247,7 @@ html.sx.sx.sx lost-password-dialog .mat-mdc-dialog-actions button:is(:disabled, 
   html.sx .sx-login-art { align-items: center; gap: 0; }
   html.sx :is(.sx-la-stage, .sx-la-copy) { display: none; }
   html.sx.sx login-component .loginPage-wrapper { padding: 32px 22px 26px !important; }
+  html.sx.sx-login body::before { animation: none !important; }
 }
 @media (prefers-reduced-motion: reduce) {
   html.sx :is(.sx-w-logo, .sx-w-title, .sx-w-sub, .sx-w-hello, .sx-w-go, .sx-w-off) { animation-name: sx-w-fade !important; }

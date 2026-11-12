@@ -112,5 +112,24 @@ html.sx program-view .program-book-wrapper > button.syllabuses mat-icon { width:
   html.sx.sx program-view :is(.program-header, .module-header, .group-header, .program-book-wrapper) { min-width: 0; padding: 12px 18px !important; }
   html.sx.sx program-view .book-row5 { justify-content: center !important; }
 }
+/* Phones: the name gets the whole first line; ECTS, prerequisite and the two actions sit under it. */
+@media (max-width: 760px) {
+  html.sx.sx program-view .program-header { display: none !important; }
+  html.sx.sx program-view :is(.module-header, .group-header) { grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; padding: 14px 16px !important; }
+  html.sx.sx program-view :is(.module-header, .group-header) > :is(.mod-row4, .group-row4) { display: none !important; }
+  html.sx.sx program-view :is(.mod-row2, .group-row2) { overflow-wrap: anywhere; }
+  html.sx.sx program-view .program-book-wrapper {
+    grid-template-columns: auto minmax(0, 1fr) 44px 44px; grid-template-areas: "name name name name" "ects pre syl dl";
+    column-gap: 12px; row-gap: 6px; padding: 12px 16px !important;
+  }
+  html.sx.sx program-view .program-book-wrapper > .book-row2 { grid-area: name; overflow-wrap: anywhere; }
+  html.sx.sx program-view .program-book-wrapper > .book-row3 { grid-area: ects; justify-content: flex-start !important; white-space: nowrap; font-size: 13px !important; }
+  html.sx.sx program-view .program-book-wrapper > .book-row3::after { content: "ECTS"; margin-left: 4px; color: var(--fg3); }
+  html.sx.sx program-view .program-book-wrapper > .book-row4 { grid-area: pre; font-size: 13px !important; color: var(--fg2) !important; }
+  html.sx.sx program-view .program-book-wrapper > .book-row4::before { content: "წინაპირობა: "; color: var(--fg3); }
+  html.sx.sx program-view .program-book-wrapper > .book-row5:nth-child(4) { grid-area: syl; }
+  html.sx.sx program-view .program-book-wrapper > .book-row5:nth-child(5) { grid-area: dl; }
+  html.sx.sx program-view .program-title { padding: 20px 18px !important; font-size: 20px !important; }
+}
 
 }

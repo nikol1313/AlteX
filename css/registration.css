@@ -146,6 +146,24 @@ html.sx.sx registration-routes-component .program-wrapper h3 {
   font-family: var(--serif) !important; font-size: 26px !important; line-height: 1.2 !important; color: var(--acc) !important;
 }
 html.sx.sx registration-routes-component .program-wrapper h3 > span { font-family: var(--sans) !important; font-size: 14px !important; line-height: 1.4 !important; color: var(--fg2) !important; }
+@media (max-width: 760px) {
+  /* The last box carries the site's .width (content-box + side padding): it was 32px wider than the screen. */
+  html.sx.sx registration-routes-component > .registration-tab-content { padding-inline: 16px !important; box-sizing: border-box !important; }
+  html.sx.sx registration-routes-component .program-wrapper.width { box-sizing: border-box !important; width: auto !important; max-width: 100% !important; margin: 0 !important; padding: 16px 12px !important; }
+  /* Rows: status | name (code, conditions under it) | ECTS | toggle — the desktop grid needs ~620px. */
+  html.sx.sx.sx registration-routes-component .program-header {
+    grid-template-columns: 28px minmax(0, 1fr) auto 28px; grid-template-areas: "panel title ects act" "panel num cond act";
+    column-gap: 10px; row-gap: 2px; padding-inline: 8px !important; min-width: 0 !important;
+  }
+  html.sx.sx.sx registration-routes-component .program-header > .program-panel { grid-area: panel; }
+  html.sx.sx.sx registration-routes-component .program-header > .num { grid-area: num; }
+  html.sx.sx.sx registration-routes-component .program-header > .book-title { grid-area: title; overflow-wrap: anywhere; }
+  html.sx.sx.sx registration-routes-component .program-header > .ects { grid-area: ects; }
+  html.sx.sx.sx registration-routes-component .program-header > :is(.conditions, .conditions-content) { grid-area: cond; }
+  html.sx.sx.sx registration-routes-component .program-header > :is(.actions, .ects ~ .ects) { grid-area: act; }
+  html.sx.sx.sx registration-routes-component .program-header-wrapper .program-header > :is(.ects, .conditions, .ects ~ .ects) { display: none !important; }
+  html.sx.sx registration-routes-component .program-wrapper h3 { font-size: 22px !important; }
+}
 @media (max-width: 700px) {
   html.sx registration-routes-component .info { grid-template-columns: minmax(0, 1fr); }
   html.sx.sx registration-routes-component .academic-menu { border-radius: 18px !important; }
