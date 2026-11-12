@@ -1,7 +1,11 @@
 package io.github.nikol1313.altex;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.net.ConnectivityManager;
+import android.net.Network;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
 import android.net.Uri;
@@ -9,6 +13,7 @@ import android.os.Bundle;
 import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -17,7 +22,9 @@ import android.webkit.WebViewClient;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.GradientDrawable;
 import android.util.TypedValue;
+import android.graphics.Bitmap;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -60,7 +67,14 @@ public class MainActivity extends ComponentActivity {
     private static final String FONT_PATH = "/__altex/fonts/";
     private static final Pattern FONT_NAME = Pattern.compile("[a-z0-9-]+\\.woff2");
 
+    /** Oldest WebView that renders AlteX fully (CSS color-mix() needs Chrome 111). */
+    private static final int MIN_WEBVIEW = 111;
+
     private WebView web;
+    private FrameLayout root;
+    private View offline;
+    private boolean mainFrameFailed;
+    private ConnectivityManager.NetworkCallback onNetwork;
     private String bundle;
     private boolean injectAtDocumentStart;
     private ValueCallback<Uri[]> pendingUpload;
@@ -81,7 +95,7 @@ public class MainActivity extends ComponentActivity {
                 SystemBarStyle.dark(Color.TRANSPARENT));
 
         int bg = getColor(R.color.bg);
-        FrameLayout root = new FrameLayout(this);
+        root = new FrameLayout(this);
         root.setBackgroundColor(bg);
         web = new WebView(this);
         web.setBackgroundColor(bg);
@@ -140,8 +154,12 @@ public class MainActivity extends ComponentActivity {
                 }
             }
         });
-        // Files the portal serves by URL open in the browser, which has a download manager.
-        web.setDownloadListener((url, userAgent, disposition, mimeType, length) -> openOutside(Uri.parse(url)));
+        // Files the portal serves by URL open in the browser, which has a download manager. blob: files
+        // are caught in the page (js/app.js) and arrive as a "file" message; reaching here means that failed.
+        web.setDownloadListener((url, userAgent, disposition, mimeType, length) -> {
+            if (url.startsWith("blob:")) Toast.makeText(this, R.string.download_failed, Toast.LENGTH_SHORT).show();
+            else openOutside(Uri.parse(url));
+        });
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -160,7 +178,24 @@ public class MainActivity extends ComponentActivity {
         if (savedInstanceState == null || web.restoreState(savedInstanceState) == null) {
             web.loadUrl(PORTAL_ORIGIN + "/");
         }
-        UpdateCheck.run(this, installedVersion(), version -> showUpdateBanner(root, version));
+        UpdateCheck.run(this, installedVersion(), version -> showBanner("update",
+                getString(R.string.update_available, version), () -> openOutside(Uri.parse(UpdateCheck.DOWNLOAD_URL))));
+        checkWebView();
+        // Back online while the offline screen shows: load again by itself.
+        ConnectivityManager cm = getSystemService(ConnectivityManager.class);
+        if (cm != null) {
+            onNetwork = new ConnectivityManager.NetworkCallback() {
+                @Override
+                public void onAvailable(Network network) {
+                    runOnUiThread(() -> { if (offline != null && offline.getVisibility() == View.VISIBLE) web.reload(); });
+                }
+            };
+            try {
+                cm.registerDefaultNetworkCallback(onNetwork);
+            } catch (RuntimeException e) {
+                onNetwork = null;
+            }
+        }
     }
 
     @Override
@@ -177,12 +212,14 @@ public class MainActivity extends ComponentActivity {
 
     @Override
     protected void onDestroy() {
+        ConnectivityManager cm = getSystemService(ConnectivityManager.class);
+        if (cm != null && onNetwork != null) cm.unregisterNetworkCallback(onNetwork);
         web.destroy();
         super.onDestroy();
     }
 
-    /** Messages from js/login.js: get (reply with the saved login, on the login page only), save, forget. */
-    private static void onAppMessage(LoginStore logins, String data, androidx.webkit.JavaScriptReplyProxy reply, boolean onLogin) {
+    /** Messages from the page: get (saved login, login page only), save, forget (js/login.js); file (js/app.js). */
+    private void onAppMessage(LoginStore logins, String data, androidx.webkit.JavaScriptReplyProxy reply, boolean onLogin) {
         try {
             JSONObject msg = new JSONObject(data == null ? "" : data);
             switch (msg.optString("type")) {
@@ -200,6 +237,9 @@ public class MainActivity extends ComponentActivity {
                 }
                 case "forget":
                     logins.clear();
+                    break;
+                case "file":
+                    Downloads.save(this, msg.optString("name"), msg.optString("mime"), msg.optString("data"));
                     break;
                 default:
                     break;
@@ -238,11 +278,103 @@ public class MainActivity extends ComponentActivity {
         }
 
         @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            mainFrameFailed = false;
+        }
+
+        @Override
+        public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+            if (request.isForMainFrame()) {
+                mainFrameFailed = true;
+                showOffline(true);
+            }
+        }
+
+        @Override
         public void onPageFinished(WebView view, String url) {
+            if (!mainFrameFailed) showOffline(false);
             if (!injectAtDocumentStart && url != null && isPortal(Uri.parse(url))) {
                 view.evaluateJavascript(bundle, null);
             }
         }
+    }
+
+    /** Full-screen "no connection" page with a retry button, over the WebView's own error page. */
+    private void showOffline(boolean show) {
+        if (!show) {
+            if (offline != null) offline.setVisibility(View.GONE);
+            return;
+        }
+        if (offline == null) {
+            LinearLayout box = new LinearLayout(this);
+            box.setOrientation(LinearLayout.VERTICAL);
+            box.setGravity(Gravity.CENTER);
+            box.setPadding(dp(32), dp(32), dp(32), dp(32));
+            box.setBackgroundColor(getColor(R.color.bg));
+            box.setClickable(true);
+
+            TextView brand = new TextView(this);
+            brand.setText(android.text.Html.fromHtml("Alte<font color='#9D6EE4'>X</font>", android.text.Html.FROM_HTML_MODE_LEGACY));
+            brand.setTextColor(0xFFF2EDEF);
+            brand.setTextSize(TypedValue.COMPLEX_UNIT_SP, 34);
+            brand.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+            box.addView(brand);
+
+            TextView title = new TextView(this);
+            title.setText(R.string.offline_title);
+            title.setTextColor(0xFFF2EDEF);
+            title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+            title.setGravity(Gravity.CENTER);
+            title.setPadding(0, dp(28), 0, dp(8));
+            box.addView(title);
+
+            TextView sub = new TextView(this);
+            sub.setText(R.string.offline_sub);
+            sub.setTextColor(0xFFA6A6AA);
+            sub.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+            sub.setGravity(Gravity.CENTER);
+            box.addView(sub);
+
+            TextView retry = new TextView(this);
+            retry.setText(R.string.offline_retry);
+            retry.setTextColor(0xFFFFFFFF);
+            retry.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+            retry.setGravity(Gravity.CENTER);
+            retry.setPadding(dp(28), 0, dp(28), 0);
+            GradientDrawable pill = new GradientDrawable();
+            pill.setColor(getColor(R.color.update));
+            pill.setCornerRadius(dp(26));
+            retry.setBackground(pill);
+            retry.setOnClickListener(v -> web.reload());
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(52));
+            lp.topMargin = dp(28);
+            box.addView(retry, lp);
+
+            offline = box;
+            root.addView(offline, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        }
+        offline.setVisibility(View.VISIBLE);
+    }
+
+    /** WebViews before 111 drop AlteX's color-mix() styles (plain boxes): point to the WebView update. */
+    private void checkWebView() {
+        PackageInfo pkg = WebViewCompat.getCurrentWebViewPackage(this);
+        if (pkg == null || pkg.versionName == null) return;
+        int major;
+        try {
+            major = Integer.parseInt(pkg.versionName.split("\\.")[0]);
+        } catch (NumberFormatException e) {
+            return;
+        }
+        if (major >= MIN_WEBVIEW) return;
+        String id = pkg.packageName;
+        showBanner("webview", getString(R.string.webview_old), () -> {
+            try {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + id)));
+            } catch (ActivityNotFoundException e) {
+                openOutside(Uri.parse("https://play.google.com/store/apps/details?id=" + id));
+            }
+        });
     }
 
     private String installedVersion() {
@@ -253,12 +385,12 @@ public class MainActivity extends ComponentActivity {
         }
     }
 
-    /** Purple bar at the bottom: tap to download the new APK, ✕ to hide it until the next launch. */
-    private void showUpdateBanner(FrameLayout root, String version) {
-        if (root.findViewWithTag("update-banner") != null) return;
+    /** Purple bar at the bottom (new version, old WebView): tap for the action, ✕ to hide it until the next launch. */
+    private void showBanner(String tag, String message, Runnable action) {
+        if (root.findViewWithTag(tag) != null) return;
         int pad = dp(14);
         LinearLayout bar = new LinearLayout(this);
-        bar.setTag("update-banner");
+        bar.setTag(tag);
         bar.setGravity(Gravity.CENTER_VERTICAL);
         bar.setPadding(dp(18), pad, dp(6), pad);
         GradientDrawable bg = new GradientDrawable();
@@ -268,7 +400,7 @@ public class MainActivity extends ComponentActivity {
         bar.setElevation(dp(6));
 
         TextView text = new TextView(this);
-        text.setText(getString(R.string.update_available, version));
+        text.setText(message);
         text.setTextColor(0xFFFFFFFF);
         text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
         bar.addView(text, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
@@ -282,7 +414,7 @@ public class MainActivity extends ComponentActivity {
         close.setOnClickListener(v -> root.removeView(bar));
         bar.addView(close, new LinearLayout.LayoutParams(dp(44), dp(44)));
 
-        bar.setOnClickListener(v -> openOutside(Uri.parse(UpdateCheck.DOWNLOAD_URL)));
+        bar.setOnClickListener(v -> action.run());
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM);
         lp.setMargins(dp(12), 0, dp(12), dp(12));
         root.addView(bar, lp);

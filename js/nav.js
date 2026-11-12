@@ -273,3 +273,35 @@ const labelTableCells = () => {
     }
   }
 };
+
+// Offline: a notice while the connection is gone (otherwise taps just seem to do nothing).
+const setOffline = () => {
+  const off = !navigator.onLine;
+  let note = document.querySelector('.sx-offline');
+  if (off && !note && document.body) {
+    note = el('div', 'sx-offline', 'ინტერნეტთან კავშირი არ არის · Offline');
+    note.setAttribute('role', 'status');
+    document.body.append(note);
+  } else if (!off && note) note.remove();
+};
+window.addEventListener('offline', setOffline);
+window.addEventListener('online', setOffline);
+
+// Icon-only buttons get a spoken name (screen readers otherwise say just "button").
+const ICON_NAMES = {
+  visibility: 'ნახვა', download: 'ჩამოტვირთვა', cloud_download: 'ჩამოტვირთვა', file_download: 'ჩამოტვირთვა',
+  fact_check: 'სილაბუსი', info: 'ინფორმაცია', bookmark: 'შენახვა', bookmark_border: 'შენახვა', menu_book: 'წაკითხვა',
+  attach_file: 'ფაილი', delete: 'წაშლა', edit: 'რედაქტირება', close: 'დახურვა', search: 'ძიება', add: 'დამატება',
+  print: 'ბეჭდვა', keyboard_arrow_down: 'გაშლა', keyboard_arrow_up: 'აკეცვა', expand_more: 'გაშლა', expand_less: 'აკეცვა',
+  chevron_left: 'წინა', chevron_right: 'შემდეგი', navigate_before: 'წინა', navigate_next: 'შემდეგი', refresh: 'განახლება',
+  calendar_today: 'კალენდარი', event: 'კალენდარი', list: 'სია', list_alt: 'სია', comment: 'კომენტარი', send: 'გაგზავნა',
+};
+const labelIconButtons = () => {
+  for (const b of document.querySelectorAll('button:not([aria-label]):not([aria-labelledby]), a[href]:not([aria-label]):has(> mat-icon:only-child)')) {
+    const icon = b.querySelector('mat-icon, .material-icons');
+    if (!icon) continue;
+    const name = icon.textContent.trim();
+    if (!name || b.textContent.trim() !== name) continue; // has visible text of its own
+    b.setAttribute('aria-label', ICON_NAMES[name] || name.replace(/_/g, ' '));
+  }
+};

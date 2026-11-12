@@ -4,4 +4,10 @@
     <string name="no_app_for_link">ამ ბმულის გასახსნელი აპი ვერ მოიძებნა</string>
     <string name="update_available">ახალი ვერსია ხელმისაწვდომია (%1$s) → ჩამოტვირთვა</string>
     <string name="update_dismiss">დახურვა</string>
+    <string name="offline_title">ინტერნეტთან კავშირი არ არის</string>
+    <string name="offline_sub">შეამოწმე Wi-Fi ან მობილური ინტერნეტი. კავშირის აღდგენისას გვერდი თავად ჩაიტვირთება.</string>
+    <string name="offline_retry">თავიდან ცდა</string>
+    <string name="webview_old">Android System WebView მოძველებულია, დიზაინი სრულად არ ჩანს → განახლება</string>
+    <string name="download_saved">ჩამოიტვირთა: %1$s</string>
+    <string name="download_failed">ფაილის ჩამოტვირთვა ვერ მოხერხდა</string>
 </resources>
