@@ -62,6 +62,7 @@ html.sx.sx program-view .semester-wrapper mat-icon[style*="opacity: 1"] { color:
 html.sx program-view .program-module { margin-top: 0; border-top: 1px solid var(--line) !important; }
 /* Long programmes have thousands of rows: off-screen modules skip style and layout until scrolled to. */
 html.sx program-view .program-module { content-visibility: auto; contain-intrinsic-size: auto 900px; }
+html.sx program-view .program-group { content-visibility: auto; contain-intrinsic-size: auto 600px; }
 html.sx program-view .program-module:first-of-type { border-top: 0 !important; }
 html.sx.sx program-view .module-header { padding-block: 16px !important; background-color: rgba(147, 96, 227, .12) !important; }
 html.sx.sx program-view .module-header .mod-row1 { color: var(--acc) !important; font-weight: 500 !important; }

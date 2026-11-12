@@ -123,8 +123,8 @@ html.sx .weeklist-container > .headInfo:hover { transform: translateY(-3px) !imp
 html.sx .weeklist-container > .headInfo[data-when="today"] {
   grid-column: span 2; background-color: color-mix(in srgb, var(--d) 13%, var(--box)) !important; border-color: var(--d) !important;
 }
-html.sx .weeklist-container > .headInfo[data-when="past"] { opacity: .5 !important; }
-html.sx .weeklist-container > .headInfo[data-when="past"]:hover { opacity: .85 !important; }
+html.sx .weeklist-container > .headInfo[data-when="past"] { opacity: .72 !important; }
+html.sx .weeklist-container > .headInfo[data-when="past"]:hover { opacity: .9 !important; }
 
 html.sx .headInfo .day-title {
   display: block !important; width: 100% !important; height: auto !important; min-height: 0 !important; max-height: none !important; overflow: visible !important; line-height: normal !important;
@@ -180,7 +180,7 @@ html.sx .sx-status {
 html.sx .sx-lesson[data-status="live"] .sx-status { background-color: var(--d) !important; color: var(--bg) !important; }
 html.sx .sx-lesson[data-status="live"] .sx-status::before { content: ""; width: 7px; height: 7px; border-radius: 999px !important; background-color: var(--bg) !important; color: var(--bg); animation: sx-pulse 1.8s ease-out infinite !important; }
 html.sx .sx-lesson[data-status="next"] .sx-status { border: 1px solid var(--d) !important; color: var(--d) !important; }
-html.sx .sx-lesson[data-status="done"] { opacity: .45; }
+html.sx .sx-lesson[data-status="done"] { opacity: .68; }
 
 html.sx.sx ac-tables-component :is(.mat-elevation-z8, .page-logs) { background-color: transparent !important; border: 0 !important; padding: 0 !important; overflow: visible !important; border-radius: 0 !important; box-shadow: none !important; }
 html.sx ac-tables-component mat-header-row { display: none !important; }
@@ -196,7 +196,7 @@ html.sx.sx ac-tables-component mat-row {
   transition: transform 180ms var(--ease), border-color 180ms linear !important;
 }
 html.sx ac-tables-component mat-row:hover { transform: translateY(-2px) !important; border-color: var(--d, var(--fg2)) !important; }
-html.sx ac-tables-component mat-row[data-when="past"] { opacity: .5 !important; }
+html.sx ac-tables-component mat-row[data-when="past"] { opacity: .72 !important; }
 html.sx.sx ac-tables-component mat-row mat-cell { padding: 0 !important; min-width: 0 !important; }
 html.sx ac-tables-component .mat-column-id { display: none !important; }
 html.sx ac-tables-component .mat-column-day { grid-area: day; }

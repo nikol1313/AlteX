@@ -40,6 +40,7 @@ const run = () => {
   enhanceRegistration();
   enhanceTasks();
   labelTableCells();
+  labelIconButtons();
   mountExamStrip();
   mountHello();
   mountLogin();

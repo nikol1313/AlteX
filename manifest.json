@@ -23,6 +23,7 @@
       ],
       "js": [
         "js/core.js",
+        "js/app.js",
         "js/academic-calendar.js",
         "js/dashboard.js",
         "js/nav.js",

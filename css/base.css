@@ -394,6 +394,24 @@ html.sx .sx-empty { margin: auto 0; padding: 24px 0 8px; display: flex; flex-dir
 html.sx .sx-empty span:first-child { font-size: 18px !important; color: var(--fg2) !important; }
 html.sx .sx-empty span:last-child { font-size: 14px !important; color: var(--fg3) !important; }
 
+/* Offline notice (nav.js) */
+html.sx .sx-offline {
+  position: fixed; left: 50%; bottom: 20px; z-index: 1001; transform: translateX(-50%); max-width: calc(100vw - 32px); box-sizing: border-box;
+  padding: 12px 20px; border-radius: 999px !important; font-size: 15px !important; line-height: 1.4 !important; text-align: center;
+  background-color: #3A2433 !important; border: 1px solid var(--clay) !important; color: #F3C3DC !important;
+  box-shadow: 0 16px 36px -18px rgba(0, 0, 0, .9) !important;
+}
+
+/* Touch screens: the portal's small controls (toggles, page-size pickers, icon buttons) get 44px targets. */
+@media (pointer: coarse) {
+  html.sx.sx .mat-button-toggle-button { min-height: 44px !important; min-width: 44px !important; }
+  html.sx.sx .mat-button-toggle-label-content { line-height: 44px !important; }
+  html.sx.sx .mat-mdc-paginator-page-size .mat-mdc-text-field-wrapper { min-height: 44px !important; display: flex !important; align-items: center; }
+  html.sx.sx .mat-mdc-paginator-page-size mat-select { min-height: 32px; display: flex !important; align-items: center; }
+  html.sx.sx :is(.mat-mdc-paginator-navigation-previous, .mat-mdc-paginator-navigation-next, .mat-mdc-paginator-navigation-first, .mat-mdc-paginator-navigation-last) { width: 44px !important; height: 44px !important; }
+  html.sx.sx .mat-mdc-icon-button:not(.mat-mdc-paginator-navigation-previous, .mat-mdc-paginator-navigation-next) { min-width: 44px !important; min-height: 44px !important; }
+}
+
 /* ---------- Phone navigation: menu button + full-screen drawer (nav.js) ---------- */
 html.sx .sx-nav-btn { display: none; }
 html.sx .sx-drawer { display: none; }
