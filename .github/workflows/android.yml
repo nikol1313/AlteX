@@ -1,0 +1,73 @@
+name: Android APK
+
+# Every push builds an APK (downloadable from the run's "Artifacts"): signed when the signing
+# secrets exist, otherwise a debug build for testing.
+# Pushing a tag like android-v3.2.0 builds a signed APK and attaches it to a GitHub Release.
+on:
+  push:
+    branches: ['**']
+    tags: ['android-v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.ALTEX_KEYSTORE_B64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ALTEX_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ] && [ -n "$KEYSTORE_PASSWORD" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/altex.p12"
+            echo "ALTEX_KEYSTORE=$RUNNER_TEMP/altex.p12" >> "$GITHUB_ENV"
+            echo "BUILD=release" >> "$GITHUB_ENV"
+          elif [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "::error::Releases must be signed: add the ALTEX_KEYSTORE_B64 and ALTEX_KEYSTORE_PASSWORD secrets (see android/README.md)."
+            exit 1
+          else
+            echo "::warning::No signing secrets: building a debug APK for testing only."
+            echo "BUILD=debug" >> "$GITHUB_ENV"
+          fi
+
+      - name: Build
+        working-directory: android
+        env:
+          ALTEX_KEYSTORE_PASSWORD: ${{ secrets.ALTEX_KEYSTORE_PASSWORD }}
+        run: |
+          task=assemble${BUILD^}
+          gradle --no-daemon "$task"
+          version=$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' ../manifest.json)
+          suffix=$([ "$BUILD" = debug ] && echo "-debug" || true)
+          apk="$RUNNER_TEMP/AlteX-$version$suffix.apk"
+          cp "app/build/outputs/apk/$BUILD/app-$BUILD.apk" "$apk"
+          echo "APK=$apk" >> "$GITHUB_ENV"
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AlteX-${{ env.VERSION }}-${{ env.BUILD }}
+          path: ${{ env.APK }}
+
+      - name: GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "$APK" \
+            --title "AlteX for Android $VERSION" \
+            --notes "Download **AlteX-$VERSION.apk** on your phone and open it. Android asks once to allow installs from your browser; after that, installing a newer APK updates the app and keeps you logged in."
