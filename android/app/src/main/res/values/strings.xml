@@ -2,4 +2,6 @@
 <resources>
     <string name="app_name">AlteX</string>
     <string name="no_app_for_link">ამ ბმულის გასახსნელი აპი ვერ მოიძებნა</string>
+    <string name="update_available">ახალი ვერსია ხელმისაწვდომია (%1$s) → ჩამოტვირთვა</string>
+    <string name="update_dismiss">დახურვა</string>
 </resources>

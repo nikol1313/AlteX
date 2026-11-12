@@ -2,4 +2,5 @@
 <resources>
     <!-- Same as the bg colour token in css/base.css, so no white flash before the portal paints. -->
     <color name="bg">#1C1E1F</color>
+    <color name="update">#7E4CD6</color>
 </resources>
