@@ -93,6 +93,7 @@ html.sx :where(body, body *:not(mat-icon, .material-icons, .mat-icon)) {
 }
 html.sx a { color: inherit !important; text-decoration: none !important; }
 html.sx ::selection { background-color: var(--pri) !important; color: #fff !important; }
+html.sx :is(input, textarea)::placeholder { color: var(--fg3) !important; -webkit-text-fill-color: var(--fg3); opacity: 1 !important; }
 html.sx mat-icon, html.sx .mat-icon { color: var(--fg2) !important; }
 html.sx :is(a:focus-visible, button:focus-visible, summary:focus-visible) { outline: 2px solid var(--acc) !important; outline-offset: 3px; }
 
@@ -451,6 +452,10 @@ html.sx .sx-drawer { display: none; }
   html.sx.sx mat-table.sx-cards mat-cell { display: flex !important; flex-direction: column; align-items: flex-start !important; justify-content: flex-start !important; gap: 2px; padding: 0 !important; text-align: left !important; font-size: 16px !important; line-height: 1.45 !important; color: var(--fg) !important; }
   html.sx.sx mat-table.sx-cards mat-cell::before { content: attr(data-label); font-size: 12px; line-height: 1.4; color: var(--fg3); }
   html.sx.sx mat-table.sx-cards mat-cell:not([data-label])::before, html.sx.sx mat-table.sx-cards mat-cell[data-label=""]::before { display: none; }
+
+  /* Library: the site fixes the results box at 635px (overflow hidden) around a 480px inner scroller. */
+  html.sx.sx .page-messages:has(list-bib-component) { height: auto !important; max-height: none !important; overflow: visible !important; }
+  html.sx.sx list-bib-component .filter-contactList > div { height: auto !important; max-height: none !important; overflow: visible !important; }
 
   /* Personal data: rows grow with their text; label above value. */
   html.sx.sx .profile-data-line { flex-direction: column !important; height: auto !important; min-height: 0 !important; gap: 2px; padding: 10px 0 !important; border-bottom: 1px solid var(--line) !important; }
