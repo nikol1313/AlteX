@@ -1,6 +1,5 @@
 'use strict';
-// Academic calendar 2026/2027 (bachelor), shared by the extension and the PWA.
-// Replace when the next year's calendar is published.
+// Academic calendar 2026/2027 (bachelor). Replace when the next year's calendar is published.
 const SEMESTER_STARTS = ['2026-09-14', '2027-02-22'];
 const EXAMS = [
   { key: 'midterm', ka: 'შუალედური გამოცდები', en: 'Midterm exams', periods: [['2026-11-02', '2026-11-07'], ['2027-04-12', '2027-04-17']] },

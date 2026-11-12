@@ -246,9 +246,4 @@ html.sx.sx.sx lost-password-dialog .mat-mdc-dialog-actions button:is(:disabled, 
   html.sx :is(.sx-login-art, .loginPage-wrapper), html.sx.sx-login body::before { animation: none !important; }
 }
 
-/* touchscreens: every control at least 44px */
-@media (pointer: coarse), (max-width: 760px) {
-  html.sx.sx login-component .login-footer a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px !important; }
-}
-
 }
