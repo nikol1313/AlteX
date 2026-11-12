@@ -95,15 +95,17 @@ android {
     }
 
     // Release signing comes from the environment (GitHub Actions secrets, see android/README.md).
+    // Trimmed: a password pasted from a file usually carries its trailing newline.
     val keystore = System.getenv("ALTEX_KEYSTORE")
+    val keystorePassword = System.getenv("ALTEX_KEYSTORE_PASSWORD")?.trim()
     signingConfigs {
         if (keystore != null) {
             create("release") {
                 storeFile = file(keystore)
                 storeType = "pkcs12"
-                storePassword = System.getenv("ALTEX_KEYSTORE_PASSWORD")
+                storePassword = keystorePassword
                 keyAlias = "altex"
-                keyPassword = System.getenv("ALTEX_KEYSTORE_PASSWORD")
+                keyPassword = keystorePassword
             }
         }
     }
