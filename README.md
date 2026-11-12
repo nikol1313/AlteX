@@ -4,8 +4,8 @@ Visual redesign of the Alte University student portal (`students.alte.edu.ge`).
 
 ## What it does
 
-- Injects a custom stylesheet (`styles.css`) that restyles the portal UI.
-- Runs a content script (`content.js`) that adapts page behavior and markup.
+- Injects stylesheets (`css/`) that restyle the portal UI.
+- Runs content scripts (`js/`) that adapt page behavior and markup (read-only: nothing is submitted for you).
 - Bundles self-hosted fonts (FiraGO, Georgia serif) so the redesign renders consistently offline.
 
 ## Install
@@ -18,9 +18,15 @@ The extension activates automatically on `https://students.alte.edu.ge/*`.
 
 ## Files
 
-| File | Purpose |
+| Path | Purpose |
 | --- | --- |
-| `manifest.json` | MV3 manifest, content script + font declarations |
-| `styles.css` | Portal redesign styles |
-| `content.js` | DOM adaptation script |
+| `manifest.json` | MV3 manifest; lists every CSS and JS file in load order |
+| `css/base.css` | Colour tokens, reset, header, nav bar, shared boxes, tables, dialogs, footer |
+| `css/<page>.css` | One file per page: dashboard, timetable, applications, learning-card, finances, registration, programs, chancellery, assignments, login |
+| `js/core.js` | Shared helpers: dates, `el()`, storage, session, API |
+| `js/academic-calendar.js` | 2026/2027 exam periods and days off (update yearly) |
+| `js/<page>.js` | One file per page, each exposing `enhance…`/`mount…` functions |
+| `js/main.js` | The loop: runs every page function when the portal's DOM changes (max ~5×/s) |
 | `fonts/` | Self-hosted webfonts |
+
+All JS files share one scope (content scripts of one extension run in the same isolated world), so `main.js` must stay last in `manifest.json`.
