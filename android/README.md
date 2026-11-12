@@ -9,7 +9,7 @@ The student portal in a WebView, with the AlteX extension's CSS and JS injected.
 - `app/build.gradle.kts` packs the content scripts listed in `../manifest.json` (same order) into `assets/altex.js`.
 - The app injects it at document start, on `https://students.alte.edu.ge` only.
 - The code runs on the portal's own origin, so it uses the portal's login token and API like the desktop extension.
-- Version comes from `manifest.json` (`3.3.2` → versionCode `30302`).
+- Version comes from `manifest.json` (`3.3.3` → versionCode `30303`).
 - Links outside the portal open in the browser.
 - "Remember me": login stored encrypted (Android Keystore, `LoginStore.java`), removed on log out.
 - Update check: on launch (max every 6 h) the app reads the latest Release tag; if newer, a banner links to the APK.

@@ -68,6 +68,7 @@ const enhanceFinances = () => {
   }
   const bar = el('div', 'sx-fin-bar');
   bar.setAttribute('role', 'progressbar');
+  bar.setAttribute('aria-label', 'გადახდილია · Paid');
   bar.setAttribute('aria-valuemin', '0'); bar.setAttribute('aria-valuemax', String(total.due)); bar.setAttribute('aria-valuenow', String(total.paid));
   const fill = el('i'); fill.style.width = `${pct}%`; bar.append(fill);
   const facts = el('div', 'sx-fin-facts');
