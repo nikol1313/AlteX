@@ -108,6 +108,15 @@ html.sx.sx.sx-enter dashboard-component .dashboard-item-wrapper[href="/learningC
   html.sx.sx dashboard-component .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/learningCard"]) { grid-column: 1; grid-row: auto; }
   html.sx.sx dashboard-component .dashboard-item { padding: 30px 28px !important; }
   html.sx .sx-hello-exam { width: 100%; }
+  /* Phones: timetable, learning card, assignments, then the exam countdown last. */
+  html.sx.sx .sx-dash-stack { display: flex !important; flex-direction: column; }
+  html.sx.sx .sx-dash-stack > * { order: 1; }
+  html.sx.sx .sx-dash-stack > .sx-hello { display: contents; }
+  html.sx.sx .sx-dash-stack .sx-hello-text { order: 0; margin-bottom: 24px; }
+  html.sx.sx .sx-dash-stack .sx-hello-exam { order: 2; margin-top: 20px; }
+  html.sx.sx dashboard-component .dashboard-item-wrapper[href="/tables"] { order: 1; }
+  html.sx.sx dashboard-component .dashboard-item-wrapper[href="/learningCard"] { order: 2; }
+  html.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] { order: 3; }
 }
 @media (max-width: 520px) { html.sx.sx.sx-dash .width { padding-inline: 16px !important; } }
 @media (prefers-reduced-motion: reduce) {

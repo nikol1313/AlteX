@@ -48,6 +48,25 @@ html.sx .sx-fin-count-unit { font-size: 16px !important; color: rgba(255, 255, 2
 html.sx.sx .sx-fin-count .sx-fin-sub { color: rgba(255, 255, 255, .9) !important; font-size: 14px !important; }
 html.sx.sx .sx-fin-count.sx-late { background-color: #3A2433 !important; background-image: none !important; border: 1px solid var(--clay) !important; box-shadow: none !important; }
 html.sx.sx .sx-fin-count.sx-late :is(.sx-fin-count-num, .sx-fin-cap, .sx-fin-count-unit, .sx-fin-sub) { color: #F3C3DC !important; }
-@media (max-width: 640px) { html.sx .sx-fin-count { width: 100%; min-width: 0; } }
+/* Phones get three rows per instalment from the site: title, labels, values. */
+html.sx.sx .page-finances .wrapper-menu[data-sx-rows="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px 12px; }
+html.sx.sx .page-finances .wrapper-menu[data-sx-rows="3"] .wrapper-row:first-child > div { grid-row: auto; grid-column: 1 / -1; font-size: 16px !important; color: var(--fg) !important; }
+html.sx.sx .page-finances .wrapper-menu[data-sx-rows="3"] .wrapper-row:first-child > div:empty { display: none !important; }
+html.sx.sx .page-finances .wrapper-menu[data-sx-rows="3"] .wrapper-row:first-child span { font-size: 16px !important; color: var(--fg) !important; }
+html.sx.sx .page-finances .wrapper-menu[data-sx-rows="3"] .wrapper-row:first-child span:nth-of-type(2) { margin-left: 8px; font-size: 13px !important; color: var(--fg2) !important; }
+html.sx.sx .page-finances .wrapper-menu[data-sx-rows="3"] .wrapper-row:first-child br { display: none; }
+html.sx.sx .page-finances .wrapper-menu[data-sx-rows="3"] .wrapper-row:nth-child(2) > div { margin-top: 8px; font-size: 12px !important; color: var(--fg3) !important; }
+html.sx.sx .page-finances .wrapper-menu[data-sx-rows="3"] .wrapper-row:nth-child(2) > div * { font-size: inherit !important; color: inherit !important; }
+html.sx.sx .page-finances .wrapper-menu[data-sx-rows="3"] .wrapper-row:last-child > div:first-child { display: block !important; }
+@media (max-width: 640px) {
+  html.sx .sx-fin { padding: 22px 18px; }
+  html.sx .sx-fin-head { gap: 16px; }
+  html.sx .sx-fin-count { width: 100%; min-width: 0; padding: 18px 20px; }
+  html.sx .sx-fin-count-num { font-size: 48px !important; }
+  html.sx .sx-fin-num { font-size: 36px !important; }
+  html.sx .sx-fin-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  html.sx .mat-expansion-panel { padding: 16px 18px !important; }
+  html.sx .page-finances > mat-form-field { width: 100% !important; }
+}
 
 }

@@ -242,4 +242,6 @@ const mountHello = () => {
     box.append(chip);
   }
   if (box.nextElementSibling !== cont) cont.before(box);
+  // Lets phones lay greeting, boxes and the exam countdown out as one column (dashboard.css).
+  if (!cont.parentElement.classList.contains('sx-dash-stack')) cont.parentElement.classList.add('sx-dash-stack');
 };

@@ -46,6 +46,8 @@ abstract class BundleExtension : DefaultTask() {
 
         // One function scope: the files still share top-level names with each other (as content
         // scripts do), but not with the portal's own scripts, since this runs in the page's world.
+        // Content scripts at document_start always see <html>; an injected script can run before it
+        // exists, so start once it does.
         out.resolve("altex.js").writeText(
             listOf(
                 "// Generated from the extension's manifest.json by android/app/build.gradle.kts. Do not edit.",
@@ -53,6 +55,7 @@ abstract class BundleExtension : DefaultTask() {
                 "'use strict';",
                 "if (window.top !== window || window.__altexLoaded) return;",
                 "window.__altexLoaded = true;",
+                "const boot = () => {",
                 "{",
                 "  const style = document.createElement('style');",
                 "  style.id = 'altex-css';",
@@ -60,6 +63,9 @@ abstract class BundleExtension : DefaultTask() {
                 "  (document.head || document.documentElement).append(style);",
                 "}",
                 js,
+                "};",
+                "if (document.documentElement) boot();",
+                "else new MutationObserver((_, o) => { if (document.documentElement) { o.disconnect(); boot(); } }).observe(document, { childList: true });",
                 "})();",
                 "",
             ).joinToString("\n")
@@ -121,6 +127,9 @@ androidComponents {
 }
 
 dependencies {
+    // AndroidX pulls in kotlin-stdlib 1.8 plus old kotlin-stdlib-jdk7/jdk8 1.6 (duplicate classes).
+    // The Kotlin plugin normally aligns them; this Java-only app does it with the BOM.
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.22"))
     implementation("androidx.activity:activity:1.9.3")
     implementation("androidx.core:core:1.15.0")
     implementation("androidx.webkit:webkit:1.12.1")
