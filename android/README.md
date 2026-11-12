@@ -57,8 +57,12 @@ Add two repository secrets (GitHub → Settings → Secrets and variables → Ac
 3. GitHub Actions (`.github/workflows/android.yml`) builds the signed APK and creates a Release with
    `AlteX-3.2.0.apk` attached. It is free for public repositories.
 
-Share the release link with students: they open it on the phone, download the APK, allow installs from the
-browser when Android asks, and install. A newer APK installs over the old one and keeps them logged in.
+Share one link with students; it always downloads the newest release:
+
+    https://github.com/nikol1313/AlteX-chrome-extension/releases/latest/download/AlteX.apk
+
+They open it on the phone, allow installs from the browser when Android asks, and install. A newer APK installs
+over the old one and keeps them logged in.
 
 ## Build locally (optional)
 
