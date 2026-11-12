@@ -219,8 +219,17 @@ public class MainActivity extends ComponentActivity {
         super.onResume();
         boolean away = pausedAt != 0 && System.currentTimeMillis() - pausedAt > RESUME_RELOAD_MS;
         pausedAt = 0;
-        if (away && pendingUpload == null && (offline == null || offline.getVisibility() != View.VISIBLE)) web.reload();
+        if (!away || pendingUpload != null || (offline != null && offline.getVisibility() == View.VISIBLE)) return;
+        // Something typed or a file picked and not sent yet: keep the page as it is rather than lose it.
+        web.evaluateJavascript(UNSENT_INPUT_JS, result -> { if (!"true".equals(result)) web.reload(); });
     }
+
+    /** True when the page holds text typed into a field, or a picked file, that a reload would throw away. */
+    private static final String UNSENT_INPUT_JS = "(() => [...document.querySelectorAll("
+            + "'textarea, input:not([type]), input[type=text], input[type=email], input[type=tel], input[type=number],"
+            + " input[type=url], input[type=password], input[type=date], input[type=file], [contenteditable=\"true\"]')]"
+            + ".some((f) => f.type === 'file' ? f.files && f.files.length > 0"
+            + " : f.isContentEditable ? f.textContent.trim() !== '' : f.value !== f.defaultValue && f.value.trim() !== ''))()";
 
     @Override
     protected void onDestroy() {
