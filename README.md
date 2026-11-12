@@ -16,6 +16,12 @@ Visual redesign of the Alte University student portal (`students.alte.edu.ge`).
 
 The extension activates automatically on `https://students.alte.edu.ge/*`.
 
+## Android app
+
+`android/` wraps the portal in an Android WebView and injects this same extension code, so phones get the
+redesign and live data too. It is built from `manifest.json` (no separate copy of the code) and released as an
+APK on GitHub Releases. See [`android/README.md`](android/README.md).
+
 ## Files
 
 | Path | Purpose |
@@ -28,5 +34,7 @@ The extension activates automatically on `https://students.alte.edu.ge/*`.
 | `js/<page>.js` | One file per page, each exposing `enhance…`/`mount…` functions |
 | `js/main.js` | The loop: runs every page function when the portal's DOM changes (max ~5×/s) |
 | `fonts/` | Self-hosted webfonts |
+| `android/` | Android app (WebView + this extension), see `android/README.md` |
+| `.github/workflows/android.yml` | Builds the APK on every push; tags `android-v*` publish a Release |
 
 All JS files share one scope (content scripts of one extension run in the same isolated world), so `main.js` must stay last in `manifest.json`.
