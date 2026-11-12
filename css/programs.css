@@ -1,0 +1,116 @@
+@layer sx {
+
+/* ---------- საგანმანათლებლო პროგრამა: one table on a shared column grid ---------- */
+html.sx .page-program > .width { gap: 20px; }
+html.sx.sx .page-program .program-form {
+  width: min(100%, 420px) !important; margin: 0 !important; padding: 0 !important;
+  background-color: transparent !important; box-shadow: none !important;
+}
+html.sx.sx .page-program .program-form { position: relative; margin-top: 24px !important; }
+html.sx .page-program .program-form label { display: none !important; }
+html.sx .page-program .program-form::before { content: "საგანმანათლებლო პროგრამა"; position: absolute; left: 2px; top: -24px; font-size: 13px; color: var(--fg3); }
+html.sx.sx .page-program .program-form .mat-mdc-text-field-wrapper {
+  height: 50px !important; padding: 0 16px !important; box-sizing: border-box; border-radius: 14px !important;
+  background-color: var(--well) !important; border: 1px solid var(--line) !important;
+}
+html.sx .page-program .program-form :is(.mat-mdc-form-field-flex, .mat-mdc-form-field-infix) { height: 100% !important; min-height: 0 !important; padding: 0 !important; display: flex !important; align-items: center !important; }
+html.sx .page-program .program-form .mat-mdc-form-field-subscript-wrapper { display: none !important; }
+
+html.sx.sx program-view .program-wrapper { padding: 0 !important; border-radius: 24px !important; }
+html.sx.sx program-view .program-title {
+  margin: 0 !important; padding: 26px 32px !important; text-align: left !important;
+  font-size: 24px !important; font-weight: 500 !important; letter-spacing: -0.02em !important; color: var(--fg) !important;
+  background-image: linear-gradient(120deg, rgba(147, 96, 227, .22), transparent 70%) !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+
+html.sx program-view {
+  --pg-cols: 64px minmax(220px, 1fr) 64px minmax(150px, 20%) minmax(240px, 30%);
+}
+html.sx.sx program-view :is(.program-header, .module-header, .group-header, .program-book-wrapper) {
+  display: grid !important; grid-template-columns: var(--pg-cols); align-items: center; column-gap: 16px;
+  min-width: 780px; margin: 0 !important; padding: 12px 28px !important; box-sizing: border-box;
+}
+html.sx.sx program-view :is(.program-header, .module-header, .group-header, .program-book-wrapper) > * {
+  flex: none !important; max-width: none !important; min-width: 0 !important; min-height: 0 !important; width: auto !important;
+  margin: 0 !important; padding: 0 !important; text-align: left !important; text-indent: 0 !important; justify-content: flex-start !important;
+  font-size: 15px !important; line-height: 1.4 !important;
+}
+
+/* column titles */
+html.sx.sx program-view .program-header { padding-block: 14px !important; border-bottom: 1px solid var(--line) !important; }
+html.sx.sx program-view .program-header :is(.prog-row, .prog-row *, .prog-row-sub) { font-size: 12px !important; line-height: 1.4 !important; color: var(--fg3) !important; }
+html.sx program-view .program-header .prog-row3 { justify-content: center !important; text-align: center !important; }
+html.sx.sx program-view .prog-row5 { display: flex !important; flex-direction: column !important; gap: 6px; }
+html.sx program-view .prog-row-sub-title { justify-content: flex-start !important; }
+
+/* semester columns (I, II, …) in the header and in every course row */
+html.sx program-view :is(.prog-row5, .book-row5) > div:not(.prog-row-sub-title), html.sx program-view .book-row5 {
+  display: flex !important; flex-direction: row !important; gap: 4px; width: 100% !important;
+}
+html.sx.sx.sx program-view .semester-wrapper {
+  flex: 1 1 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; min-width: 0 !important; width: auto !important;
+  height: 30px; padding: 0 !important; margin: 0 !important; border: 0 !important; border-radius: 8px !important; box-shadow: none !important; overflow: visible !important;
+  text-align: center !important; text-indent: 0 !important; background-color: rgba(255, 255, 255, .03) !important;
+}
+html.sx.sx program-view .program-header .semester-wrapper { background-color: transparent !important; height: auto; }
+html.sx program-view .semester-wrapper mat-icon { width: 18px !important; height: 18px !important; font-size: 18px !important; line-height: 18px !important; color: var(--line) !important; }
+html.sx.sx program-view .semester-wrapper:has(mat-icon[style*="opacity: 1"]) { background-color: rgba(147, 96, 227, .24) !important; }
+html.sx.sx program-view .semester-wrapper mat-icon[style*="opacity: 1"] { color: var(--acc) !important; }
+
+/* module (A, B …) */
+html.sx program-view .program-module { margin-top: 0; border-top: 1px solid var(--line) !important; }
+html.sx program-view .program-module:first-of-type { border-top: 0 !important; }
+html.sx.sx program-view .module-header { padding-block: 16px !important; background-color: rgba(147, 96, 227, .12) !important; }
+html.sx.sx program-view .module-header .mod-row1 { color: var(--acc) !important; font-weight: 500 !important; }
+html.sx.sx program-view .module-header .mod-row2 { font-size: 18px !important; font-weight: 500 !important; color: var(--fg) !important; }
+html.sx.sx program-view .module-header .mod-row4 { font-size: 13px !important; color: var(--fg2) !important; }
+
+/* group (A-1 …) */
+html.sx.sx program-view .group-header { background-color: rgba(255, 255, 255, .025) !important; border-top: 1px solid var(--line) !important; }
+html.sx.sx program-view .group-header .group-row1 { font-size: 13px !important; color: var(--fg3) !important; }
+html.sx.sx program-view .group-header .group-row2 { font-size: 16px !important; font-weight: 500 !important; color: var(--fg) !important; }
+
+html.sx.sx program-view :is(.mod-row3, .group-row3) { justify-content: center !important; }
+html.sx.sx program-view :is(.mod-row3, .group-row3) {
+  justify-self: center; padding: 3px 12px !important; border-radius: 999px !important; font-size: 14px !important; color: var(--fg) !important;
+  background-color: rgba(20, 21, 22, .6) !important;
+}
+
+/* course rows */
+html.sx.sx program-view .program-book-wrapper { border-top: 1px solid rgba(57, 59, 65, .6) !important; transition: background-color 150ms linear !important; }
+html.sx.sx program-view .program-book-wrapper:hover { background-color: var(--box-hi) !important; }
+html.sx.sx program-view .book-row1 { font-size: 13px !important; color: var(--fg3) !important; }
+html.sx.sx program-view .book-row2 { font-size: 16px !important; color: var(--fg) !important; }
+html.sx.sx program-view .book-row3 { justify-content: center !important; text-align: center !important; color: var(--fg2) !important; }
+html.sx.sx program-view .pr__empty { display: block !important; margin: 0 !important; text-align: left !important; font-size: 13px !important; color: var(--fg3) !important; }
+html.sx.sx program-view .program-book-wrapper > .book-row4 { display: block !important; place-content: normal !important; text-align: left !important; }
+html.sx program-view .pr-stack { display: flex; flex-direction: column; gap: 6px; }
+html.sx.sx program-view .book-row4 { display: block !important; text-align: left !important; }
+html.sx program-view .pr__head { display: flex; align-items: baseline; gap: 6px; }
+html.sx.sx program-view :is(.pr, .pr__course) {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 6px 10px; border-radius: 10px !important;
+  background-color: rgba(222, 141, 184, .10) !important; border: 1px solid rgba(222, 141, 184, .28) !important;
+}
+html.sx program-view :is(.pr, .pr__course) * { font-size: 13px !important; line-height: 1.4 !important; overflow-wrap: normal !important; word-break: normal !important; }
+html.sx program-view .pr__code { color: var(--clay) !important; }
+html.sx program-view :is(.pr__name, .pr__type) { color: var(--fg) !important; }
+html.sx program-view .pr__marker { display: none; }
+html.sx program-view .pr__list { margin: 0; padding: 0; list-style: none; width: 100%; }
+html.sx program-view .pr__list li { display: flex; justify-content: space-between; gap: 8px; color: var(--fg2) !important; }
+html.sx.sx program-view .program-book-wrapper > button.syllabuses {
+  position: static !important; inset: auto !important; transform: none !important;
+  grid-column: 2; grid-row: 2; justify-self: start; margin-top: 8px !important; padding: 4px 12px 4px 8px !important; gap: 6px;
+}
+html.sx program-view .program-book-wrapper > button.syllabuses mat-icon { width: 16px !important; height: 16px !important; font-size: 16px !important; line-height: 16px !important; color: inherit !important; }
+
+@media (min-width: 993px) {
+  html.sx.sx program-view :is(.mod-row4, .group-row4) { grid-column: 4 / span 2; }
+}
+@media (max-width: 992px) {
+  html.sx program-view { --pg-cols: minmax(0, 1fr) 56px 64px 48px 48px; }
+  html.sx.sx program-view :is(.program-header, .module-header, .group-header, .program-book-wrapper) { min-width: 0; padding: 12px 18px !important; }
+  html.sx.sx program-view .book-row5 { justify-content: center !important; }
+}
+
+}
