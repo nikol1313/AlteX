@@ -135,7 +135,7 @@ const maybeWelcome = () => {
 // Remember the login and sign in again when the portal's 24-hour session ends. It is saved only after a
 // login succeeds, and "გასვლა" (log out) forgets it.
 // Android app: kept encrypted (Android Keystore) behind window.AltexApp, exposed to the portal origin only.
-// Desktop extension: kept in chrome.storage.local, which the portal's own scripts cannot read, but which is
+// Desktop extension: kept in the extension's local storage, which the portal's own scripts cannot read, but which is
 // not encrypted on disk (it lives in the Chrome profile).
 const LOGIN_STORE_KEY = 'sx-login';
 const extStorage = () => { try { return globalThis.chrome?.storage?.local || null; } catch { return null; } };
