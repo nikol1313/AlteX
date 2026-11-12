@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ka" class="sx">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>AlteX Student Portal</title>
+  <meta name="description" content="AlteX: Alte University academic calendar, exam countdowns and quick access to the student portal.">
+  <meta name="theme-color" content="#1C1E1F">
+  <meta name="color-scheme" content="dark">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <!-- iOS: Safari reads these instead of the manifest for the home-screen app -->
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="AlteX">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/exam-strip.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <header class="app-bar">
+    <div class="brand" aria-label="AlteX">Alte<span>X</span></div>
+    <span class="net" id="net" hidden>ოფლაინ</span>
+  </header>
+
+  <div class="install-banner" id="install-banner" hidden>
+    <div class="install-banner-text">
+      <strong>დააყენე AlteX</strong>
+      <span id="install-banner-sub">გახსენი ერთი შეხებით, ინტერნეტის გარეშეც.</span>
+    </div>
+    <button type="button" class="btn btn-primary" id="install-go">დაყენება</button>
+    <button type="button" class="icon-btn" id="install-dismiss" aria-label="დახურვა">✕</button>
+  </div>
+
+  <main>
+    <section class="view" id="home" data-view>
+      <div class="hello">
+        <span class="hello-date" id="today-date"></span>
+        <h1>გამარჯობა</h1>
+        <p class="hello-line" id="today-line"></p>
+      </div>
+      <h2 class="section-title" id="exams">გამოცდებამდე</h2>
+      <section class="sx-exams" id="exam-strip" aria-labelledby="exams"></section>
+      <a class="card card-link" href="https://students.alte.edu.ge/" target="_blank" rel="noopener noreferrer">
+        <span class="card-cap">სტუდენტის პორტალი</span>
+        <span class="card-title">ქულები, ცხრილი, დავალებები →</span>
+        <span class="card-sub">იხსნება students.alte.edu.ge-ზე, შენი ანგარიშით.</span>
+      </a>
+    </section>
+
+    <section class="view" id="calendar" data-view hidden>
+      <h1>აკადემიური კალენდარი</h1>
+      <p class="lead">2026/2027 სასწავლო წელი · ბაკალავრიატი</p>
+      <div class="agenda" id="agenda"></div>
+    </section>
+
+    <section class="view" id="portal" data-view hidden>
+      <h1>სტუდენტის პორტალი</h1>
+      <p class="lead">პირადი მონაცემები (ქულები, ცხრილი, ფინანსები) მხოლოდ უნივერსიტეტის პორტალზეა. აქედან პირდაპირ სასურველ გვერდზე გადახვალ.</p>
+      <nav class="links" id="portal-links" aria-label="პორტალის გვერდები"></nav>
+    </section>
+
+    <section class="view" id="about" data-view hidden>
+      <h1>აპის შესახებ</h1>
+      <div class="card">
+        <span class="card-cap">დაყენება</span>
+        <p class="card-text" id="install-state">AlteX შეგიძლია დაიყენო მთავარ ეკრანზე, როგორც აპლიკაცია.</p>
+        <button type="button" class="btn btn-primary" id="install-manual">როგორ დავაყენო</button>
+      </div>
+      <h2 class="section-title">რა მუშაობს აპში</h2>
+      <ul class="features" id="features"></ul>
+      <p class="note">რატომ: უნივერსიტეტის პორტალი სხვა საიტებს მის API-ზე წვდომის უფლებას არ აძლევს (CORS) და ჩაშენებასაც ბლოკავს. ამიტომ აპს შენი ქულების ან ცხრილის წაკითხვა არ შეუძლია და შენს პაროლს არასოდეს ითხოვს. სრული AlteX დიზაინი პორტალზე მუშაობს ბრაუზერის გაფართოებით.</p>
+    </section>
+  </main>
+
+  <nav class="tabbar" aria-label="ნავიგაცია">
+    <a href="#home" data-tab="home"><span class="tab-ico" aria-hidden="true">⌂</span>მთავარი</a>
+    <a href="#calendar" data-tab="calendar"><span class="tab-ico" aria-hidden="true">▦</span>კალენდარი</a>
+    <a href="#portal" data-tab="portal"><span class="tab-ico" aria-hidden="true">↗</span>პორტალი</a>
+    <a href="#about" data-tab="about"><span class="tab-ico" aria-hidden="true">ⓘ</span>ინფო</a>
+  </nav>
+
+  <footer class="foot">2026 N.A. — დამზადებულია სტუდენტის მიერ, სტუდენტებისთვის. <span id="version"></span></footer>
+
+  <dialog class="sheet" id="install-sheet" aria-labelledby="sheet-title">
+    <h2 id="sheet-title">AlteX-ის დაყენება</h2>
+    <ol class="steps" id="sheet-steps"></ol>
+    <button type="button" class="btn" id="sheet-close">გასაგებია</button>
+  </dialog>
+
+  <div class="toast" id="update-toast" role="status" hidden>
+    <span>ხელმისაწვდომია ახალი ვერსია.</span>
+    <button type="button" class="btn btn-primary" id="update-go">განახლება</button>
+  </div>
+
+  <script src="../shared/util.js"></script>
+  <script src="../shared/academic-calendar.js"></script>
+  <script src="../shared/exam-strip.js"></script>
+  <script src="install.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
