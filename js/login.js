@@ -77,9 +77,8 @@ const takeFreshLogin = () => {
 };
 
 const showWelcome = (s) => {
-  const w = el('div', 'sx-welcome');
-  w.setAttribute('role', 'dialog');
-  w.setAttribute('aria-modal', 'true');
+  // A modal <dialog>: focus stays inside, the portal behind is inert, Esc closes it like the button does.
+  const w = el('dialog', 'sx-welcome');
   w.setAttribute('aria-labelledby', 'sx-w-title');
   const logo = el('div', 'sx-w-logo', 'Alte');
   logo.append(el('span', 'sx-w-x', 'X'));
@@ -88,6 +87,7 @@ const showWelcome = (s) => {
   const today = el('p', 'sx-w-today');
   const btn = el('button', 'sx-w-go', 'გაგრძელება →');
   btn.type = 'button';
+  btn.autofocus = true;
   const off = el('label', 'sx-w-off');
   const box = el('input');
   box.type = 'checkbox';
@@ -98,23 +98,24 @@ const showWelcome = (s) => {
   w.append(inner);
 
   root.classList.add('sx-welcoming');
-  root.append(w);
-  requestAnimationFrame(() => w.classList.add('sx-in'));
-  btn.focus({ preventScroll: true });
+  document.body.append(w);
+  w.showModal(); // entry fade: @starting-style in login.css
   load().then(() => { const line = todayLessonsLine(); if (line) { today.textContent = line; today.classList.add('sx-show'); } }).catch(() => {});
 
-  let gone = false;
-  btn.addEventListener('click', () => {
-    if (gone) return;
-    gone = true;
+  btn.addEventListener('click', () => w.close());
+  w.addEventListener('close', () => {
     if (box.checked) store.set(offKey(s.studentId), '1');
     setAwait(false);
-    w.classList.add('sx-out');
     setTimeout(() => {
       w.remove();
       root.classList.remove('sx-welcoming');
       root.classList.add('sx-enter');
-      setTimeout(() => root.classList.remove('sx-enter'), 1400);
+      // Dropping sx-enter swaps the boxes back to their normal entrance animation, and a changed animation-name
+      // replays: they would blink out and fade in again. Mark the boxes already shown first (dashboard.css).
+      setTimeout(() => {
+        for (const box of document.querySelectorAll('dashboard-component .dashboard-item-wrapper')) box.dataset.sxShown = '';
+        root.classList.remove('sx-enter');
+      }, 1400);
     }, 320);
   });
 };
@@ -168,7 +169,7 @@ const loginStore = () => {
   };
 };
 let savedLogin, pendingLogin = null, autoLoginTried = false;
-const forgetLogin = () => { savedLogin = null; pendingLogin = null; loginStore()?.forget(); };
+const forgetLogin = () => { savedLogin = null; pendingLogin = null; loginStore()?.forget(); forgetDashboard(); };
 const askSavedLogin = () => {
   const ls = loginStore();
   if (!ls || savedLogin !== undefined) return;

@@ -35,6 +35,39 @@ const tagDetailRows = () => {
   }
 };
 
+// The portal unfolds a subject with a 225ms height animation to a pixel height it measured on the tap (always
+// ~408px, before AlteX's rows and pass-mark line), then snaps to the real height when it ends: the "leap" on the
+// first open. Point the animation's end at height: auto instead; with interpolate-size (learning-card.css) the
+// browser resolves "auto" on every frame, so the unfold follows the content and ends exactly at its size.
+// Retarget only once the animation has started: changing a still-pending one froze it at 0 in testing.
+const unfoldToAuto = (anim) => {
+  const fx = anim.effect;
+  if (!fx || !fx.getKeyframes || anim.playState === 'finished') return;
+  const frames = fx.getKeyframes();
+  const end = frames[frames.length - 1];
+  if (!end || !end.height || end.height === 'auto' || parseFloat(end.height) === 0) return; // folding up: leave it
+  fx.setKeyframes(frames.map(({ computedOffset, ...f }, i) => (i === frames.length - 1 ? { ...f, height: 'auto' } : f)));
+};
+const seenUnfolds = new WeakSet();
+const fitDetailUnfold = () => {
+  for (const row of document.querySelectorAll('.page-learningCard mat-row:has(> .mat-column-expandedDetail)')) {
+    for (const anim of row.getAnimations()) {
+      if (seenUnfolds.has(anim)) continue;
+      seenUnfolds.add(anim);
+      anim.ready.then(() => unfoldToAuto(anim), () => {});
+    }
+  }
+};
+// Runs from main.js's MutationObserver the moment the portal adds content, before it is painted. The regular pass
+// would come up to 200ms later: the grade dialog (შეფასება) showed its raw vertical layout until then, and the
+// unfold retarget would land near the end of the animation.
+const onCardMutation = () => {
+  enhanceEstDialog();
+  if (!document.querySelector('.page-learningCard .mat-column-expandedDetail')) return;
+  tagDetailRows();
+  fitDetailUnfold();
+};
+
 // End of the running semester = the next payment date reported while it is the newest one,
 // remembered per semester so it does not move when the portal moves on to the next payment.
 const semEnds = new Map();
@@ -112,6 +145,7 @@ const enhanceCourseRow = (row, current, ended) => {
 
 const enhanceCard = () => {
   tagDetailRows();
+  fitDetailUnfold();
   for (const sp of document.querySelectorAll('.page-learningCard .ini-block .last-stat h3 :is(span, b)')) {
     const isVal = /^\s*[\d.,]+\s*$/.test(sp.textContent);
     if (sp.classList.contains('sx-stat-val') !== isVal) sp.classList.toggle('sx-stat-val', isVal);

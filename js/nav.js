@@ -40,42 +40,29 @@ const NAV_MORE = [
   { href: '/notifications', ka: 'განცხადებები (არქივი)', en: 'Announcements archive' },
   { href: '/logs', ka: 'ლოგები', en: 'Activity log' },
 ];
-const closeMore = () => document.querySelector('.sx-more.sx-open')?.classList.remove('sx-open');
-// The dropdown is position: fixed, so the horizontally scrollable bar never clips it.
-const placeMore = (li) => {
-  const r = li.querySelector('.sx-more-btn').getBoundingClientRect();
-  const menu = li.querySelector('.sx-more-menu');
-  menu.style.top = `${Math.round(r.bottom + 8)}px`;
-  menu.style.left = `${Math.round(Math.max(8, Math.min(r.left, window.innerWidth - 316)))}px`;
-};
+// A popover anchored to its button: the browser keeps it in the top layer (never clipped by the scrollable bar),
+// places it under the button, and closes it on Esc or a click outside.
 const buildMore = () => {
   const li = el('li', 'sx-more');
   const btn = el('button', 'sx-more-btn', 'მეტი');
   btn.type = 'button';
-  btn.setAttribute('aria-haspopup', 'menu');
-  btn.setAttribute('aria-expanded', 'false');
+  btn.setAttribute('commandfor', 'sx-more-menu');
+  btn.setAttribute('command', 'toggle-popover');
   const menu = el('div', 'sx-more-menu');
-  menu.setAttribute('role', 'menu');
+  menu.id = 'sx-more-menu';
+  menu.popover = 'auto';
   menu.append(...NAV_MORE.map(({ href, ka, en }) => {
-    const b = el('button', 'sx-more-item');
-    b.type = 'button';
-    b.setAttribute('role', 'menuitem');
-    b.dataset.href = href;
-    b.append(el('span', 'sx-ka', ka), el('span', 'sx-en', en));
-    return b;
+    const a = el('a', 'sx-more-item');
+    a.href = href;
+    a.append(el('span', 'sx-ka', ka), el('span', 'sx-en', en));
+    return a;
   }));
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const open = !li.classList.contains('sx-open');
-    li.classList.toggle('sx-open', open);
-    btn.setAttribute('aria-expanded', String(open));
-    if (open) placeMore(li);
-  });
   menu.addEventListener('click', (e) => {
     const item = e.target.closest('.sx-more-item');
-    if (!item) return;
-    closeMore();
-    go(item.dataset.href);
+    if (!item || e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return; // new tab / window: let the link work
+    e.preventDefault();
+    menu.hidePopover();
+    go(item.getAttribute('href'));
   });
   li.append(btn, menu);
   return li;
@@ -88,9 +75,10 @@ const mountNav = () => {
   const path = location.pathname;
   let any = false;
   for (const item of li.querySelectorAll('.sx-more-item')) {
-    const active = path === item.dataset.href || path.startsWith(item.dataset.href + '/');
+    const href = item.getAttribute('href');
+    const active = path === href || path.startsWith(href + '/');
     any = any || active;
-    item.classList.toggle('sx-active', active);
+    if (active !== item.hasAttribute('aria-current')) { if (active) item.setAttribute('aria-current', 'page'); else item.removeAttribute('aria-current'); }
   }
   li.classList.toggle('sx-active', any);
 };
@@ -160,10 +148,6 @@ const mountUserMenu = () => {
   }
 };
 
-document.addEventListener('click', (e) => { if (!e.target.closest('.sx-more')) closeMore(); });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMore(); });
-window.addEventListener('resize', closeMore);
-window.addEventListener('scroll', () => { const li = document.querySelector('.sx-more.sx-open'); if (li) placeMore(li); }, { passive: true });
 
 // Phones: a menu button in the header opens every section as a full-screen list (CSS hides the bar).
 const NAV_DRAWER = [
@@ -183,15 +167,21 @@ const NAV_DRAWER = [
 ];
 const navBadge = (href) => [...document.querySelectorAll(`:is(.topMenuItem > a, a.dashboard-item-wrapper)[href="${href}"] :is(.notify, .mat-badge-content)`)]
   .map((b) => b.textContent.trim()).find((t) => /^\d+$/.test(t) && t !== '0') || '';
+// A modal <dialog>: the browser moves focus in, makes the page behind inert, closes it on Esc or the Android back
+// gesture, and returns focus to the menu button.
 const setDrawer = (open) => {
-  if (root.classList.contains('sx-drawer-open') === open) return;
-  root.classList.toggle('sx-drawer-open', open);
-  document.querySelector('.sx-nav-btn')?.setAttribute('aria-expanded', String(open));
-  if (open) fillDrawer();
-};
-const fillDrawer = () => {
   const drawer = document.querySelector('.sx-drawer');
-  if (!drawer) return;
+  if (!drawer || drawer.open === open) return;
+  if (open) { fillDrawer(drawer); drawer.showModal(); } else drawer.close();
+  syncDrawer();
+};
+// The scroll lock and the button state follow the dialog, however it was closed.
+const syncDrawer = () => {
+  const open = !!document.querySelector('.sx-drawer')?.open;
+  if (root.classList.contains('sx-drawer-open') !== open) root.classList.toggle('sx-drawer-open', open);
+  document.querySelector('.sx-nav-btn')?.setAttribute('aria-expanded', String(open));
+};
+const fillDrawer = (drawer) => {
   const path = location.pathname;
   const head = el('div', 'sx-drawer-head');
   const brand = el('span', 'sx-drawer-brand', 'Alte');
@@ -201,11 +191,12 @@ const fillDrawer = () => {
   close.setAttribute('aria-label', 'დახურვა / Close');
   close.addEventListener('click', () => setDrawer(false));
   head.append(brand, close);
-  drawer.replaceChildren(head, ...NAV_DRAWER.flatMap(([label, items]) => [el('span', 'sx-drawer-label', label), ...items.map(({ href, ka, en }) => {
-    const b = el('button', 'sx-drawer-item');
-    b.type = 'button';
-    b.dataset.href = href;
-    if (path === href || path.startsWith(href + '/')) b.classList.add('sx-active');
+  const nav = el('nav', 'sx-drawer-nav');
+  nav.setAttribute('aria-label', 'მენიუ / Menu');
+  nav.append(...NAV_DRAWER.flatMap(([label, items]) => [el('span', 'sx-drawer-label', label), ...items.map(({ href, ka, en }) => {
+    const b = el('a', 'sx-drawer-item');
+    b.href = href;
+    if (path === href || path.startsWith(href + '/')) b.setAttribute('aria-current', 'page');
     const text = el('span', 'sx-drawer-text');
     text.append(el('span', 'sx-ka', ka), el('span', 'sx-en', en));
     b.append(text);
@@ -213,6 +204,7 @@ const fillDrawer = () => {
     if (badge) b.append(el('span', 'sx-drawer-badge', badge));
     return b;
   })]));
+  drawer.replaceChildren(head, nav);
 };
 const mountDrawer = () => {
   const area = document.querySelector('user-menu-component .user-area');
@@ -227,18 +219,19 @@ const mountDrawer = () => {
     area.prepend(btn);
   }
   if (!document.querySelector('.sx-drawer')) {
-    const drawer = el('nav', 'sx-drawer');
+    const drawer = el('dialog', 'sx-drawer');
     drawer.setAttribute('aria-label', 'მენიუ / Menu');
+    drawer.addEventListener('close', syncDrawer);
     drawer.addEventListener('click', (e) => {
       const item = e.target.closest('.sx-drawer-item');
       if (!item) return;
+      e.preventDefault();
       setDrawer(false);
-      go(item.dataset.href);
+      go(item.getAttribute('href'));
     });
     document.body.append(drawer);
   }
 };
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setDrawer(false); });
 window.addEventListener('popstate', () => setDrawer(false));
 
 // Phones: plain tables become one card per row (CSS); each cell carries its column title.

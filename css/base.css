@@ -1,3 +1,17 @@
+/* Reduced motion. sx-motion is declared before sx, so its !important rules beat every !important animation in sx,
+   whatever the selector specificity. 1ms + one iteration keeps each animation's end state (fill: both) without the motion.
+   The welcome screen and the post-login entrance (.sx-enter) keep their own opacity-only fade, set in login.css. */
+@layer sx-motion, sx;
+@layer sx-motion {
+  @media (prefers-reduced-motion: reduce) {
+    html.sx:not(.sx-enter) :not(.sx-welcome, .sx-welcome *),
+    html.sx:not(.sx-enter) :not(.sx-welcome, .sx-welcome *)::before,
+    html.sx:not(.sx-enter) :not(.sx-welcome, .sx-welcome *)::after {
+      animation-duration: 1ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important;
+      transition-duration: 1ms !important; transition-delay: 0s !important;
+    }
+  }
+}
 @layer sx {
 
 /* ---------- Tokens ---------- */
@@ -258,23 +272,26 @@ html.sx .sx-more-btn::after {
   content: ""; width: 6px; height: 6px; margin: -3px 0 0 2px; border: solid currentColor !important; border-width: 0 1.5px 1.5px 0 !important;
   transform: rotate(45deg); transition: transform 200ms var(--ease) !important;
 }
-html.sx .sx-more.sx-open .sx-more-btn::after { transform: translateY(3px) rotate(225deg); }
-html.sx .sx-more.sx-open .sx-more-btn { background-color: var(--box-hi) !important; color: var(--fg) !important; }
+html.sx .sx-more:has(> .sx-more-menu:popover-open) .sx-more-btn::after { transform: translateY(3px) rotate(225deg); }
+html.sx .sx-more:has(> .sx-more-menu:popover-open) .sx-more-btn { background-color: var(--box-hi) !important; color: var(--fg) !important; }
+html.sx .sx-more-btn { anchor-name: --sx-more; }
+/* Popover in the top layer, placed under its button by the browser (flips left near the right edge). */
 html.sx .sx-more-menu {
-  position: fixed; z-index: 70; display: none; min-width: 300px; padding: 8px !important;
+  position-anchor: --sx-more; position-area: block-end span-inline-end; position-try-fallbacks: flip-inline;
+  inset: auto; margin: 8px 0 0; min-width: 300px; padding: 8px !important; color: inherit; overflow: visible;
   background-color: var(--box) !important; border: 1px solid var(--line) !important; border-radius: 16px !important;
   box-shadow: 0 24px 48px -20px rgba(0, 0, 0, .8) !important;
 }
-html.sx .sx-more.sx-open .sx-more-menu { display: flex; flex-direction: column; gap: 2px; animation: sx-drop 180ms var(--ease) both !important; transform-origin: top left; }
+html.sx .sx-more-menu:popover-open { display: flex; flex-direction: column; gap: 2px; animation: sx-drop 180ms var(--ease) both !important; transform-origin: top left; }
 html.sx .sx-more-item {
   display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; padding: 10px 14px !important;
   border-radius: 10px !important; text-align: left; cursor: pointer; transition: background-color 150ms linear !important;
 }
 html.sx .sx-more-item:is(:hover, :focus-visible) { background-color: var(--box-hi) !important; }
-html.sx.sx .sx-more-item.sx-active { background-color: rgba(147, 96, 227, .18) !important; }
+html.sx.sx .sx-more-item[aria-current="page"] { background-color: rgba(147, 96, 227, .18) !important; }
 html.sx .sx-more-item .sx-ka { font-size: 16px !important; color: var(--fg) !important; }
 html.sx .sx-more-item .sx-en { font-size: 13px !important; color: var(--fg3) !important; }
-html.sx .sx-more-item.sx-active .sx-ka { color: var(--acc) !important; }
+html.sx .sx-more-item[aria-current="page"] .sx-ka { color: var(--acc) !important; }
 
 /* ---------- Boxes on inner pages ---------- */
 html.sx :is(.mat-elevation-z8, .personalDataList .card, .mat-expansion-panel, .ini-block,
@@ -410,7 +427,6 @@ html.sx .sx-offline {
 
 /* ---------- Phone navigation: menu button + full-screen drawer (nav.js) ---------- */
 html.sx .sx-nav-btn { display: none; }
-html.sx .sx-drawer { display: none; }
 @media (max-width: 760px) {
   html.sx.sx :is(user-menu-component .topMenuTo, .sx-dash-nav) { display: none !important; }
   html.sx.sx user-menu-component { top: 0; background-color: rgba(28, 30, 31, .97) !important; backdrop-filter: none; -webkit-backdrop-filter: none; border-bottom: 1px solid var(--line) !important; }
@@ -424,8 +440,9 @@ html.sx .sx-drawer { display: none; }
     border-radius: 14px !important; background-color: var(--box) !important; border: 1px solid var(--line) !important;
   }
   html.sx.sx-drawer-open body { overflow: hidden !important; }
-  html.sx.sx-drawer-open .sx-drawer {
-    position: fixed; inset: 0; z-index: 990; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; overscroll-behavior: contain;
+  /* Full-screen modal <dialog>: undo the UA's centred box. */
+  html.sx .sx-drawer[open] {
+    inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; border: 0; color: inherit; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; overscroll-behavior: contain;
     padding: 12px 16px 32px; box-sizing: border-box; background-color: var(--bg) !important; animation: sx-drop 160ms var(--ease) both !important;
   }
   html.sx .sx-drawer-head { display: flex; align-items: center; justify-content: space-between; min-height: 52px; margin-bottom: 8px; }
@@ -441,11 +458,12 @@ html.sx .sx-drawer { display: none; }
     border-radius: 14px !important;
   }
   html.sx .sx-drawer-item:active { background-color: var(--box-hi) !important; }
-  html.sx .sx-drawer-item.sx-active { background-color: rgba(147, 96, 227, .18) !important; }
+  html.sx .sx-drawer-nav { display: contents; }
+  html.sx .sx-drawer-item[aria-current="page"] { background-color: rgba(147, 96, 227, .18) !important; }
   html.sx .sx-drawer-text { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
   html.sx .sx-drawer-item .sx-ka { font-size: 17px !important; line-height: 1.35 !important; color: var(--fg) !important; }
   html.sx .sx-drawer-item .sx-en { font-size: 13px !important; line-height: 1.35 !important; color: var(--fg3) !important; }
-  html.sx .sx-drawer-item.sx-active .sx-ka { color: var(--acc) !important; }
+  html.sx .sx-drawer-item[aria-current="page"] .sx-ka { color: var(--acc) !important; }
   html.sx .sx-drawer-badge { padding: 1px 9px; border-radius: 999px !important; background-color: rgba(147, 96, 227, .26) !important; color: #E3D7FB !important; font-size: 13px !important; }
 
   /* Tab bars (განცხადებები, ფინანსები …): wrap onto lines instead of sliding out of view. */
@@ -492,4 +510,16 @@ html.sx .sx-drawer { display: none; }
   html.sx :is(.commandsh3, h1) { font-size: 40px !important; }
 }
 
+/* The content area holds a full screen even while the portal is still rendering it, so the footer starts below
+   the fold instead of being pushed down mid-load (layout shift). */
+html.sx app-root > div:nth-of-type(2) { min-height: 100dvh; }
+/* No page scrollbar on the right: the page still scrolls with the wheel, touch, keyboard and trackpad. */
+html.sx { scrollbar-width: none; }
+/* Desktop header = top bar + section nav. On the dashboard the nav is AlteX's own (nav.js mountDashNav) and lands a
+   moment after the portal paints: hold its height from the start so the page below never jumps. Phones hide the nav. */
+@media (min-width: 761px) { html.sx user-menu-component .dashboard-page { min-height: 156px; } }
+/* The header keeps one width on every section. Page rules for .width (dashboard 1440px, learning card 880px,
+   timetable full width…) also matched the header's .width, so the logo and profile button moved between sections. */
+html.sx.sx.sx.sx user-menu-component :is(.dashboard-page > .width, .topMenuTo .width) { max-width: var(--wide) !important; margin-inline: auto !important; }
+@media (min-width: 761px) { html.sx.sx.sx.sx user-menu-component :is(.dashboard-page > .width, .topMenuTo .width) { --sx-head-pad: 32px; padding-inline: var(--sx-head-pad) !important; } }
 }

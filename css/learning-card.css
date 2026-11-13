@@ -1,6 +1,11 @@
 @layer sx {
 
 html.sx .page-learningCard { display: flex !important; flex-direction: column; }
+/* Same top spacing as the home page: no 96px band under the nav, and no stray <br> above the title box. */
+html.sx.sx .all-page-container:has(> learning-card-component) { padding-top: 40px !important; }
+html.sx .page-learningCard > br { display: none !important; }
+/* Lets the subject unfold animate to height: auto (learning-card.js unfoldToAuto). */
+html.sx .page-learningCard mat-row:has(> .mat-column-expandedDetail) { interpolate-size: allow-keywords; }
 html.sx .page-learningCard > .semesters-container { order: 0; }
 html.sx .page-learningCard > .ini-block { order: 1; margin: 0 0 24px !important; }
 html.sx .page-learningCard > .semester-child { order: 2; margin-bottom: 24px !important; }
