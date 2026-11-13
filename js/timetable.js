@@ -90,6 +90,21 @@ const enhanceWeek = () => {
       list.append(e);
     } else if (items.length && empty) empty.remove();
   });
+  focusPendingDay(heads);
+};
+
+// Set by a click on the dashboard week strip: bring that day into view once the current week has rendered.
+const focusPendingDay = (heads) => {
+  if (!pendingTTDay || root.classList.contains('sx-tt-loading')) return;
+  const { iso, at } = pendingTTDay;
+  pendingTTDay = null;
+  const day = weekDates(0).find((d) => d.date === iso);
+  if (!day || Date.now() - at > 15000) return;
+  const head = heads.find((h) => h.dataset.day === DAYS[day.d - 1].key);
+  if (!head) return;
+  head.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  head.classList.add('sx-tt-focus');
+  setTimeout(() => head.classList.remove('sx-tt-focus'), 1800);
 };
 
 const enhanceExams = () => {

@@ -18,6 +18,18 @@ html.sx [data-day="sun"] { --d: var(--sun); }
 @keyframes sx-fade-in { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
 
 html.sx.sx-has-rail body { padding-left: var(--rail-w) !important; transition: padding-left 280ms var(--ease) !important; }
+/* The rail pads the whole body, which pushed the header (logo, profile) right by half the rail: cancel that, so the
+   header sits where it does on every other section. Never negative, so it cannot slide under the rail on narrower
+   screens. Same timing as the body's padding, so opening or closing the rail leaves the header still. Below 861px
+   the open rail overlays the page and --rail-w is not the body padding. */
+@media (min-width: 861px) {
+  html.sx.sx.sx.sx.sx-has-rail user-menu-component :is(.dashboard-page > .width, .topMenuTo .width) {
+    --sx-head-shift: max(0px, (100vw - var(--wide) - 2 * var(--sx-head-pad)) / 2 - var(--rail-w));
+    margin-left: var(--sx-head-shift) !important; margin-right: auto !important;
+    max-width: min(var(--wide), 100vw - var(--rail-w) - var(--sx-head-shift) - 2 * var(--sx-head-pad)) !important;
+    transition: margin-left 280ms var(--ease), max-width 280ms var(--ease) !important;
+  }
+}
 html.sx tables-dashboard-component > .width { padding: 0 !important; height: 0; }
 html.sx .tables-dashboard {
   position: fixed !important; overflow-y: auto !important; inset: 0 auto 0 0 !important; z-index: 60; height: 100vh !important; align-items: stretch !important; text-align: left !important;
@@ -80,12 +92,7 @@ html.sx .tables-dashboard .tables-tab-menu {
 }
 html.sx:not(.sx-rail-open) .tables-dashboard .tables-tab-menu { visibility: hidden; opacity: 0; pointer-events: none; }
 html.sx .tables-dashboard .tables-tab-menu > li { list-style: none; width: auto !important; margin: 0 !important; padding: 0 !important; }
-html.sx.sx-rail-open .tables-dashboard .tables-tab-menu > li { animation: sx-fade-in 320ms var(--ease) both !important; }
-html.sx.sx-rail-open .tables-dashboard .tables-tab-menu > li:nth-child(2) { animation-delay: 40ms !important; }
-html.sx.sx-rail-open .tables-dashboard .tables-tab-menu > li:nth-child(3) { animation-delay: 80ms !important; }
-html.sx.sx-rail-open .tables-dashboard .tables-tab-menu > li:nth-child(4) { animation-delay: 120ms !important; }
-html.sx.sx-rail-open .tables-dashboard .tables-tab-menu > li:nth-child(5) { animation-delay: 160ms !important; }
-html.sx.sx-rail-open .tables-dashboard .tables-tab-menu > li:nth-child(6) { animation-delay: 200ms !important; }
+html.sx.sx-rail-open .tables-dashboard .tables-tab-menu > li { animation: sx-fade-in 320ms var(--ease) both !important; animation-delay: calc((sibling-index() - 1) * 40ms) !important; }
 html.sx .tables-dashboard .tables-tab-menu a {
   display: flex !important; flex-direction: column; align-items: flex-start !important; gap: 2px; width: auto !important; height: auto !important;
   padding: 12px 16px !important; border-radius: 14px !important; white-space: nowrap; text-align: left !important;
@@ -276,10 +283,6 @@ html.sx ac-tables-component .exam-filters { display: flex; flex-wrap: wrap; gap:
   html.sx .sx-tt-skel { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   html.sx .sx-tt-skel-day { height: 200px; }
 }
-@media (prefers-reduced-motion: reduce) {
-  html.sx :is(.headInfo, .tables-tab-menu > li, ac-tables-component mat-row, .sx-today-chip::before, .sx-status::before, .sx-rail-hint::after) { animation: none !important; }
-  html.sx :is(.headInfo, .tables-dashboard, body, .sx-burger, .sx-burger::before, .sx-burger::after) { transition: none !important; }
-}
 html.sx.sx-tables .all-page-container { padding-top: 32px !important; }
 html.sx student-tables-component > div > :is(br, mat-divider) { display: none !important; }
 html.sx .calendar-navigation > div { flex: 0 0 auto !important; width: auto !important; margin: 0 !important; padding: 0 !important; float: none !important; display: flex !important; align-items: center; }
@@ -307,18 +310,12 @@ html.sx.sx-tt-loading .weeklist::before { height: 22px; width: 45%; margin: 4px 
 html.sx.sx-tt-loading .weeklist::after { height: 44px; width: 85%; }
 html.sx .sx-tt-skel { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
 html.sx .sx-tt-skel-day { height: 320px; border-radius: 20px !important; opacity: .55; }
-@media (prefers-reduced-motion: reduce) {
-  html.sx.sx-tt-loading .weeklist::before, html.sx.sx-tt-loading .weeklist::after, html.sx .sx-tt-skel-day { animation: none !important; }
-}
 html.sx .sx-exams { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 0 0 32px; }
 html.sx .sx-exam {
   position: relative; display: flex; flex-direction: column; gap: 14px; min-width: 0; padding: 22px 24px 20px; box-sizing: border-box; overflow: hidden;
   border-radius: 20px !important; background-color: var(--box) !important; border: 1px solid var(--line) !important; box-shadow: var(--shadow) !important;
-  animation: sx-rise 520ms var(--ease) both !important;
+  animation: sx-rise 520ms var(--ease) both !important; animation-delay: calc((sibling-index() - 1) * 60ms) !important;
 }
-html.sx .sx-exam:nth-child(2) { animation-delay: 60ms !important; }
-html.sx .sx-exam:nth-child(3) { animation-delay: 120ms !important; }
-html.sx .sx-exam:nth-child(4) { animation-delay: 180ms !important; }
 html.sx .sx-exam-head { display: flex; flex-direction: column; gap: 2px; }
 html.sx .sx-exam-ka { font-size: 16px !important; font-weight: 500 !important; line-height: 1.3 !important; color: var(--fg) !important; }
 html.sx .sx-exam-en { font-size: 13px !important; color: var(--fg2) !important; }
@@ -343,4 +340,9 @@ html.sx .sx-exam-offname { margin-top: auto; font-size: 24px !important; font-we
 @media (max-width: 640px) { html.sx .sx-exams { grid-template-columns: minmax(0, 1fr); }
 html.sx .sx-exam-num { font-size: 44px !important; } }
 
+}
+
+@layer sx {
+/* Day opened from the dashboard week strip: brief accent ring. */
+html.sx .weeklist-container > .headInfo.sx-tt-focus { box-shadow: 0 0 0 2px var(--pri), var(--shadow) !important; transition: box-shadow 300ms var(--ease) !important; }
 }

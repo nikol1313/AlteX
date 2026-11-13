@@ -8,13 +8,16 @@
 html.sx.sx-await-welcome body:not(:has(login-component)) { visibility: hidden !important; }
 
 /* ---------- Welcome screen after a fresh login ---------- */
+/* Modal <dialog> in the top layer. Closed state = the exit look; open = shown; @starting-style = where the entry starts.
+   display and overlay transition too, so the dialog stays visible until the exit fade ends. */
 html.sx .sx-welcome {
-  position: fixed; inset: 0; z-index: 2147483000; display: grid; place-items: center; padding: 24px; box-sizing: border-box;
-  background-color: var(--bg) !important; color: var(--fg); font-family: var(--sans); overflow-y: auto;
-  opacity: 0; transform: scale(1.015); transition: opacity 250ms var(--ease-out), transform 250ms var(--ease-out) !important;
+  inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; border: 0;
+  padding: 24px; box-sizing: border-box; background-color: var(--bg) !important; color: var(--fg); font-family: var(--sans); overflow-y: auto;
+  opacity: 0; transform: scale(.985);
+  transition: opacity 300ms var(--ease-out), transform 300ms var(--ease-out), display 300ms allow-discrete, overlay 300ms allow-discrete !important;
 }
-html.sx .sx-welcome.sx-in { opacity: 1; transform: none; }
-html.sx .sx-welcome.sx-out { opacity: 0; transform: scale(.985); pointer-events: none; transition-duration: 300ms !important; }
+html.sx .sx-welcome[open] { display: grid; place-items: center; opacity: 1; transform: none; transition-duration: 250ms !important; }
+@starting-style { html.sx .sx-welcome[open] { opacity: 0; transform: scale(1.015); } }
 html.sx.sx-welcoming .cdk-overlay-container { visibility: hidden !important; }
 html.sx .sx-welcome-inner { width: 100%; max-width: 640px; display: flex; flex-direction: column; align-items: center; text-align: center; }
 html.sx .sx-w-logo {
@@ -252,7 +255,7 @@ html.sx.sx.sx lost-password-dialog .mat-mdc-dialog-actions button:is(:disabled, 
 @media (prefers-reduced-motion: reduce) {
   html.sx :is(.sx-w-logo, .sx-w-title, .sx-w-sub, .sx-w-hello, .sx-w-go, .sx-w-off) { animation-name: sx-w-fade !important; }
   html.sx.sx-enter :is(user-menu-component .user-area-wrapper.navbar, user-menu-component .topMenuTo, .dashboard-item-wrapper) { animation-name: sx-w-fade !important; }
-  html.sx :is(.sx-welcome, .sx-welcome.sx-in, .sx-welcome.sx-out, .sx-w-today, .sx-w-go:hover, .sx-w-go:active) { transform: none !important; }
+  html.sx :is(.sx-welcome, .sx-welcome[open], .sx-w-today, .sx-w-go:hover, .sx-w-go:active) { transform: none !important; }
   html.sx :is(.sx-login-art, .loginPage-wrapper), html.sx.sx-login body::before { animation: none !important; }
 }
 

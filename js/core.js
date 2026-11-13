@@ -39,6 +39,7 @@ const el = (tag, cls, text) => {
 const store = {
   get: (k) => { try { return localStorage.getItem(k); } catch { return null; } },
   set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* storage blocked */ } },
+  remove: (k) => { try { localStorage.removeItem(k); } catch { /* storage blocked */ } },
 };
 
 const session = () => {
