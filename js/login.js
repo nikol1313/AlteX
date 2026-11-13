@@ -98,7 +98,7 @@ const showWelcome = (s) => {
   w.append(inner);
 
   root.classList.add('sx-welcoming');
-  document.body.append(w);
+  root.append(w); // outside <body>: the theme's body-wide text rules must not restyle it
   w.showModal(); // entry fade: @starting-style in login.css
   load().then(() => { const line = todayLessonsLine(); if (line) { today.textContent = line; today.classList.add('sx-show'); } }).catch(() => {});
 

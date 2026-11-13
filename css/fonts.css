@@ -1,11 +1,7 @@
+/* FiraGO subset to Latin, Georgian (incl. Mtavruli), punctuation, currency (₾), arrows and math: ~53 KB a weight
+   instead of ~250 KB. Other scripts fall back to the system font. Made with fonttools (pyftsubset) from the
+   upstream FiraGO files; a character missing from the subset just renders in the fallback font. */
 @font-face { font-family: "FiraGO"; font-weight: 400; font-style: normal; font-display: swap;
   src: local("FiraGO Regular"), local("FiraGO-Regular"), url("chrome-extension://__MSG_@@extension_id__/fonts/firago-400.woff2") format("woff2"); }
 @font-face { font-family: "FiraGO"; font-weight: 500; font-style: normal; font-display: swap;
   src: local("FiraGO Medium"), local("FiraGO-Medium"), url("chrome-extension://__MSG_@@extension_id__/fonts/firago-500.woff2") format("woff2"); }
-@font-face { font-family: "Noto Serif Georgian"; font-weight: 400; font-display: swap;
-  src: url("chrome-extension://__MSG_@@extension_id__/fonts/serif-georgian.woff2") format("woff2");
-  unicode-range: U+0589, U+10A0-10FF, U+1C90-1CBA, U+1CBD-1CBF, U+205A, U+2D00-2D2F, U+2E31; }
-@font-face { font-family: "Noto Serif Georgian"; font-weight: 400; font-display: swap;
-  src: url("chrome-extension://__MSG_@@extension_id__/fonts/serif-latin.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-

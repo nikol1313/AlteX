@@ -46,8 +46,7 @@ const buildMore = () => {
   const li = el('li', 'sx-more');
   const btn = el('button', 'sx-more-btn', 'მეტი');
   btn.type = 'button';
-  btn.setAttribute('commandfor', 'sx-more-menu');
-  btn.setAttribute('command', 'toggle-popover');
+  btn.setAttribute('popovertarget', 'sx-more-menu'); // not commandfor: Android WebViews before 135 ignore it
   const menu = el('div', 'sx-more-menu');
   menu.id = 'sx-more-menu';
   menu.popover = 'auto';
