@@ -12,10 +12,6 @@ Visual redesign of the Alte University student portal (`students.alte.edu.ge`).
 </table>
 
 
-
-
-
-
 ## Problem
 The Alte University student portal is functional, but the experience is far from user-friendly. Its outdated design, cluttered layout, confusing navigation, and unnecessary clicks make even simple tasks frustrating. Important information is harder to find than it should be, the timetable is difficult to read, and several interface elements lack the clarity students need.
 
@@ -28,13 +24,11 @@ Students shouldn't have to fight the portal just to keep up with university life
 
 ## Installation for PC
 
-1. Open `chrome://extensions`.
-2. Enable **Developer mode**.
-3. Click **Load unpacked** and select this folder.
+The extension is published on chrome web store
 
-The extension activates automatically on `https://students.alte.edu.ge/*`.
+**[AlteX-Chrome-Extension](https://chromewebstore.google.com/detail/gjbaoejelhdhbfcegfkommmgpogffloo?utm_source=item-share-cb)**
 
-## instalation on Android
+## installation on Android
 
 **[Download AlteX for Android (APK)](https://github.com/nikol1313/AlteX-chrome-extension/releases/latest/download/AlteX.apk)**
 
