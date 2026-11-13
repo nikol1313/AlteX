@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -68,6 +69,8 @@ public class MainActivity extends ComponentActivity {
     /** Where the bundled CSS loads its fonts from; served from assets/fonts/ (see build.gradle.kts). */
     private static final String FONT_PATH = "/__altex/fonts/";
     private static final Pattern FONT_NAME = Pattern.compile("[a-z0-9-]+\\.woff2");
+    private static final Map<String, String> FONT_HEADERS =
+            Collections.singletonMap("Cache-Control", "public, max-age=31536000, immutable");
 
     /** Oldest WebView that renders AlteX fully (CSS color-mix() needs Chrome 111). */
     private static final int MIN_WEBVIEW = 111;
@@ -166,14 +169,18 @@ public class MainActivity extends ComponentActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (web.canGoBack()) {
-                    web.goBack();
-                } else {
-                    // Let the system handle it (close / background), then keep handling back in the page.
-                    setEnabled(false);
-                    getOnBackPressedDispatcher().onBackPressed();
-                    setEnabled(true);
-                }
+                // An open menu, drawer or welcome screen closes first, like any Android sheet.
+                web.evaluateJavascript(CLOSE_OVERLAY_JS, closed -> {
+                    if ("true".equals(closed)) return;
+                    if (web.canGoBack()) {
+                        web.goBack();
+                    } else {
+                        // Let the system handle it (close / background), then keep handling back in the page.
+                        setEnabled(false);
+                        getOnBackPressedDispatcher().onBackPressed();
+                        setEnabled(true);
+                    }
+                });
             }
         });
 
@@ -223,6 +230,13 @@ public class MainActivity extends ComponentActivity {
         // Something typed or a file picked and not sent yet: keep the page as it is rather than lose it.
         web.evaluateJavascript(UNSENT_INPUT_JS, result -> { if (!"true".equals(result)) web.reload(); });
     }
+
+    /** Closes AlteX's open popover or dialog (js/nav.js, js/login.js); true when there was one. */
+    private static final String CLOSE_OVERLAY_JS = "(() => { try {"
+            + " const p = document.querySelector('.sx-more-menu:popover-open'); if (p) { p.hidePopover(); return true; }"
+            + " } catch (e) { /* WebView without popover */ }"
+            + " const d = document.querySelector('dialog.sx-drawer[open], dialog.sx-welcome[open]');"
+            + " if (d) { d.close(); return true; } return false; })()";
 
     /** True when the page holds text typed into a field, or a picked file, that a reload would throw away. */
     private static final String UNSENT_INPUT_JS = "(() => [...document.querySelectorAll("
@@ -292,7 +306,9 @@ public class MainActivity extends ComponentActivity {
             String name = path.substring(FONT_PATH.length());
             if (!FONT_NAME.matcher(name).matches()) return null;
             try {
-                return new WebResourceResponse("font/woff2", null, getAssets().open("fonts/" + name));
+                // Bundled with the app, so they never change under this URL: the WebView keeps them in its
+                // cache instead of reading and decoding the asset again on every page load.
+                return new WebResourceResponse("font/woff2", null, 200, "OK", FONT_HEADERS, getAssets().open("fonts/" + name));
             } catch (IOException e) {
                 return null;
             }

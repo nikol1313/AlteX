@@ -40,9 +40,11 @@ const tagDetailRows = () => {
 // first open. Point the animation's end at height: auto instead; with interpolate-size (learning-card.css) the
 // browser resolves "auto" on every frame, so the unfold follows the content and ends exactly at its size.
 // Retarget only once the animation has started: changing a still-pending one froze it at 0 in testing.
+// Older Android WebViews (before 129) cannot animate to "auto": there the portal's own animation is left alone.
+const CAN_UNFOLD_TO_AUTO = CSS.supports('interpolate-size', 'allow-keywords');
 const unfoldToAuto = (anim) => {
   const fx = anim.effect;
-  if (!fx || !fx.getKeyframes || anim.playState === 'finished') return;
+  if (!CAN_UNFOLD_TO_AUTO || !fx || !fx.getKeyframes || anim.playState === 'finished') return;
   const frames = fx.getKeyframes();
   const end = frames[frames.length - 1];
   if (!end || !end.height || end.height === 'auto' || parseFloat(end.height) === 0) return; // folding up: leave it

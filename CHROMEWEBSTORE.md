@@ -106,7 +106,7 @@ Use a test or blurred account: screenshots must not show real student names, gra
 
 | Version | Date | Changes | Status |
 |---------|------|---------|--------|
-| 3.3.6 | 2026-11-13 | First Chrome Web Store submission | Draft |
+| 3.4.0 | 2026-11-13 | First Chrome Web Store submission | Draft |
 
 ## Review Notes
 
