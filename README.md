@@ -41,3 +41,18 @@ Newer versions install over the old one and keep you logged in.
 `android/` wraps the portal in an Android WebView and injects this same extension code, so phones get the
 redesign and live data too. It is built from `manifest.json` (no separate copy of the code) and released as an
 APK on GitHub Releases. See [`android/README.md`](android/README.md).
+
+## Tests
+
+```bash
+npm ci
+npx playwright install chromium
+npx playwright test
+```
+
+Playwright tests in `tests/e2e/` load AlteX into fake portal pages served at the portal's address (nothing talks to
+the real portal) and run on a desktop and a phone viewport. They cover the login page, grade and counter tagging,
+labels for icon buttons and table cells, the exam countdown (with a frozen clock) and that no request leaves the
+portal's host. GitHub Actions runs them on every push (`.github/workflows/tests.yml`).
+
+Leave `tests/`, `node_modules/`, `package*.json` and `playwright.config.js` out of the Chrome Web Store package.
