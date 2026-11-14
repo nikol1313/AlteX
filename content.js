@@ -276,6 +276,21 @@
   };
 
   // Latest assignment: the most recently posted task across the student's courses.
+  // Lecturer name from whatever field the task or its course carries.
+  const personName = (v) => {
+    if (typeof v === 'string') return v.trim();
+    if (v && typeof v === 'object') return ([v.firstName, v.lastName].filter(Boolean).join(' ') || String(v.name || v.fullName || '')).trim();
+    return '';
+  };
+  const lecturerOf = (t, book) => {
+    for (const src of [t, book]) {
+      for (const k of ['lecturer', 'lecturerName', 'teacher', 'teacherName', 'professor', 'user', 'userName', 'creator', 'author', 'owner']) {
+        const n = personName(src && src[k]);
+        if (n && !/^\d+$/.test(n)) return n;
+      }
+    }
+    return '';
+  };
   const NO_TASK = { lines: ['ახალი დავალება ჯერ არ დადებულა'], caption: 'No new assignments have been posted yet', empty: true };
   const loadTasks = async (s) => {
     const list = await taskBooks(s);
@@ -283,15 +298,30 @@
     const all = [];
     perBook.forEach((r, i) => {
       if (r.status !== 'fulfilled') return;
-      for (const t of r.value) if (t.posted) all.push({ ...t, course: list[i].name });
+      for (const t of r.value) if (t.posted) all.push({ ...t, course: list[i].name, lecturer: lecturerOf(t, list[i]) });
     });
     all.sort((x, y) => y.posted - x.posted);
     const latest = all[0];
     return () => {
       if (!latest) return NO_TASK;
-      const lines = [latest.name, latest.course, `დაემატა ${agoText(latest.posted)} · ${dmy(latest.posted)}`];
-      if (latest.end) lines.push(`ვადა ${dmy(latest.end)} ${hm(latest.end)}`);
-      return { lines: lines.filter(Boolean), caption: 'ბოლო დავალება · Latest assignment' };
+      // The lecturer's own text, as plain text (same reading as the assignments page).
+      const text = (new DOMParser().parseFromString(String(latest.text || ''), 'text/html').body.textContent || '').replace(/\s+/g, ' ').trim();
+      const msg = text && !/^https?:\/\/\S+$/.test(text) ? text : '';
+      const meta = [
+        latest.posted ? `დაემატა: ${agoText(latest.posted)} - ${dmy(latest.posted)}` : '',
+        latest.end ? `ვადა: ${dmy(latest.end)} ${hm(latest.end)}` : '',
+      ].filter(Boolean).join(' · ');
+      const inner = [
+        latest.name && { text: latest.name, cls: 'sx-task-title' },
+        msg && { text: msg, cls: 'sx-task-desc' },
+      ].filter(Boolean);
+      const lines = [
+        latest.lecturer && { text: `ლექტორი: ${latest.lecturer}:`, cls: 'sx-who' },
+        latest.course && { text: latest.course, cls: 'sx-course' },
+        inner.length && { box: inner },
+        meta && { text: meta, cls: 'sx-task-meta' },
+      ].filter(Boolean);
+      return { lines, caption: 'ბოლო დავალება · Latest assignment' };
     };
   };
 
@@ -327,8 +357,20 @@
       if (!box) { box = document.createElement('div'); box.className = 'sx-data'; item.append(box); }
       box.dataset.key = key;
       box.classList.toggle('sx-none', !!result.empty);
+      const lineNode = (t) => {
+        if (t && t.box) {
+          const w = document.createElement('div');
+          w.className = 'sx-taskbox';
+          w.append(...t.box.map((b) => Object.assign(document.createElement('span'), { className: b.cls || 'sx-val', textContent: b.text })));
+          return w;
+        }
+        return Object.assign(document.createElement('span'), {
+          className: typeof t === 'string' ? 'sx-val' : (t.cls || 'sx-val'),
+          textContent: typeof t === 'string' ? t : t.text,
+        });
+      };
       box.replaceChildren(
-        ...result.lines.map((t) => Object.assign(document.createElement('span'), { className: 'sx-val', textContent: t })),
+        ...result.lines.map(lineNode),
         Object.assign(document.createElement('span'), { className: 'sx-cap', textContent: result.caption }),
       );
     }

@@ -1468,21 +1468,23 @@ html.sx.sx.sx dashboard-component .sx-data .sx-cap { font-size: 13px !important;
 /* nothing new: a quiet line instead of a big value */
 html.sx.sx.sx dashboard-component .sx-data.sx-none .sx-val:first-child { font-size: 22px !important; font-weight: 400 !important; letter-spacing: -0.01em !important; color: var(--fg2) !important; }
 
-/* Assignments: the purple section of the page */
-html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] .dashboard-item {
-  background-color: #7E4CD6 !important; background-image: linear-gradient(140deg, #8B57DE 0%, #7445CB 55%, #6238B6 100%) !important;
-  border-color: rgba(255, 255, 255, .16) !important; box-shadow: 0 24px 48px -24px rgba(123, 75, 208, .75) !important;
+/* დავალებები box: lecturer → course → title → quoted description → meta */
+html.sx.sx.sx dashboard-component .sx-data :is(.sx-who, .sx-course, .sx-task-title, .sx-task-desc, .sx-task-meta) { display: block; }
+html.sx.sx.sx dashboard-component .sx-data .sx-who { font-size: 13px !important; font-weight: 500 !important; color: var(--acc) !important; }
+html.sx.sx.sx dashboard-component .sx-data .sx-course { font-size: 15px !important; color: var(--fg2) !important; }
+html.sx.sx.sx dashboard-component .sx-data .sx-task-title { margin: 6px 0 4px; font-size: 20px !important; font-weight: 500 !important; letter-spacing: -0.01em !important; color: var(--fg) !important; }
+html.sx.sx.sx dashboard-component .sx-data .sx-task-desc {
+  padding-left: 12px; border-left: 2px solid color-mix(in srgb, var(--pri) 55%, var(--line));
+  font-size: 14px !important; line-height: 1.55 !important; color: var(--fg2) !important;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
 }
-html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] .dashboard-item::before {
-  content: ""; position: absolute; right: -90px; top: -90px; width: 280px; height: 280px; border-radius: 999px !important; pointer-events: none;
-  border: 1px solid rgba(255, 255, 255, .18) !important; box-shadow: 0 0 0 44px rgba(255, 255, 255, .05), 0 0 0 96px rgba(255, 255, 255, .035) !important;
+html.sx.sx.sx dashboard-component .sx-data .sx-task-meta { margin-top: 12px; font-size: 13px !important; color: var(--fg3) !important; }
+html.sx.sx.sx dashboard-component .sx-data .sx-taskbox {
+  margin-top: 8px; padding: 14px 16px; box-sizing: border-box; border-radius: 14px !important;
+  background-color: rgba(255, 255, 255, .045) !important; border: 1px solid rgba(255, 255, 255, .14) !important;
 }
-html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] :is(.title, .sx-data) { position: relative !important; }
-html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] .title { color: rgba(255, 255, 255, .88) !important; border-bottom-color: rgba(255, 255, 255, .24) !important; }
-html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] .sx-data .sx-val { color: rgba(255, 255, 255, .9) !important; }
-html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] .sx-data .sx-val:first-child { color: #fff !important; }
-html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] .sx-data .sx-cap { color: rgba(255, 255, 255, .8) !important; }
-html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"]:is(:hover, :focus-visible) .dashboard-item { border-color: rgba(255, 255, 255, .4) !important; }
+html.sx.sx.sx dashboard-component .sx-data .sx-taskbox .sx-task-title { margin-top: 0; }
+html.sx.sx.sx dashboard-component .sx-data .sx-taskbox .sx-task-desc { margin-top: 8px; }
 
 /* Learning card: dark surface, lavender edge */
 html.sx.sx.sx dashboard-component .dashboard-item-wrapper[href="/learningCard"] .dashboard-item {
