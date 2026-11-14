@@ -150,6 +150,19 @@
   };
   const daysWord = (n) => (n === 1 ? 'ხვალ' : `${n} დღეში`);
 
+  // Exam tiles show only the running semester's periods: SEMESTER_STARTS bounds each window,
+  // so an exam whose semester is over drops off instead of counting down to next year's date.
+  const semesterWindow = () => {
+    const starts = SEMESTER_STARTS.map(dayOf);
+    const c = starts.filter((d) => d <= today0()).length; // semesters already begun
+    const i = Math.max(0, Math.min(c - 1, starts.length - 1));
+    return { lo: starts[i], hi: starts[i + 1] };
+  };
+  const currentPeriods = (periods) => {
+    const { lo, hi } = semesterWindow();
+    return periods.filter(([a]) => { const s = dayOf(a); return s >= lo && (!hi || s < hi); });
+  };
+
   // "You have / had today": past tense once every lecture of the day has ended.
   // lessons: [{ start, end (ms), name }] for today.
   const todayLine = (lessons) => {
@@ -263,6 +276,21 @@
   };
 
   // Latest assignment: the most recently posted task across the student's courses.
+  // Lecturer name from whatever field the task or its course carries.
+  const personName = (v) => {
+    if (typeof v === 'string') return v.trim();
+    if (v && typeof v === 'object') return ([v.firstName, v.lastName].filter(Boolean).join(' ') || String(v.name || v.fullName || '')).trim();
+    return '';
+  };
+  const lecturerOf = (t, book) => {
+    for (const src of [t, book]) {
+      for (const k of ['lecturer', 'lecturerName', 'teacher', 'teacherName', 'professor', 'user', 'userName', 'creator', 'author', 'owner']) {
+        const n = personName(src && src[k]);
+        if (n && !/^\d+$/.test(n)) return n;
+      }
+    }
+    return '';
+  };
   const NO_TASK = { lines: ['ახალი დავალება ჯერ არ დადებულა'], caption: 'No new assignments have been posted yet', empty: true };
   const loadTasks = async (s) => {
     const list = await taskBooks(s);
@@ -270,15 +298,30 @@
     const all = [];
     perBook.forEach((r, i) => {
       if (r.status !== 'fulfilled') return;
-      for (const t of r.value) if (t.posted) all.push({ ...t, course: list[i].name });
+      for (const t of r.value) if (t.posted) all.push({ ...t, course: list[i].name, lecturer: lecturerOf(t, list[i]) });
     });
     all.sort((x, y) => y.posted - x.posted);
     const latest = all[0];
     return () => {
       if (!latest) return NO_TASK;
-      const lines = [latest.name, latest.course, `დაემატა ${agoText(latest.posted)} · ${dmy(latest.posted)}`];
-      if (latest.end) lines.push(`ვადა ${dmy(latest.end)} ${hm(latest.end)}`);
-      return { lines: lines.filter(Boolean), caption: 'ბოლო დავალება · Latest assignment' };
+      // The lecturer's own text, as plain text (same reading as the assignments page).
+      const text = (new DOMParser().parseFromString(String(latest.text || ''), 'text/html').body.textContent || '').replace(/\s+/g, ' ').trim();
+      const msg = text && !/^https?:\/\/\S+$/.test(text) ? text : '';
+      const meta = [
+        latest.posted ? `დაემატა: ${agoText(latest.posted)} - ${dmy(latest.posted)}` : '',
+        latest.end ? `ვადა: ${dmy(latest.end)} ${hm(latest.end)}` : '',
+      ].filter(Boolean).join(' · ');
+      const inner = [
+        latest.name && { text: latest.name, cls: 'sx-task-title' },
+        msg && { text: msg, cls: 'sx-task-desc' },
+      ].filter(Boolean);
+      const lines = [
+        latest.lecturer && { text: `ლექტორი: ${latest.lecturer}:`, cls: 'sx-who' },
+        latest.course && { text: latest.course, cls: 'sx-course' },
+        inner.length && { box: inner },
+        meta && { text: meta, cls: 'sx-task-meta' },
+      ].filter(Boolean);
+      return { lines, caption: 'ბოლო დავალება · Latest assignment' };
     };
   };
 
@@ -314,8 +357,20 @@
       if (!box) { box = document.createElement('div'); box.className = 'sx-data'; item.append(box); }
       box.dataset.key = key;
       box.classList.toggle('sx-none', !!result.empty);
+      const lineNode = (t) => {
+        if (t && t.box) {
+          const w = document.createElement('div');
+          w.className = 'sx-taskbox';
+          w.append(...t.box.map((b) => Object.assign(document.createElement('span'), { className: b.cls || 'sx-val', textContent: b.text })));
+          return w;
+        }
+        return Object.assign(document.createElement('span'), {
+          className: typeof t === 'string' ? 'sx-val' : (t.cls || 'sx-val'),
+          textContent: typeof t === 'string' ? t : t.text,
+        });
+      };
       box.replaceChildren(
-        ...result.lines.map((t) => Object.assign(document.createElement('span'), { className: 'sx-val', textContent: t })),
+        ...result.lines.map(lineNode),
         Object.assign(document.createElement('span'), { className: 'sx-cap', textContent: result.caption }),
       );
     }
@@ -686,7 +741,11 @@
     // Only the selectors' own container (first block of the lecture timetable), never the month picker.
     const comp = document.querySelector('student-tables-component');
     const selectors = comp && comp.querySelector(':scope > div > div:first-child:has(> mat-form-field)');
-    if (selectors) { selectors._sxHost = comp; filters.append(selectors); }
+    if (selectors) {
+      selectors._sxHost = comp;
+      // append() moves the node, which retriggers the MutationObserver: only when needed.
+      if (selectors.parentElement !== filters) filters.append(selectors);
+    }
     // Angular removes only the component, not nodes moved out of it: drop copies whose component is gone.
     for (const old of filters.querySelectorAll(':scope > div')) if (!old._sxHost || !old._sxHost.isConnected) old.remove();
     for (const a of menu.querySelectorAll('.tables-tab-menu a[href]')) {
@@ -1154,7 +1213,7 @@
     const name = s ? firstNameOf(s) : '';
     const date = `${WEEKDAYS[(now.getDay() + 6) % 7]}, ${now.getDate()} ${MONTHS[now.getMonth()]}`;
     const line = knownLessons ? todayLine(knownLessons.filter((l) => isToday(l.start.getTime())).map((l) => ({ start: l.start.getTime(), end: l.end, name: l.course }))) : '';
-    const exam = EXAMS.map((e) => ({ e, p: nextPeriod(e.periods) })).filter((x) => x.p).sort((x, y) => x.p.days - y.p.days)[0];
+    const exam = EXAMS.map((e) => ({ e, p: nextPeriod(currentPeriods(e.periods)) })).filter((x) => x.p).sort((x, y) => x.p.days - y.p.days)[0];
     const examText = !exam ? '' : exam.p.state === 'now' ? 'მიმდინარეობს' : daysWord(exam.p.days);
     const key = [name, date, line, exam && exam.e.key, examText].join('|');
     if (box && box.dataset.key === key && box.nextElementSibling === cont) return;
@@ -1177,9 +1236,7 @@
   const mountExamStrip = () => {
     const comp = document.querySelector('student-tables-component');
     if (!comp) return;
-    const tiles = EXAMS.map((e) => {
-      const p = nextPeriod(e.periods);
-      if (!p) return { e, big: '—', unit: '', sub: 'თარიღი ჯერ არ არის გამოქვეყნებული', pct: 0, state: 'none' };
+    const tiles = EXAMS.map((e) => ({ e, p: nextPeriod(currentPeriods(e.periods)) })).filter((x) => x.p).map(({ e, p }) => {
       if (p.state === 'now') return { e, big: 'ახლა', unit: '', sub: `${rangeText(p.start, p.end)} · ${p.left === 0 ? 'ბოლო დღე' : `დარჩა ${p.left} დღე`}`, pct: 100, state: 'now' };
       // Bar: how much of the wait since the semester began is already behind.
       const from = SEMESTER_STARTS.map(dayOf).filter((d) => d <= today0() && d < p.start).pop();
@@ -1322,9 +1379,14 @@
   };
 
   // ---------- loop ----------
-  let queued = false;
+  let queued = false, lastRun = 0;
   const run = () => {
     queued = false;
+    lastRun = performance.now();
+    // Page-kind flags for CSS: :has() on <html> rescans the whole DOM on every style recalc.
+    for (const [cls, sel] of [['sx-dash', 'dashboard-component'], ['sx-tables', 'student-tables-component'], ['sx-ttdash', 'tables-dashboard-component'], ['sx-program', 'program-view']]) {
+      root.classList.toggle(cls, !!document.querySelector(sel));
+    }
     tagZeroCounts();
     mountIdc();
     mountUserMenu();
@@ -1348,7 +1410,12 @@
     maybeWelcome();
     if (document.querySelector('a.dashboard-item-wrapper[href="/learningCard"]')) { render(); load(); }
   };
-  const schedule = () => { if (!queued) { queued = true; requestAnimationFrame(run); } };
+  // The portal mutates the DOM constantly; each pass scans the whole document, so cap it at ~5/second.
+  const schedule = () => {
+    if (queued) return;
+    queued = true;
+    setTimeout(() => { if (document.hidden) { queued = false; return; } run(); }, Math.max(0, 200 - (performance.now() - lastRun)));
+  };
 
   const start = () => {
     run();
