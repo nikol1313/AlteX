@@ -2,7 +2,8 @@
   "name": "altex-tests",
   "private": true,
   "scripts": {
-    "test": "playwright test"
+    "test": "playwright test",
+    "pack": "scripts/pack-chrome.sh"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.0"
