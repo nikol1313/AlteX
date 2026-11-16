@@ -76,6 +76,22 @@ const tagBlankProfileCells = () => {
   }
 };
 
+// Profile, ring stats (semester, GPA, credits, average): the portal's own phone layout squeezes and overlaps them.
+// Each ring's card is its highest ancestor holding no other ring; that card's parent is the grid (base.css).
+const tagProfileStats = () => {
+  const page = document.querySelector('personal-data-component');
+  if (!page) return;
+  const rings = page.querySelectorAll('mat-progress-spinner');
+  if (rings.length < 2) return;
+  for (const ring of rings) {
+    let card = ring;
+    while (card.parentElement && card.parentElement !== page && card.parentElement.querySelectorAll('mat-progress-spinner').length < 2) card = card.parentElement;
+    if (!card.parentElement) continue;
+    card.classList.add('sx-stat');
+    card.parentElement.classList.add('sx-stats');
+  }
+};
+
 // Profile: the QR code opens as a lightbox (registration.css), the portal's code box being the blurred veil. A press on
 // the veil, or Escape, closes it through the portal's own button; a press on the code itself does nothing.
 const closeQr = (veil) => veil && veil.parentElement.querySelector(':scope > button')?.click();

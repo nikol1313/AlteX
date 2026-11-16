@@ -596,6 +596,14 @@ html.sx .sx-nav-btn { display: none; }
 }
 @media (max-width: 860px) {
   html.sx .listMenu { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* Profile ring stats (tagged in registration.js): two even columns, whatever the portal's own phone layout does;
+     anything else in the grid (a heading, a nested group) takes a full row. */
+  html.sx.sx .sx-stats { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 12px !important; position: static !important; transform: none !important; width: auto !important; max-width: none !important; height: auto !important; margin: 0 !important; }
+  html.sx.sx .sx-stats > * { grid-column: 1 / -1 !important; position: relative !important; inset: auto !important; transform: none !important; float: none !important; margin: 0 !important; min-width: 0 !important; }
+  html.sx.sx .sx-stats > .sx-stat:not(.sx-stats) { grid-column: auto !important; width: auto !important; max-width: none !important; height: auto !important; min-height: 0 !important; overflow: hidden !important; }
+  html.sx.sx .sx-stat mat-progress-spinner { max-width: 100% !important; height: auto !important; aspect-ratio: 1; margin-inline: auto !important; }
+  html.sx.sx .sx-stat mat-progress-spinner svg { width: 100% !important; height: 100% !important; }
+  html.sx.sx .sx-stat :not(mat-progress-spinner, mat-progress-spinner *) { white-space: normal !important; text-overflow: clip !important; overflow-wrap: anywhere; }
   html.sx .all-page-container { padding-top: 56px !important; }
 }
 @media (max-width: 760px) {
