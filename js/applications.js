@@ -18,13 +18,7 @@ const enhanceCalendar = () => {
       td.classList.toggle('sx-cal-today', has && !!days[i]?.now);
     });
   }
-  const wrap = table.parentElement;
-  const empty = wrap.querySelector(':scope > .sx-empty');
-  if (!events && !empty) {
-    const e = el('div', 'sx-empty');
-    e.append(el('span', null, 'ამ კვირაში ღონისძიება არ არის'), el('span', null, 'No events this week'));
-    wrap.append(e);
-  } else if (events && empty) empty.remove();
+  setEmpty(table.parentElement, !events, 'ამ კვირაში ღონისძიება არ არის', 'No events this week');
 };
 
 // E-office history: status cells get a tone.

@@ -70,7 +70,7 @@ const enhanceWeek = () => {
     let nextMarked = false;
     for (const v of views) {
       let status = '';
-      const t = v._sx || { start: toMin(v.querySelector('.sx-time').textContent), end: null };
+      const t = v._sx;
       if (when === 'today' && t.start != null) {
         const end = t.end != null ? t.end : t.start;
         if (end <= nowMin) status = 'done';
@@ -83,12 +83,7 @@ const enhanceWeek = () => {
         if (status === 'live') v.querySelector('.sx-lesson-top').append(el('span', 'sx-status', 'Now · ახლა'));
       }
     }
-    const empty = list.querySelector(':scope > .sx-empty');
-    if (!items.length && !empty) {
-      const e = el('div', 'sx-empty');
-      e.append(el('span', null, 'No classes'), el('span', null, 'თავისუფალი დღე'));
-      list.append(e);
-    } else if (items.length && empty) empty.remove();
+    setEmpty(list, !items.length, 'No classes', 'თავისუფალი დღე');
   });
   focusPendingDay(heads);
 };
@@ -228,7 +223,6 @@ const mountExamStrip = () => {
     return { e, big: String(p.days), unit: 'დღე დარჩა', sub: `${rangeText(p.start, p.end)} ${p.start.getFullYear()}`, pct, state: 'soon' };
   });
   const off = nextPeriod(DAYS_OFF);
-  const offDef = off && DAYS_OFF.find(([a]) => dayOf(a).getTime() === off.start.getTime());
   const key = JSON.stringify([tiles.map((t) => [t.big, t.sub, Math.round(t.pct)]), off && [off.state, off.days, off.start.getTime()]]);
   let strip = comp.querySelector(':scope > .sx-exams');
   if (strip && strip.dataset.key === key) { if (comp.firstElementChild !== strip) comp.prepend(strip); return; }
@@ -249,10 +243,10 @@ const mountExamStrip = () => {
     tile.append(head(t.e.ka, t.e.en), count, bar, el('span', 'sx-exam-sub', t.sub));
     return tile;
   }));
-  if (off && offDef) {
+  if (off) {
     const tile = el('div', 'sx-exam sx-exam-off');
-    tile.append(head('შემდეგი დასვენების დღე', 'Next day off'), el('div', 'sx-exam-offname', offDef[2]),
-      el('span', 'sx-exam-sub', `${offDef[3]} · ${rangeText(off.start, off.end)} · ${off.state === 'now' ? 'დღეს' : daysWord(off.days)}`));
+    tile.append(head('შემდეგი დასვენების დღე', 'Next day off'), el('div', 'sx-exam-offname', off.def[2]),
+      el('span', 'sx-exam-sub', `${off.def[3]} · ${rangeText(off.start, off.end)} · ${off.state === 'now' ? 'დღეს' : daysWord(off.days)}`));
     strip.append(tile);
   }
   if (comp.firstElementChild !== strip) comp.prepend(strip);

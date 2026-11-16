@@ -20,7 +20,7 @@ const todayLine = (lessons) => {
   const list = [...lessons].sort((x, y) => x.start - y.start);
   if (!list.length) return 'დღეს ლექციები არ გაქვს';
   const left = list.filter((l) => l.end > Date.now());
-  const label = (l) => `${l.name || 'ლექცია'}, ${hm(new Date(l.start))}`;
+  const label = (l) => `${l.course || 'ლექცია'}, ${hm(new Date(l.start))}`;
   if (!left.length) return '';
   if (left.length < list.length) return `დღეს გაქვს კიდევ ${left.length} ლექცია · შემდეგი: ${label(left[0])}`;
   return list.length === 1 ? `დღეს გაქვს 1 ლექცია: ${label(list[0])}` : `დღეს გაქვს ${list.length} ლექცია · პირველი: ${label(list[0])}`;
@@ -28,7 +28,7 @@ const todayLine = (lessons) => {
 const todayLessonsLine = () => {
   const shown = current();
   const lessons = shown && shown.data['/tables'] && shown.data['/tables'].lessons;
-  return lessons ? todayLine(lessons.filter((l) => isToday(l.start)).map((l) => ({ start: l.start, end: l.end, name: l.course }))) : '';
+  return lessons ? todayLine(lessons.filter((l) => isToday(l.start))) : '';
 };
 
 // Each loader returns plain data (saved for the next visit); its view turns it into the card at render time,
@@ -85,14 +85,11 @@ const loadCard = async (s) => {
   // Also fills in a grade saved before parts were tracked. A failed call leaves it without parts: retried next time.
   const book = last && books.find((x) => (last.id != null ? x.id === last.id : x.name === last.name && x.score === last.score));
   if (book && !last.parts) {
-    const b = book;
-    {
-      try {
-        const detail = gradeParts((await api(s, '/student/getCardDetails', { resultId: b.id })).data);
-        last = { ...last, id: b.id, parts: newParts(detail.parts, parts[b.id], last.delta), at: detail.at || last.at };
-        parts[b.id] = detail.parts;
-      } catch { /* the total's change is shown meanwhile */ }
-    }
+    try {
+      const detail = gradeParts((await api(s, '/student/getCardDetails', { resultId: book.id })).data);
+      last = { ...last, id: book.id, parts: newParts(detail.parts, parts[book.id], last.delta), at: detail.at || last.at };
+      parts[book.id] = detail.parts;
+    } catch { /* the total's change is shown meanwhile */ }
   }
   const scores = {};
   for (const b of books) scores[b.id] = b.score;
@@ -401,10 +398,9 @@ const mountHello = () => {
   // Beside the greeting: this semester's final exams and the next day off.
   const exam = upcomingExams().find((x) => x.e.key === 'final');
   const off = nextPeriod(DAYS_OFF);
-  const offDef = off && DAYS_OFF.find(([d]) => dayOf(d).getTime() === off.start.getTime());
   const chips = [
     exam && { cls: 'sx-hello-final', cap: `${exam.e.ka} · ${exam.e.en}`, val: exam.p.state === 'now' ? 'მიმდინარეობს' : daysWord(exam.p.days), sub: rangeText(exam.p.start, exam.p.end) },
-    offDef && { cls: 'sx-hello-off', cap: 'შემდეგი დასვენების დღე · Next day off', val: off.state === 'now' ? 'დღეს' : daysWord(off.days), sub: `${offDef[2]} · ${rangeText(off.start, off.end)}` },
+    off && { cls: 'sx-hello-off', cap: 'შემდეგი დასვენების დღე · Next day off', val: off.state === 'now' ? 'დღეს' : daysWord(off.days), sub: `${off.def[2]} · ${rangeText(off.start, off.end)}` },
   ].filter(Boolean);
   const key = JSON.stringify([name, date, line, chips]);
   if (box && box.dataset.key === key && box.nextElementSibling === cont) return;

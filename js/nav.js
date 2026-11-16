@@ -82,6 +82,9 @@ const mountNav = () => {
   li.classList.toggle('sx-active', any);
 };
 
+// A link's unread count, '' when there is none or it is 0.
+const badgeOf = (link) => [...link.querySelectorAll('.notify, .mat-badge-content')].map((b) => b.textContent.trim()).find((t) => /^\d+$/.test(t) && t !== '0') || '';
+
 // The dashboard has no nav bar: build one with the same markup from the dashboard's own links.
 const mountDashNav = () => {
   const existing = document.querySelector('.sx-dash-nav');
@@ -104,8 +107,7 @@ const mountDashNav = () => {
   }
   const ul = nav.querySelector('ul');
   const sources = NAV_MAIN.map((href) => document.querySelector(`a.dashboard-item-wrapper[href="${href}"]`)).filter(Boolean).map((src) => {
-    const badge = [...src.querySelectorAll('.notify, .mat-badge-content')].map((b) => b.textContent.trim()).find((t) => /^\d+$/.test(t) && t !== '0') || '';
-    return { href: src.getAttribute('href'), title: (src.querySelector('.title') || src).textContent.trim(), badge };
+    return { href: src.getAttribute('href'), title: (src.querySelector('.title') || src).textContent.trim(), badge: badgeOf(src) };
   });
   const key = sources.map((x) => `${x.href}=${x.title}=${x.badge}`).join('|');
   if (ul.dataset.key === key) return;
@@ -199,8 +201,7 @@ const NAV_DRAWER = [
   ]],
   ['მეტი', NAV_MORE],
 ];
-const navBadge = (href) => [...document.querySelectorAll(`:is(.topMenuItem > a, a.dashboard-item-wrapper)[href="${href}"] :is(.notify, .mat-badge-content)`)]
-  .map((b) => b.textContent.trim()).find((t) => /^\d+$/.test(t) && t !== '0') || '';
+const navBadge = (href) => [...document.querySelectorAll(`:is(.topMenuItem > a, a.dashboard-item-wrapper)[href="${href}"]`)].map(badgeOf).find(Boolean) || '';
 // A modal <dialog>: the browser moves focus in, makes the page behind inert, closes it on Esc or the Android back
 // gesture, and returns focus to the menu button.
 const setDrawer = (open) => {

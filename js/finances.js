@@ -11,8 +11,9 @@ const readFinanceRow = (menu) => {
   if (menu.dataset.sxRows !== String(rows.length)) menu.dataset.sxRows = String(rows.length);
   const cells = [...rows[rows.length - 1].querySelectorAll(':scope > div')].slice(-3);
   const texts = rows.slice(0, -1).flatMap((r) => [...r.querySelectorAll('span')]).map((x) => x.textContent.trim()).filter((t) => t && !FIN_LABEL.test(t));
-  const dateText = texts.find((t) => /\d{2}\.\d{2}\.\d{4}/.test(t)) || '';
-  const first = [texts.find((t) => t !== dateText) || '', dateText];
+  const date = texts.map((t) => /\d{2}\.\d{2}\.\d{4}/.exec(t)).find(Boolean);
+  const dateText = date ? date.input : '';
+  const name = texts.find((t) => t !== dateText) || '';
   const due = num(cells[0]?.textContent), paid = num(cells[1]?.textContent) || 0;
   const left = due == null ? null : Math.max(0, due - paid);
   [due, paid, left].forEach((v, i) => {
@@ -22,8 +23,8 @@ const readFinanceRow = (menu) => {
     if (cell.dataset.sxV !== show) cell.dataset.sxV = show;
     cell.classList.toggle('sx-fin-due', i === 2 && v > 0);
   });
-  const [d, m, y] = (/\d{2}\.\d{2}\.\d{4}/.exec(first[1] || '') || [''])[0].split('.').map(Number);
-  return { name: first[0], dateText: first[1] || '', date: y ? new Date(y, m - 1, d) : null, due, paid, left };
+  const [d, m, y] = date ? date[0].split('.').map(Number) : [];
+  return { name, dateText, date: y ? new Date(y, m - 1, d) : null, due, paid, left };
 };
 
 const finFact = (cap, val, sub, cls) => {

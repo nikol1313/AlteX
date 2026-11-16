@@ -28,13 +28,13 @@ const rangeText = (a, b) => {
   return `${a.getDate()} ${MONTHS[a.getMonth()]} – ${b.getDate()} ${MONTHS[b.getMonth()]}`;
 };
 
-// First period that has not ended: { state: 'soon' | 'now', days, left, start, end } or null.
+// First period that has not ended: { state: 'soon' | 'now', days, left, start, end, def } or null (def: its entry).
 const nextPeriod = (periods) => {
   const t = today0();
-  for (const [a, b] of periods) {
-    const start = dayOf(a), end = dayOf(b);
+  for (const def of periods) {
+    const start = dayOf(def[0]), end = dayOf(def[1]);
     if (end < t) continue;
-    return start <= t ? { state: 'now', days: 0, left: daysUntil(end), start, end } : { state: 'soon', days: daysUntil(start), start, end };
+    return start <= t ? { state: 'now', days: 0, left: daysUntil(end), start, end, def } : { state: 'soon', days: daysUntil(start), start, end, def };
   }
   return null;
 };

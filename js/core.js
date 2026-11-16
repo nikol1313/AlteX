@@ -36,6 +36,15 @@ const el = (tag, cls, text) => {
   if (text != null) e.textContent = text;
   return e;
 };
+// "Nothing here" notice at the end of wrap, one span per line; removed again once there is content.
+const setEmpty = (wrap, show, ...lines) => {
+  const note = wrap.querySelector(':scope > .sx-empty');
+  if (show && !note) {
+    const e = el('div', 'sx-empty');
+    e.append(...lines.map((t) => el('span', null, t)));
+    wrap.append(e);
+  } else if (!show && note) note.remove();
+};
 const store = {
   get: (k) => { try { return localStorage.getItem(k); } catch { return null; } },
   set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* storage blocked */ } },
