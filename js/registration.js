@@ -4,13 +4,17 @@ const REG_FACTS = [[/^სემესტრი/, 'semester'], [/^GPA/, 'gpa'], [
 const REG_SECRET = [/^GPA/, /^პ\/ნ/];
 const EYE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="sx-eye-open" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle class="sx-eye-open" cx="12" cy="12" r="3"/><path class="sx-eye-shut" d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.1 3.9M6.6 6.6C3.7 8.4 2 12 2 12s3.6 7 10 7a9.6 9.6 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
 const revealed = new Set();
+const eyeButton = (cls) => {
+  const eye = el('button', cls);
+  eye.type = 'button';
+  eye.innerHTML = EYE; // a fixed icon, never portal text
+  return eye;
+};
 
 const buildTile = (li) => {
   const tile = el('div', 'sx-tile');
   tile.append(el('span', 'sx-k'), el('span', 'sx-v'));
-  const eye = el('button', 'sx-eye');
-  eye.type = 'button';
-  eye.innerHTML = EYE;
+  const eye = eyeButton('sx-eye');
   eye.addEventListener('click', () => {
     const k = li.dataset.sxK;
     if (revealed.has(k)) revealed.delete(k); else revealed.add(k);
@@ -55,9 +59,7 @@ const enhancePhotos = () => {
     if (!box.querySelector('img')) continue;
     let eye = box.querySelector(':scope > .sx-photo-eye');
     if (!eye) {
-      eye = el('button', 'sx-eye sx-photo-eye');
-      eye.type = 'button';
-      eye.innerHTML = EYE;
+      eye = eyeButton('sx-eye sx-photo-eye');
       eye.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); photoShown = !photoShown; enhancePhotos(); });
       box.append(eye);
     }
