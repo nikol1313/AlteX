@@ -492,6 +492,27 @@ html.sx :is(.mat-mdc-dialog-surface, .mat-mdc-select-panel, .mat-mdc-menu-panel,
 html.sx .mat-mdc-autocomplete-panel { background-color: var(--bg) !important; }
 html.sx .cdk-overlay-backdrop.cdk-overlay-backdrop-showing { background-color: rgba(14, 15, 16, .82) !important; }
 html.sx .mat-mdc-dialog-title::before { display: none !important; }
+/* Portal alert (wrong ID or password, other server messages): an icon in place of its "info" / "Error" title, the
+   message, one full-width button. The portal fixes the inner box at 80% wide with inline styles. */
+html.sx .cdk-overlay-pane:has(alert-dialog) { width: min(380px, calc(100vw - 32px)) !important; max-width: none !important; }
+html.sx.sx alert-dialog > div { width: auto !important; margin: 0 !important; padding: 28px 24px 24px; box-sizing: border-box; align-items: center !important; }
+html.sx.sx alert-dialog > br { display: none !important; }
+html.sx.sx alert-dialog .mat-mdc-dialog-title { display: flex !important; justify-content: center; height: auto !important; margin: 0 0 16px !important; padding: 0 !important; }
+html.sx.sx alert-dialog .mat-mdc-dialog-title span { display: none !important; }
+html.sx.sx alert-dialog .mat-mdc-dialog-title::after {
+  content: "!"; display: grid !important; place-items: center; width: 48px !important; height: 48px !important; border-radius: 999px !important;
+  font-size: 24px !important; font-weight: 500 !important; line-height: 1 !important; color: var(--err-fg) !important; background-color: var(--err-bg) !important;
+}
+html.sx.sx alert-dialog .mat-mdc-dialog-content { width: 100%; max-height: 50vh !important; padding: 0 !important; overflow-wrap: anywhere; }
+html.sx.sx alert-dialog .mat-mdc-dialog-content, html.sx.sx alert-dialog .mat-mdc-dialog-content * {
+  font-family: var(--sans) !important; font-size: 16px !important; font-weight: 400 !important; line-height: 1.5 !important; color: var(--fg) !important; text-align: center !important;
+}
+html.sx.sx alert-dialog .mat-mdc-dialog-actions { width: 100%; min-height: 0 !important; margin: 24px 0 0 !important; padding: 0 !important; }
+html.sx.sx.sx alert-dialog .mat-mdc-dialog-actions button {
+  width: 100% !important; height: 52px !important; margin: 0 !important; border-radius: 14px !important;
+  background-color: var(--btn) !important; color: #fff !important; box-shadow: none !important;
+}
+html.sx.sx.sx alert-dialog .mat-mdc-dialog-actions button * { font-size: 16px !important; font-weight: 500 !important; color: inherit !important; }
 html.sx :is(.mat-mdc-option, .mat-mdc-menu-item) { color: var(--fg2) !important; transition: color 150ms linear !important; }
 html.sx :is(.mat-mdc-option, .mat-mdc-menu-item):is(:hover, .mdc-list-item--selected) { color: var(--fg) !important; }
 html.sx :is(.mat-mdc-tooltip-surface, .mdc-tooltip__surface) { background-color: var(--fg) !important; color: var(--bg) !important; }
