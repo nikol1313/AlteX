@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { openPortal } = require('./portal');
 
 const student = { id: 1, firstName: 'Nika', currentProgram: { eduId: 7 } };
-const NOW = '2026-11-16T12:00:00';
+const NOW = '2026-11-16T12:00:00+04:00';
 const dashboard = `<dashboard-component><div><div class="dashboard-item-container">
   ${['/tables', '/tasks-books', '/learningCard'].map((h) => `<a class="dashboard-item-wrapper" href="${h}"><div class="dashboard-item"></div></a>`).join('')}
 </div></div></dashboard-component>`;
@@ -28,7 +28,7 @@ test.describe('latest grade', () => {
   });
 
   test('a total saved by an older version becomes one grade, never a list of past ones', async ({ page }) => {
-    const last = { name: 'AI', score: 19, delta: 19, at: Date.parse('2026-11-10T09:00:00') };
+    const last = { name: 'AI', score: 19, delta: 19, at: Date.parse('2026-11-10T09:00:00+04:00') };
     await openPortal(page, dashboard, { student, now: NOW, api: grades, storage: { 'sx-grades:1': JSON.stringify({ scores: { 10: 19 }, last }) } });
     const card = box(page, '/learningCard');
     await expect(card.locator('.sx-gr-change')).toHaveText('+4 ქვიზი 1');
@@ -38,7 +38,7 @@ test.describe('latest grade', () => {
 });
 
 test('latest grade: a list saved by the previous version is cut to one grade', async ({ page }) => {
-  const last = { id: 10, name: 'AI', score: 19, delta: 19, at: Date.parse('2026-11-16T09:00:00'), parts: [{ name: 'ქვიზი 1', d: 4 }, { name: 'შუალედური გამოცდა', d: 15 }] };
+  const last = { id: 10, name: 'AI', score: 19, delta: 19, at: Date.parse('2026-11-16T09:00:00+04:00'), parts: [{ name: 'ქვიზი 1', d: 4 }, { name: 'შუალედური გამოცდა', d: 15 }] };
   await openPortal(page, dashboard, { student, now: NOW, api: grades, storage: { 'sx-grades:1': JSON.stringify({ scores: { 10: 19 }, last }) } });
   const card = box(page, '/learningCard');
   await expect(card.locator('.sx-gr-change')).toHaveText('+4 ქვიზი 1');
