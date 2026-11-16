@@ -9,7 +9,7 @@ html.sx registration-routes-component .sx-reg-head > mat-form-field { display: n
 html.sx.sx registration-routes-component .sx-reg-season {
   display: inline-flex; align-items: center; gap: 10px; padding: 8px 16px 8px 14px; border-radius: 999px !important;
   background-color: rgba(147, 96, 227, .14) !important; border: 1px solid rgba(157, 110, 228, .38) !important;
-  font-size: 15px !important; font-weight: 500 !important; color: #E3D7FB !important;
+  font-size: 15px !important; font-weight: 500 !important; color: var(--on-tint) !important;
 }
 html.sx registration-routes-component .sx-reg-season::before {
   content: ""; width: 8px; height: 8px; border-radius: 999px !important; background-color: var(--acc) !important; box-shadow: 0 0 10px rgba(185, 156, 243, .8) !important;
@@ -32,7 +32,7 @@ html.sx registration-routes-component .info { display: grid !important; grid-tem
 html.sx registration-routes-component .student-avatar { width: 120px !important; height: auto !important; margin: 0 !important; padding: 0 !important; }
 html.sx.sx registration-routes-component .student-avatar img {
   display: block; width: 120px !important; height: 150px !important; object-fit: cover; border-radius: 18px !important;
-  background-color: var(--well) !important; border: 1px solid rgba(157, 110, 228, .4) !important; box-shadow: 0 16px 32px -18px rgba(0, 0, 0, .9) !important;
+  background-color: var(--well) !important; border: 1px solid rgba(157, 110, 228, .4) !important; box-shadow: 0 16px 32px -18px var(--shade) !important;
 }
 html.sx registration-routes-component .student-info-card { width: auto !important; margin: 0 !important; padding: 0 !important; min-width: 0; }
 html.sx registration-routes-component .student-info-card .myDivider { display: none !important; }
@@ -43,7 +43,7 @@ html.sx.sx registration-routes-component .student-info-card mat-list {
 html.sx.sx.sx registration-routes-component .student-info-card mat-list-item {
   display: block !important; width: auto !important; max-width: none !important; min-width: 0; height: auto !important; min-height: 0 !important;
   padding: 14px 16px !important; box-sizing: border-box; border-radius: 16px !important;
-  background-color: rgba(20, 21, 22, .72) !important; border: 1px solid var(--line) !important;
+  background-color: var(--well-a) !important; border: 1px solid var(--line) !important;
   transition: border-color 150ms linear !important;
 }
 html.sx.sx.sx registration-routes-component .student-info-card mat-list-item:hover { border-color: rgba(157, 110, 228, .45) !important; }
@@ -65,6 +65,67 @@ html.sx.sx .sx-secret .sx-tile .sx-eye {
 html.sx.sx .sx-secret .sx-tile .sx-eye:is(:hover, :focus-visible) { background-color: var(--btn) !important; color: #fff !important; }
 html.sx .sx-eye svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 html.sx .sx-eye[aria-pressed="false"] .sx-eye-shut, html.sx .sx-eye[aria-pressed="true"] .sx-eye-open { display: none; }
+
+/* Photo (registration card, profile): blurred, with a crossed-out eye over it, until that eye is pressed; then the eye
+   is a strip along the bottom that hides it again. Blurred by CSS alone, so the photo never shows first. */
+html.sx.sx :is(registration-routes-component .student-avatar, personal-data-component .user-avatar-image) { position: relative !important; overflow: hidden !important; }
+html.sx.sx registration-routes-component .student-avatar { border-radius: 18px !important; }
+html.sx.sx personal-data-component .user-avatar-image { border-radius: 999px !important; }
+html.sx.sx :is(registration-routes-component .student-avatar, personal-data-component .user-avatar-image) img { transition: filter 220ms linear, transform 220ms var(--ease) !important; }
+html.sx.sx :is(registration-routes-component .student-avatar, personal-data-component .user-avatar-image):not(:has(> .sx-photo-eye[aria-pressed="true"])) img { filter: blur(16px) !important; transform: scale(1.25); }
+html.sx.sx .sx-photo-eye {
+  position: absolute; inset: 0; display: grid; place-items: center; width: 100%; height: 100%; margin: 0; padding: 0 !important; cursor: pointer;
+  border: 0 !important; border-radius: 0 !important; color: #fff !important; background-color: rgba(20, 21, 22, .38) !important;
+  transition: background-color 150ms linear !important; -webkit-tap-highlight-color: transparent;
+}
+html.sx.sx .sx-photo-eye:is(:hover, :focus-visible) { background-color: rgba(20, 21, 22, .52) !important; }
+html.sx.sx .sx-photo-eye svg { width: 30px; height: 30px; }
+html.sx.sx .sx-photo-eye[aria-pressed="true"] { inset: auto 0 0 0; height: 30px; background-color: rgba(20, 21, 22, .55) !important; }
+html.sx.sx .sx-photo-eye[aria-pressed="true"] svg { width: 16px; height: 16px; }
+html.sx.sx personal-data-component .sx-photo-eye svg { width: 22px; height: 22px; }
+html.sx.sx personal-data-component .sx-photo-eye[aria-pressed="true"] { height: 20px; }
+html.sx.sx personal-data-component .sx-photo-eye[aria-pressed="true"] svg { width: 13px; height: 13px; }
+/* Here the crossed-out eye marks the hidden photo (on the tiles the eye shows what a press does). */
+html.sx.sx .sx-photo-eye[aria-pressed="false"] .sx-eye-shut, html.sx.sx .sx-photo-eye[aria-pressed="true"] .sx-eye-open { display: inline; }
+html.sx.sx .sx-photo-eye[aria-pressed="false"] .sx-eye-open, html.sx.sx .sx-photo-eye[aria-pressed="true"] .sx-eye-shut { display: none; }
+
+/* Profile card: the photo's box keeps its own size (the portal pads it on the right, which stretched the blur into an
+   oval), and the digital card (QR) button sits top right. */
+html.sx.sx personal-data-component .user-avatar-image { flex: none !important; width: 64px !important; height: 64px !important; padding: 0 !important; margin: 0 20px 0 0 !important; box-sizing: border-box; }
+html.sx.sx personal-data-component .user-avatar-image img { display: block; width: 100% !important; height: 100% !important; object-fit: cover; }
+html.sx.sx personal-data-component .card:has(> app-student-card-qr) { display: grid !important; grid-template-columns: minmax(0, 1fr) auto; column-gap: 24px; align-items: start; }
+html.sx.sx personal-data-component .card:has(> app-student-card-qr) > * { grid-column: 1; min-width: 0; }
+html.sx.sx personal-data-component .card > app-student-card-qr { grid-column: 2; grid-row: 1 / span 12; }
+html.sx.sx personal-data-component .student-card-qr { display: flex !important; flex-direction: column !important; align-items: flex-end !important; gap: 12px; margin: 0 !important; padding: 0 !important; }
+html.sx.sx personal-data-component .student-card-qr > button { margin: 0 !important; }
+/* The code opens as a lightbox: large, in the middle, over the blurred page. The portal's code box is the veil itself
+   (a press on it closes: registration.js); the white card is its two children, drawn as one. */
+html.sx.sx personal-data-component .student-card-qr__code {
+  position: fixed !important; inset: 0; z-index: 1000; display: flex !important; flex-direction: column; align-items: center; justify-content: center;
+  width: auto !important; height: auto !important; margin: 0 !important; padding: 24px !important; box-sizing: border-box; cursor: zoom-out;
+  background-color: rgba(14, 15, 16, .5) !important; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  animation: sx-qr-veil 220ms linear both !important;
+}
+html.sx.sx personal-data-component .student-card-qr__code > :is(qrcode, .student-card-qr__note) {
+  display: block !important; width: min(340px, 100%) !important; max-width: none !important; height: auto !important; margin: 0 !important; box-sizing: border-box; cursor: default;
+  background-color: #fff !important; animation: sx-qr-zoom 320ms var(--ease) both !important;
+}
+html.sx.sx personal-data-component .student-card-qr__code > qrcode { padding: 26px 26px 14px !important; border-radius: 24px 24px 0 0 !important; transform-origin: 50% 100%; }
+html.sx.sx personal-data-component .student-card-qr__code > .student-card-qr__note { padding: 0 26px 22px !important; border-radius: 0 0 24px 24px !important; transform-origin: 50% 0; text-align: center; font-size: 14px !important; line-height: 1.5 !important; }
+html.sx.sx personal-data-component .student-card-qr__code .qrcode { display: block !important; width: auto !important; height: auto !important; }
+/* The portal draws 180px: scaled up with hard edges, so the squares stay sharp for the scanner. */
+html.sx.sx personal-data-component .student-card-qr__code canvas { display: block; width: 100% !important; height: auto !important; image-rendering: pixelated; }
+html.sx.sx personal-data-component .student-card-qr__note span { color: #4A4852 !important; font-size: inherit !important; }
+@keyframes sx-qr-veil { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sx-qr-zoom { from { opacity: 0; transform: scale(.55); } to { opacity: 1; transform: none; } }
+/* "ჯგუფი:" in the profile card has no value: the line (everything after the break) is dropped. */
+html.sx.sx personal-data-component .doc-links > br, html.sx.sx personal-data-component .doc-links > br ~ * { display: none !important; }
+@media (max-width: 640px) {
+  /* Phones: the button gets the card's first row to itself, still on the right. */
+  html.sx.sx personal-data-component .card:has(> app-student-card-qr) { grid-template-columns: minmax(0, 1fr); row-gap: 4px; }
+  html.sx.sx personal-data-component .card > app-student-card-qr { grid-column: 1; grid-row: 1; margin-bottom: 12px; }
+  html.sx.sx personal-data-component .card:has(> app-student-card-qr) > :not(app-student-card-qr) { grid-row: auto; }
+}
 
 html.sx.sx registration-routes-component .academic-menu {
   display: flex !important; flex-wrap: wrap; gap: 8px; margin: 4px 0 16px !important; padding: 6px !important; width: auto !important;

@@ -42,6 +42,11 @@ const store = {
   remove: (k) => { try { localStorage.removeItem(k); } catch { /* storage blocked */ } },
 };
 
+// Dark unless the student switched to light (the header switch, nav.js). Set here, before the first paint.
+const THEME_KEY = 'sx-theme';
+let theme = store.get(THEME_KEY) === 'light' ? 'light' : 'dark';
+root.dataset.sxTheme = theme;
+
 const session = () => {
   const token = store.get('Student-Token');
   if (!token) return null;

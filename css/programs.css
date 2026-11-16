@@ -51,7 +51,7 @@ html.sx program-view :is(.prog-row5, .book-row5) > div:not(.prog-row-sub-title),
 html.sx.sx.sx program-view .semester-wrapper {
   flex: 1 1 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; min-width: 0 !important; width: auto !important;
   height: 30px; padding: 0 !important; margin: 0 !important; border: 0 !important; border-radius: 8px !important; box-shadow: none !important; overflow: visible !important;
-  text-align: center !important; text-indent: 0 !important; background-color: rgba(255, 255, 255, .03) !important;
+  text-align: center !important; text-indent: 0 !important; background-color: var(--veil) !important;
 }
 html.sx.sx program-view .program-header .semester-wrapper { background-color: transparent !important; height: auto; }
 html.sx program-view .semester-wrapper mat-icon { width: 18px !important; height: 18px !important; font-size: 18px !important; line-height: 18px !important; color: var(--line) !important; }
@@ -70,18 +70,18 @@ html.sx.sx program-view .module-header .mod-row2 { font-size: 18px !important; f
 html.sx.sx program-view .module-header .mod-row4 { font-size: 13px !important; color: var(--fg2) !important; }
 
 /* group (A-1 …) */
-html.sx.sx program-view .group-header { background-color: rgba(255, 255, 255, .025) !important; border-top: 1px solid var(--line) !important; }
+html.sx.sx program-view .group-header { background-color: var(--veil) !important; border-top: 1px solid var(--line) !important; }
 html.sx.sx program-view .group-header .group-row1 { font-size: 13px !important; color: var(--fg3) !important; }
 html.sx.sx program-view .group-header .group-row2 { font-size: 16px !important; font-weight: 500 !important; color: var(--fg) !important; }
 
 html.sx.sx program-view :is(.mod-row3, .group-row3) { justify-content: center !important; }
 html.sx.sx program-view :is(.mod-row3, .group-row3) {
   justify-self: center; padding: 3px 12px !important; border-radius: 999px !important; font-size: 14px !important; color: var(--fg) !important;
-  background-color: rgba(20, 21, 22, .6) !important;
+  background-color: var(--well-a) !important;
 }
 
 /* course rows */
-html.sx.sx program-view .program-book-wrapper { border-top: 1px solid rgba(57, 59, 65, .6) !important; transition: background-color 150ms linear !important; }
+html.sx.sx program-view .program-book-wrapper { border-top: 1px solid var(--line) !important; transition: background-color 150ms linear !important; }
 html.sx.sx program-view .program-book-wrapper:hover { background-color: var(--box-hi) !important; }
 html.sx.sx program-view .book-row1 { font-size: 13px !important; color: var(--fg3) !important; }
 html.sx.sx program-view .book-row2 { font-size: 16px !important; color: var(--fg) !important; }

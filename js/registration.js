@@ -46,6 +46,45 @@ const enhanceRegistrationTiles = (page) => {
   }
 };
 
+// The student's photo (registration card, profile) stays blurred until its eye is pressed. The blur itself is CSS
+// (registration.css), so the photo never shows before this runs; hidden again on the next visit.
+const PHOTO_BOXES = 'registration-routes-component .student-avatar, personal-data-component .user-avatar-image';
+let photoShown = false;
+const enhancePhotos = () => {
+  for (const box of document.querySelectorAll(PHOTO_BOXES)) {
+    if (!box.querySelector('img')) continue;
+    let eye = box.querySelector(':scope > .sx-photo-eye');
+    if (!eye) {
+      eye = el('button', 'sx-eye sx-photo-eye');
+      eye.type = 'button';
+      eye.innerHTML = EYE;
+      eye.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); photoShown = !photoShown; enhancePhotos(); });
+      box.append(eye);
+    }
+    if (eye.getAttribute('aria-pressed') !== String(photoShown)) {
+      eye.setAttribute('aria-pressed', String(photoShown));
+      eye.setAttribute('aria-label', photoShown ? 'ფოტოს დამალვა · Hide photo' : 'ფოტოს ჩვენება · Show photo');
+    }
+  }
+};
+
+// Profile, education table: its cells are shown as chips (base.css); a cell without a value gets no chip.
+const tagBlankProfileCells = () => {
+  for (const c of document.querySelectorAll('personal-data-component mat-table mat-cell')) {
+    const blank = !c.textContent.trim();
+    if (c.hasAttribute('data-sx-blank') !== blank) c.toggleAttribute('data-sx-blank', blank);
+  }
+};
+
+// Profile: the QR code opens as a lightbox (registration.css), the portal's code box being the blurred veil. A press on
+// the veil, or Escape, closes it through the portal's own button; a press on the code itself does nothing.
+const closeQr = (veil) => veil && veil.parentElement.querySelector(':scope > button')?.click();
+document.addEventListener('click', (e) => {
+  const veil = e.target.closest && e.target.closest('personal-data-component .student-card-qr__code');
+  if (veil && !e.target.closest('qrcode, .student-card-qr__note')) closeQr(veil);
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeQr(document.querySelector('personal-data-component .student-card-qr__code')); });
+
 // The registration-group picker becomes a plain season chip ("2026/2027 საშემოდგომო").
 const enhanceRegistrationSeason = (page) => {
   const head = page.querySelector(':scope > .width > div:first-child');

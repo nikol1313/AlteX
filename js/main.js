@@ -29,6 +29,7 @@ const runPass = () => {
   tagCounts();
   dismissNotice();
   mountUserMenu();
+  mountThemeToggle();
   mountDashNav();
   mountNav();
   mountDrawer();
@@ -44,6 +45,8 @@ const runPass = () => {
   enhanceChancellery();
   enhanceTablesLoading();
   enhanceRegistration();
+  enhancePhotos();
+  tagBlankProfileCells();
   enhanceTasks();
   labelTableCells();
   labelIconButtons();
