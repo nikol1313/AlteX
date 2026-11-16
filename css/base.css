@@ -396,7 +396,7 @@ html.sx :is(.negative-balance, .debt), html.sx :is(.negative-balance, .debt) * {
 
 /* Personal data */
 html.sx .personalDataList .card { margin: 0 !important; height: auto !important; }
-html.sx .listMenu { display: grid !important; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+html.sx .listMenu { display: grid !important; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; align-items: stretch !important; }
 html.sx .listMenu > :first-child { grid-column: 1 / -1; }
 html.sx .listMenu > * { width: auto !important; max-width: none !important; margin: 0 !important; }
 html.sx mat-progress-spinner circle { stroke: var(--fg2) !important; }
@@ -449,7 +449,7 @@ html.sx.sx personal-data-component mat-table:has(.mat-column-school) { display: 
 
 /* Profile numbers (semester, GPA, credits…): one row of compact cards under a single heading. The portal gives every
    card a column with its own heading (blank on all but the first) and hangs the number over the ring with margins. */
-html.sx .listMenu > .personalDataList:not(.personlData) { display: contents; }
+html.sx .listMenu > .personalDataList:not(.personlData) { display: contents !important; }
 html.sx.sx .listMenu > .personalDataList:not(.personlData) > h3.card-title { grid-column: 1 / -1; margin: 12px 0 0 !important; }
 html.sx.sx .listMenu > .personalDataList:not(.personlData) ~ .personalDataList > h3.card-title { display: none !important; }
 html.sx.sx .listMenu > .personalDataList:not(.personlData) > .card {

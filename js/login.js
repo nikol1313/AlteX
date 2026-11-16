@@ -15,6 +15,14 @@ const LOGIN_TOASTS = [
 const mountLogin = () => {
   const page = document.querySelector('login-component');
   if (root.classList.contains('sx-login') !== !!page) root.classList.toggle('sx-login', !!page);
+  const form = page?.querySelector('.login-form');
+  if (form && !('sxWatch' in form.dataset)) {
+    form.dataset.sxWatch = '';
+    const sent = () => { if (form.querySelector('input[formcontrolname="password"]')?.value) watchLoginReply(form); };
+    form.addEventListener('submit', sent, true);
+    form.addEventListener('click', (e) => { if (e.target.closest('.buttonWrapper button')) sent(); }, true);
+    form.addEventListener('keydown', (e) => { if (e.key === 'Enter') sent(); }, true);
+  }
   if (!page || page.querySelector(':scope > .sx-login-art')) return;
   const art = el('div', 'sx-login-art');
   art.setAttribute('aria-hidden', 'true');
@@ -109,6 +117,7 @@ const showWelcome = (s) => {
     setTimeout(() => {
       w.remove();
       root.classList.remove('sx-welcoming');
+      releaseScrollLock();
       root.classList.add('sx-enter');
       // Dropping sx-enter swaps the boxes back to their normal entrance animation, and a changed animation-name
       // replays: they would blink out and fade in again. Mark the boxes already shown first (dashboard.css).
@@ -232,5 +241,54 @@ const mountRemember = () => {
   if (savedLogin && !autoLoginTried) {
     autoLoginTried = true;
     autoLogin(savedLogin);
+  }
+};
+
+// Wrong password: the portal shows nothing (it only opens a dialog when its reply carries an error text). Once its
+// /student/login request is answered and the form is still on the password step with no dialog of its own, say so
+// under the password field. Typing again clears it.
+const LOGIN_PATH = '/student/login';
+let loginWatch = 0;
+const loginError = (form, text) => {
+  let msg = form.querySelector('.sx-login-error');
+  if (!text) { msg?.remove(); return; }
+  if (!msg) {
+    msg = el('p', 'sx-login-error');
+    msg.setAttribute('role', 'alert');
+    const pass = form.querySelector('input[formcontrolname="password"]');
+    (pass?.closest('.ini-form-field') || pass)?.after(msg);
+    pass?.addEventListener('input', () => loginError(form, null), { once: true });
+  }
+  msg.textContent = text;
+};
+const watchLoginReply = (form) => {
+  const since = performance.now() - 50, id = ++loginWatch;
+  loginError(form, null);
+  const reply = () => performance.getEntriesByType('resource')
+    .find((e) => e.startTime >= since && e.responseEnd > 0 && new URL(e.name).pathname === LOGIN_PATH);
+  waitFor(reply, 20000).then((r) => r && new Promise((done) => setTimeout(() => done(r), 600))).then((r) => {
+    if (!r || id !== loginWatch || !form.isConnected) return;
+    if (!form.classList.contains('step-2') || form.classList.contains('step-3')) return;
+    if (document.querySelector('.cdk-overlay-container .cdk-overlay-pane:not(:empty)')) return; // the portal said something itself
+    const status = r.responseStatus ?? 200;
+    loginError(form, status && status < 500 ? 'პაროლი არასწორია. სცადე თავიდან.' : 'სერვერთან კავშირი ვერ მოხერხდა. სცადე თავიდან.');
+  });
+};
+
+// A page left scroll-locked with nothing open (body overflow: hidden, or Angular Material's cdk-global-scrollblock
+// from a dialog closed mid-navigation) could not be scrolled until the app was restarted. With no dialog, menu,
+// drawer or welcome screen open, release it.
+const releaseScrollLock = () => {
+  const html = document.documentElement, body = document.body;
+  if (!body) return;
+  const blocked = html.classList.contains('cdk-global-scrollblock');
+  if (body.style.overflow !== 'hidden' && !blocked) return;
+  if (document.querySelector('dialog[open], .cdk-overlay-container .cdk-overlay-pane:not(:empty)')) return;
+  body.style.overflow = '';
+  if (blocked) {
+    const y = -parseInt(html.style.top || '0', 10) || 0;
+    html.classList.remove('cdk-global-scrollblock');
+    html.style.top = html.style.left = '';
+    window.scrollTo(0, y);
   }
 };
