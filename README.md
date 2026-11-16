@@ -4,12 +4,6 @@ Visual redesign of the Alte University student portal (`students.alte.edu.ge`).
 
 ## Demos PC & Android
 
-<table>
-  <tr>
-    <td><video src="https://github.com/user-attachments/assets/c821d8af-7cae-4ee4-b661-59dd24ea9db3" width="500" controls></video></td>
-    <td><video src="https://github.com/user-attachments/assets/2bcc8a21-1b6f-4dcb-b97f-c578dde4ecc2" width="200" controls></video></td>
-  </tr>
-</table>
 
 
 ## Problem
