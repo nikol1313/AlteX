@@ -4,6 +4,8 @@ Visual redesign of the Alte University student portal (`students.alte.edu.ge`).
 
 ## Demos PC & Android
 
+ill add soon, changed the design so the old one is irrelavent.
+
 
 
 ## Problem
