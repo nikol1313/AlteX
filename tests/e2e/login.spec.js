@@ -129,3 +129,22 @@ test.describe('scroll lock after signing in', () => {
     expect(await page.evaluate(() => document.body.style.overflow)).toBe('hidden');
   });
 });
+
+// The portal shows a wrong ID or password through its alert-dialog ("Ok"), the same component as the notice popup
+// AlteX closes on every visit ("ნახვა"). Hiding every alert left the error unseen, and the open dialog kept the
+// page from scrolling.
+const alert = (title, button) => `<div class="cdk-overlay-container"><div class="cdk-overlay-backdrop cdk-overlay-backdrop-showing"></div><div class="cdk-overlay-pane"><mat-dialog-container class="mat-mdc-dialog-container"><div class="mat-mdc-dialog-surface"><alert-dialog><h3 class="mat-mdc-dialog-title"><span>${title}</span></h3><div class="mat-mdc-dialog-content">პაროლი არასწორია</div><div class="mat-mdc-dialog-actions"><button>${button}</button></div></alert-dialog></div></mat-dialog-container></div></div>`;
+test.describe('portal alerts', () => {
+  test('an error alert (wrong ID or password) is shown', async ({ page }) => {
+    await openPortal(page, PASSWORD_STEP + alert('info', 'Ok'));
+    await expect(page.locator('alert-dialog')).toHaveAttribute('data-sx-shown', '');
+    await expect(page.locator('.cdk-overlay-container')).toHaveCSS('visibility', 'visible');
+    await expect(page.getByRole('button', { name: 'Ok' })).toBeVisible();
+  });
+
+  test('the notice popup is closed without ever showing', async ({ page }) => {
+    await openPortal(page, DASH + alert('შეტყობინება', 'ნახვა'), { student: { id: 1, firstName: 'T' }, storage: { 'sx-welcome-off:1': '1' } });
+    await expect(page.locator('alert-dialog')).toHaveAttribute('data-sx-closed', '');
+    await expect(page.locator('.cdk-overlay-container')).toHaveCSS('visibility', 'hidden');
+  });
+});

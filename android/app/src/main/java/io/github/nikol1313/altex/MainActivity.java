@@ -104,6 +104,9 @@ public class MainActivity extends ComponentActivity {
         root.setBackgroundColor(bg);
         web = new WebView(this);
         web.setBackgroundColor(bg);
+        // No scrollbar drawn over the page on the right (the page itself hides its own, css/base.css).
+        web.setVerticalScrollBarEnabled(false);
+        web.setHorizontalScrollBarEnabled(false);
         root.addView(web);
         setContentView(root);
         // Keep the page clear of the status bar, navigation bar, notch and keyboard.

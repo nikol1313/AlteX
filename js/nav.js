@@ -19,13 +19,17 @@ const tapDashOnly = () => {
 };
 
 // The portal's notification popup ("ნახვა") opens on every visit: close it at once, like Material does on Escape.
-// css/base.css keeps it hidden meanwhile so it never flashes.
+// css/base.css keeps every portal alert hidden until its button text is in, so the notice never flashes; any other
+// alert (a wrong password, a poll) is then marked shown. Left hidden, it stayed open unseen and locked the page scroll.
 const ESCAPE = { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true, cancelable: true };
 const dismissNotice = () => {
-  for (const dialog of document.querySelectorAll('alert-dialog:not([data-sx-closed])')) {
-    if (!/ნახვა/.test(dialog.querySelector('.mat-mdc-dialog-actions button')?.textContent || '')) continue;
-    dialog.dataset.sxClosed = '';
-    document.body.dispatchEvent(new KeyboardEvent('keydown', ESCAPE));
+  for (const dialog of document.querySelectorAll('alert-dialog:not([data-sx-closed], [data-sx-shown])')) {
+    const label = dialog.querySelector('button')?.textContent.trim();
+    if (!label) continue; // not rendered yet
+    if (/ნახვა/.test(label)) {
+      dialog.dataset.sxClosed = '';
+      document.body.dispatchEvent(new KeyboardEvent('keydown', ESCAPE));
+    } else dialog.dataset.sxShown = '';
   }
 };
 
