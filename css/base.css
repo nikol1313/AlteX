@@ -175,7 +175,7 @@ html.sx .width, html.sx student-tables-component {
   text-align: left !important;
 }
 html.sx:is(.sx-dash, .sx-tables, .sx-program) :is(.width, student-tables-component) { max-width: var(--wide) !important; }
-html.sx .all-page-container { padding-top: 96px !important; padding-bottom: 32px !important; min-height: 0 !important; }
+html.sx .all-page-container { padding-top: 32px !important; padding-bottom: 32px !important; min-height: 0 !important; }
 html.sx app-root > br { display: none !important; }
 html.sx app-root > div:has(> .all-page-container) { padding-bottom: 0 !important; }
 
@@ -201,7 +201,7 @@ html.sx.sx .sx-theme {
 html.sx.sx .sx-theme-knob {
   position: absolute; top: 3px; left: 3px; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 999px !important;
   background-color: var(--pri) !important; box-shadow: 0 2px 6px -1px rgba(0, 0, 0, .45) !important;
-  transition: transform 320ms cubic-bezier(.3, 1.45, .45, 1), background-color 200ms linear !important;
+  will-change: transform; transition: transform 320ms cubic-bezier(.3, 1.45, .45, 1) !important;
 }
 /* The knob shows what a tap switches to: a sun in the dark theme, a moon in the light one. */
 html.sx.sx .sx-theme-knob::before, html.sx.sx .sx-theme-knob::after {
@@ -216,7 +216,6 @@ html.sx.sx .sx-theme-knob::after { width: 14px; height: 14px; box-shadow: inset 
 html.sx.sx .sx-theme[aria-checked="true"] .sx-theme-knob { transform: translateX(30px); }
 html.sx.sx .sx-theme[aria-checked="true"] .sx-theme-knob::before { opacity: 0; transform: rotate(90deg) scale(.4); }
 html.sx.sx .sx-theme[aria-checked="true"] .sx-theme-knob::after { opacity: 1; transform: none; }
-html.sx.sx .sx-theme:active .sx-theme-knob { width: 32px; }
 /* Profile button: a round person icon (drawn here: head and shoulders) instead of the student's name, which stays for screen readers.
    The portal lays .user-menu out as a row with inline styles: hence the !important on the column layout. */
 html.sx.sx .user-menu {
@@ -416,9 +415,9 @@ html.sx.sx .profile-data-line { height: auto !important; min-height: 0 !importan
 html.sx.sx .profile-data-line .title { flex: 0 0 auto; }
 /* The programme picker above personal data offers only the programme already shown. */
 html.sx personal-data-component mat-form-field.educationalProgram { display: none !important; }
-/* Profile: the page's own 96px top padding plus the portal's inline 20px left a wide empty band under the navigation. */
-html.sx.sx .all-page-container:has(> personal-data-component) { padding-top: 32px !important; }
-html.sx.sx personal-data-component .page-personalData > .width { padding-top: 0 !important; }
+/* Profile: the portal's inline 20px on top of the page's own padding left an empty band under the navigation. */
+html.sx.sx personal-data-component .page-personalData > .width:first-child { padding-top: 0 !important; }
+html.sx.sx personal-data-component .page-personalData > .width + .width { padding-top: 12px !important; }
 /* Profile, "საგანმანათლებლო ინფორმაცია": seven equal columns broke every word in the middle. Each programme is now a block:
    its name with the status beside it, the school under it, then the rest as labelled chips. */
 html.sx.sx personal-data-component mat-table:has(.mat-column-school) mat-header-row { display: none !important; }
@@ -440,11 +439,31 @@ html.sx.sx personal-data-component mat-table mat-cell:is(.mat-column-level, .mat
   background-color: var(--well) !important; border: 1px solid var(--line) !important;
 }
 html.sx.sx personal-data-component mat-table mat-cell.mat-column-status { color: var(--on-tint) !important; background-color: rgba(147, 96, 227, .16) !important; border-color: rgba(157, 110, 228, .38) !important; }
-html.sx.sx personal-data-component mat-table mat-cell:is(.mat-column-method, .mat-column-learningYear, .mat-column-batch)::before { color: var(--fg3); }
+html.sx.sx personal-data-component mat-table mat-cell:is(.mat-column-method, .mat-column-learningYear)::before { color: var(--fg3); }
 html.sx.sx personal-data-component mat-table mat-cell.mat-column-method::before { content: "ჩარიცხვა · "; }
 html.sx.sx personal-data-component mat-table mat-cell.mat-column-learningYear::before { content: "სასწავლო წელი · "; }
-html.sx.sx personal-data-component mat-table mat-cell.mat-column-batch::before { content: "ნაკადი · "; }
-html.sx.sx personal-data-component mat-table mat-cell[data-sx-blank] { display: none !important; }
+html.sx.sx personal-data-component mat-table mat-cell:is([data-sx-blank], .mat-column-batch) { display: none !important; }
+/* Below 992px the portal swaps the table for a list of the current programme only: the table stays, on every width. */
+html.sx.sx personal-data-component .profile-data-mini { display: none !important; }
+html.sx.sx personal-data-component mat-table:has(.mat-column-school) { display: block !important; }
+
+/* Profile numbers (semester, GPA, credits…): one row of compact cards under a single heading. The portal gives every
+   card a column with its own heading (blank on all but the first) and hangs the number over the ring with margins. */
+html.sx .listMenu > .personalDataList:not(.personlData) { display: contents; }
+html.sx.sx .listMenu > .personalDataList:not(.personlData) > h3.card-title { grid-column: 1 / -1; margin: 12px 0 0 !important; }
+html.sx.sx .listMenu > .personalDataList:not(.personlData) ~ .personalDataList > h3.card-title { display: none !important; }
+html.sx.sx .listMenu > .personalDataList:not(.personlData) > .card {
+  display: grid !important; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; justify-items: center; align-items: start !important; place-content: start stretch !important;
+  gap: 16px; height: auto !important; min-height: 0 !important; padding: 24px 12px 20px !important; box-sizing: border-box;
+}
+html.sx.sx .listMenu > .personalDataList:not(.personlData) > .card > :is(.spinner-value, mat-progress-spinner) { grid-area: 1 / 1; place-self: center; margin: 0 !important; padding: 0 !important; }
+/* The ring keeps position: relative (its drawing is placed inside it); the number drops the portal's absolute offset. */
+html.sx.sx .listMenu > .personalDataList:not(.personlData) > .card > .spinner-value { position: static !important; }
+html.sx.sx .listMenu > .personalDataList:not(.personlData) > .card > .spinner-value { z-index: 1; font-size: 22px !important; font-weight: 500 !important; line-height: 1 !important; letter-spacing: -0.01em !important; }
+html.sx.sx .listMenu > .personalDataList:not(.personlData) > .card > mat-progress-spinner { zoom: .86; }
+html.sx.sx .listMenu > .personalDataList:not(.personlData) > .card > div:not(.spinner-value, .status-text) { display: none !important; }
+html.sx.sx .listMenu > .personalDataList:not(.personlData) > .card > .status-text { grid-row: 2; margin: 0 !important; text-align: center; font-size: 13px !important; line-height: 1.4 !important; color: var(--fg2) !important; overflow-wrap: break-word; }
+html.sx.sx .listMenu > .personalDataList:not(.personlData) > .card > .status-text br { display: none !important; }
 
 /* Tabs: state by colour only */
 html.sx :is(.mdc-tab__text-label, .mdc-tab__text-label *) { color: var(--fg2) !important; }
@@ -528,8 +547,7 @@ html.sx .sx-nav-btn { display: none; }
   html.sx.sx :is(user-menu-component .topMenuTo, .sx-dash-nav) { display: none !important; }
   html.sx.sx user-menu-component { top: 0; background-color: var(--bar-solid) !important; backdrop-filter: none; -webkit-backdrop-filter: none; border-bottom: 1px solid var(--line) !important; }
   html.sx .user-area-wrapper.navbar { height: 64px !important; }
-  html.sx.sx .all-page-container { padding-top: 24px !important; }
-  html.sx.sx .all-page-container:has(> personal-data-component) { padding-top: 16px !important; }
+  html.sx.sx .all-page-container { padding-top: 16px !important; }
   html.sx .user-area { gap: 10px; }
   html.sx .user-menu-top { margin-left: auto !important; }
   html.sx .sx-nav-btn {
@@ -590,13 +608,25 @@ html.sx .sx-nav-btn { display: none; }
   html.sx.sx .profile-data-line { flex-direction: column !important; height: auto !important; min-height: 0 !important; gap: 2px; padding: 10px 0 !important; border-bottom: 1px solid var(--line) !important; }
   html.sx.sx .profile-data-line > * { text-indent: 0 !important; padding-inline: 0 !important; }
   html.sx.sx .profile-data-line .text { flex: none !important; color: var(--fg) !important; font-size: 16px !important; line-height: 1.45 !important; }
-  html.sx.sx .personalDataList .card { padding: 18px 12px !important; }
-  html.sx.sx .personalDataList > h3.card-title:empty { display: none !important; }
+  html.sx.sx .personalDataList .card { padding: 18px 16px !important; }
   html.sx .listMenu { gap: 12px; }
+  /* Profile on phones: photo, name and status centred; the numbers three and two to a row. */
+  html.sx.sx personal-data-component .user-avatar { flex-direction: column !important; align-items: center !important; place-content: center !important; gap: 14px; text-align: center; }
+  html.sx.sx personal-data-component .user-avatar-image { width: 88px !important; height: 88px !important; margin: 0 !important; }
+  html.sx.sx personal-data-component :is(.ini-buttonDiv, .doc-links) { justify-content: center !important; place-content: center !important; text-align: center; }
+  html.sx.sx personal-data-component .ini-buttonDiv { margin-top: 12px !important; }
+  html.sx.sx .listMenu > .personalDataList:not(.personlData) > .card { grid-column: span 2; gap: 12px; padding: 18px 8px 16px !important; }
+  html.sx.sx .listMenu > .personalDataList:nth-child(n+5):not(.personlData) > .card { grid-column: span 3; }
+  html.sx.sx .listMenu > .personalDataList:not(.personlData) > .card > mat-progress-spinner { zoom: .74; }
+  html.sx.sx .listMenu > .personalDataList:not(.personlData) > .card > .spinner-value { font-size: 19px !important; }
+  html.sx.sx .listMenu > .personalDataList:not(.personlData) > .card > .status-text { font-size: 12px !important; }
+  html.sx.sx personal-data-component mat-table:has(.mat-column-school) { padding: 18px 16px !important; }
+  html.sx.sx personal-data-component mat-table mat-cell.mat-column-program { flex-basis: 100% !important; font-size: 18px !important; }
+  html.sx.sx personal-data-component mat-table mat-cell.mat-column-status { order: 4; }
 }
 @media (max-width: 860px) {
-  html.sx .listMenu { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  html.sx .all-page-container { padding-top: 56px !important; }
+  html.sx .listMenu { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  html.sx .all-page-container { padding-top: 24px !important; }
 }
 @media (max-width: 760px) {
   html.sx .company-logo::before, html.sx .company-logo::after { font-size: 28px; }

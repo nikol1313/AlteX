@@ -1,7 +1,7 @@
 @layer sx {
 
 /* ---------- Main page: greeting, then three boxes (timetable, assignments, learning card) ---------- */
-html.sx.sx.sx-dash .all-page-container { padding-top: 40px !important; }
+html.sx.sx.sx-dash .all-page-container { padding-top: 32px !important; }
 html.sx.sx.sx-dash .width { max-width: min(1440px, 92vw) !important; padding-inline: 32px !important; }
 
 html.sx .sx-hello {

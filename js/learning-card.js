@@ -21,6 +21,9 @@ const tagDetailRows = () => {
     const val = d.querySelector('.result-detail-result');
     if (!name || !val) continue;
     const n = name.textContent.trim(), v = val.textContent.trim();
+    // Unchanged since it was tagged: nothing to do (this runs on every frame the portal touches the page).
+    if (d.dataset.sxRow === `${n}|${v}`) continue;
+    d.dataset.sxRow = `${n}|${v}`;
     const kind = valueKind(v);
     for (const c of ['sx-est-empty', 'sx-num', 'sx-denied', 'sx-text']) d.classList.toggle(c, c === kind);
     d.classList.add('sx-est-row');
@@ -50,24 +53,48 @@ const unfoldToAuto = (anim) => {
   if (!end || !end.height || end.height === 'auto' || parseFloat(end.height) === 0) return; // folding up: leave it
   fx.setKeyframes(frames.map(({ computedOffset, ...f }, i) => (i === frames.length - 1 ? { ...f, height: 'auto' } : f)));
 };
+// One list of the page's running animations, instead of asking each of the card's rows for its own: that forced a
+// style pass per row, on every change the portal made while a subject was unfolding.
 const seenUnfolds = new WeakSet();
 const fitDetailUnfold = () => {
-  for (const row of document.querySelectorAll('.page-learningCard mat-row:has(> .mat-column-expandedDetail)')) {
-    for (const anim of row.getAnimations()) {
-      if (seenUnfolds.has(anim)) continue;
-      seenUnfolds.add(anim);
-      anim.ready.then(() => unfoldToAuto(anim), () => {});
-    }
+  if (!CAN_UNFOLD_TO_AUTO) return;
+  for (const anim of document.getAnimations()) {
+    if (seenUnfolds.has(anim)) continue;
+    seenUnfolds.add(anim);
+    const row = anim.effect && anim.effect.target;
+    if (!row || !row.matches || !row.matches('.page-learningCard mat-row') || !row.querySelector(':scope > .mat-column-expandedDetail')) continue;
+    anim.ready.then(() => { try { unfoldToAuto(anim); } catch { /* the portal's own animation is left as it is */ } }, () => {});
   }
 };
-// Runs from main.js's MutationObserver the moment the portal adds content, before it is painted. The regular pass
-// would come up to 200ms later: the grade dialog (შეფასება) showed its raw vertical layout until then, and the
-// unfold retarget would land near the end of the animation.
+// A subject's details come from the portal's server: until they are there, the tapped row shows a moving line
+// (learning-card.css), so a slow answer does not look like a frozen page.
+document.addEventListener('click', (e) => {
+  const row = e.target.closest && e.target.closest('.page-learningCard .semester-child mat-row');
+  if (!row || e.target.closest('button, a') || row.querySelector(':scope > .mat-column-expandedDetail')) return;
+  if (row.nextElementSibling && row.nextElementSibling.querySelector('.result-detail')) return;
+  row.dataset.sxBusy = '';
+  setTimeout(() => { delete row.dataset.sxBusy; }, 6000);
+}, true);
+const clearBusyRows = () => {
+  for (const row of document.querySelectorAll('.page-learningCard mat-row[data-sx-busy]')) {
+    if (row.nextElementSibling && row.nextElementSibling.querySelector('.result-detail')) delete row.dataset.sxBusy;
+  }
+};
+// Called from main.js's MutationObserver whenever the portal changes the page; the work is done once, in the next
+// frame, before that frame is painted: the grade dialog (შეფასება) never shows its raw vertical layout, and the
+// unfold is retargeted as it starts. (Done per change, it ran many times a frame while a subject was unfolding.)
+let cardFrame = false;
 const onCardMutation = () => {
-  enhanceEstDialog();
-  if (!document.querySelector('.page-learningCard .mat-column-expandedDetail')) return;
-  tagDetailRows();
-  fitDetailUnfold();
+  if (cardFrame) return;
+  cardFrame = true;
+  requestAnimationFrame(() => {
+    cardFrame = false;
+    enhanceEstDialog();
+    if (!document.querySelector('.page-learningCard .mat-column-expandedDetail')) return;
+    clearBusyRows();
+    tagDetailRows();
+    fitDetailUnfold();
+  });
 };
 
 // End of the running semester = the next payment date reported while it is the newest one,
