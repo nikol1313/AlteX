@@ -260,3 +260,6 @@ html.sx.sx.sx lost-password-dialog .mat-mdc-dialog-actions button:is(:disabled, 
 }
 
 }
+
+/* Wrong password (js/login.js loginError). */
+html.sx.sx login-component .sx-login-error { margin: 8px 0 4px !important; padding: 10px 14px; border-radius: 12px !important; font-size: 14px !important; line-height: 1.45 !important; color: var(--err-fg) !important; background-color: var(--err-bg) !important; text-align: left !important; animation: sx-rise 220ms var(--ease) both !important; }

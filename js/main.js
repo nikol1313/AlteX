@@ -56,6 +56,7 @@ const runPass = () => {
   mountHello();
   mountLogin();
   mountRemember();
+  releaseScrollLock();
   if (document.querySelector('dashboard-component a.dashboard-item-wrapper')) { render(); load(); }
 };
 

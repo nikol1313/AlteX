@@ -60,3 +60,72 @@ test.describe('login page', () => {
     await expect(page.locator('html')).not.toHaveClass(/\bsx-login\b/);
   });
 });
+
+// The portal's password step: submitting posts to /student/login; on a wrong password it answers without an error
+// text and shows nothing.
+const PASSWORD_STEP = `
+  <login-component>
+    <form class="login-form step-2" onsubmit="event.preventDefault(); fetch('/student/login', { method: 'POST' })">
+      <input formcontrolname="username" value="01000000000">
+      <div class="ini-form-field step-2-form"><input formcontrolname="password" type="password"></div>
+      <div class="buttonWrapper"><button type="submit">შესვლა</button></div>
+    </form>
+  </login-component>`;
+
+test.describe('wrong password', () => {
+  test('says the password is wrong once the portal answers, and clears when typing again', async ({ page }) => {
+    await openPortal(page, PASSWORD_STEP, { api: { '/student/login': { result: 'no' } } });
+    await page.locator('input[formcontrolname="password"]').fill('wrong-test-password');
+    await page.getByRole('button', { name: 'შესვლა' }).click();
+
+    const msg = page.getByRole('alert');
+    await expect(msg).toHaveText(/პაროლი არასწორია/);
+    await page.locator('input[formcontrolname="password"]').press('a');
+    await expect(msg).toHaveCount(0);
+  });
+
+  test('says the server could not be reached when the portal fails', async ({ page }) => {
+    await openPortal(page, PASSWORD_STEP);
+    await page.route('**/student/login', (r) => r.fulfill({ status: 502, body: '' }));
+    await page.locator('input[formcontrolname="password"]').fill('wrong-test-password');
+    await page.getByRole('button', { name: 'შესვლა' }).click();
+
+    await expect(page.getByRole('alert')).toHaveText(/სერვერთან კავშირი/);
+  });
+
+  test('stays quiet when the portal shows its own dialog', async ({ page }) => {
+    await openPortal(page, PASSWORD_STEP + '<div class="cdk-overlay-container"><div class="cdk-overlay-pane"><p>portal error</p></div></div>', { api: { '/student/login': { error: 'x' } } });
+    await page.locator('input[formcontrolname="password"]').fill('wrong-test-password');
+    await page.getByRole('button', { name: 'შესვლა' }).click();
+    await page.waitForTimeout(1500);
+
+    await expect(page.locator('.sx-login-error')).toHaveCount(0);
+  });
+});
+
+// After signing in, a scroll lock left behind with nothing open (body overflow hidden, or Material's scroll block)
+// kept the page from scrolling until the app restarted.
+const DASH = `<user-menu-component></user-menu-component><div class="all-page-container"><dashboard-component>${'<p style="height:200px">row</p>'.repeat(20)}</dashboard-component></div>`;
+test.describe('scroll lock after signing in', () => {
+  test('is released when no dialog or menu is open', async ({ page }) => {
+    await openPortal(page, DASH, { student: { id: 1, firstName: 'T' }, storage: { 'sx-welcome-off:1': '1' } });
+    await page.evaluate(() => {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.classList.add('cdk-global-scrollblock');
+      document.body.append(document.createElement('span')); // any portal change runs a pass
+    });
+
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('');
+    await expect(page.locator('html')).not.toHaveClass(/cdk-global-scrollblock/);
+    await page.evaluate(() => window.scrollTo(0, 600));
+    expect(await page.evaluate(() => scrollY)).toBeGreaterThan(500);
+  });
+
+  test('is kept while a portal dialog is open', async ({ page }) => {
+    await openPortal(page, DASH + '<div class="cdk-overlay-container"><div class="cdk-overlay-pane"><p>dialog</p></div></div>', { student: { id: 1, firstName: 'T' }, storage: { 'sx-welcome-off:1': '1' } });
+    await page.evaluate(() => { document.body.style.overflow = 'hidden'; document.body.append(document.createElement('span')); });
+    await page.waitForTimeout(800);
+
+    expect(await page.evaluate(() => document.body.style.overflow)).toBe('hidden');
+  });
+});

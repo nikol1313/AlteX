@@ -30,3 +30,32 @@ test('profile ring stats sit in two clean columns on a phone', async ({ page }) 
   }));
   expect(fits).toBe(true);
 });
+
+// The real profile markup, with the portal's own phone CSS (unlayered, so it beats AlteX's layered rules unless
+// they are !important): each stat box becomes display:inline-grid at 992px and below.
+const PORTAL_PHONE_CSS = `<style>@media (max-width: 992px) {
+  .listMenu { flex-direction: column !important; align-items: center; }
+  .personlData { width: 100% !important; margin-right: 0 !important; text-align: center; }
+  .personalDataList { display: inline-grid; width: 100% !important; text-align: center; margin-right: 0 !important; }
+}</style>`;
+const stat = (v, l) => `<div class="personalDataList" style="width:168px;margin-right:20px"><h3 class="card-title">ბაკალავრი</h3><div class="card" style="flex-direction:column;display:flex"><div class="spinner-value">${v}</div><mat-progress-spinner style="width:100px;height:100px;display:block"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45"/></svg></mat-progress-spinner><div class="status-text">${l}</div></div></div>`;
+const REAL = `${PORTAL_PHONE_CSS}<personal-data-component><div class="page-personalData"><div class="width"><div class="listMenu" style="flex-direction:row;display:flex">
+  <div class="personlData personalDataList" style="width:365px"><h3 class="card-title">პირადი</h3><div class="card card--auto-height">x</div></div>
+  ${stat(5, 'მიმდინარე სემესტრი')}${stat(1.81, 'GPA')}${stat(115, 'კრედიტი')}${stat(115, 'პროგრამის კრედიტი')}${stat('63/D', 'საშუალო შედეგი')}
+</div></div></div></personal-data-component>`;
+
+test('real profile stat cards: one heading, 3 + 2 cards, nothing overlapping, despite the portal phone CSS', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await openPortal(page, REAL, { url: '/personal-data', student: { id: 1, firstName: 'Test', currentProgram: { eduId: 1 } } });
+  await expect(page.locator('.sx-stat')).toHaveCount(5);
+  await expect(page.locator('.listMenu > .personalDataList:not(.personlData) > h3:visible')).toHaveCount(1);
+
+  const cards = await page.locator('.listMenu > .personalDataList:not(.personlData) > .card').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()));
+  const rows = [...new Set(cards.map((c) => Math.round(c.top)))];
+  expect(rows).toHaveLength(2);
+  expect(cards.filter((c) => Math.round(c.top) === rows[0])).toHaveLength(3);
+  const overlap = (a, b) => a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1;
+  for (let i = 0; i < cards.length; i++) for (let j = i + 1; j < cards.length; j++) expect(overlap(cards[i], cards[j])).toBe(false);
+  for (const c of cards) expect(c.right).toBeLessThanOrEqual(390);
+  expect(new Set(cards.slice(0, 3).map((c) => Math.round(c.height))).size).toBe(1); // a two-line label does not make one card stick out
+});
