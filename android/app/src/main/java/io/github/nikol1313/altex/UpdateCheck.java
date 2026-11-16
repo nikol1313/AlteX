@@ -17,8 +17,8 @@ import java.util.regex.Pattern;
  * kept, so the banner still shows in between.
  */
 final class UpdateCheck {
-    static final String DOWNLOAD_URL = "https://github.com/nikol1313/AlteX-chrome-extension/releases/latest/download/AlteX.apk";
-    private static final String LATEST_URL = "https://github.com/nikol1313/AlteX-chrome-extension/releases/latest";
+    static final String DOWNLOAD_URL = "https://github.com/nikol1313/AlteX/releases/latest/download/AlteX.apk";
+    private static final String LATEST_URL = "https://github.com/nikol1313/AlteX/releases/latest";
     private static final Pattern TAG = Pattern.compile("/releases/tag/android-v(\\d+(?:\\.\\d+)*)");
     private static final long EVERY_MS = 6 * 60 * 60 * 1000L;
     private static final String PREFS = "altex";
@@ -44,24 +44,30 @@ final class UpdateCheck {
         }, "altex-update-check").start();
     }
 
+    /** Follows up to 3 redirects by hand (a renamed repo adds one) and stops at the first tag URL. */
     private static String fetchLatest() {
-        HttpURLConnection c = null;
-        try {
-            c = (HttpURLConnection) new URL(LATEST_URL).openConnection();
-            c.setInstanceFollowRedirects(false);
-            c.setRequestMethod("HEAD");
-            c.setConnectTimeout(5000);
-            c.setReadTimeout(5000);
-            c.setRequestProperty("User-Agent", "AlteX-Android");
-            String location = c.getResponseCode() / 100 == 3 ? c.getHeaderField("Location") : null;
-            if (location == null) return null;
-            Matcher m = TAG.matcher(location);
-            return m.find() ? m.group(1) : null;
-        } catch (IOException | RuntimeException e) {
-            return null;
-        } finally {
-            if (c != null) c.disconnect();
+        String url = LATEST_URL;
+        for (int hop = 0; hop < 3; hop++) {
+            HttpURLConnection c = null;
+            try {
+                c = (HttpURLConnection) new URL(url).openConnection();
+                c.setInstanceFollowRedirects(false);
+                c.setRequestMethod("HEAD");
+                c.setConnectTimeout(5000);
+                c.setReadTimeout(5000);
+                c.setRequestProperty("User-Agent", "AlteX-Android");
+                String location = c.getResponseCode() / 100 == 3 ? c.getHeaderField("Location") : null;
+                if (location == null) return null;
+                Matcher m = TAG.matcher(location);
+                if (m.find()) return m.group(1);
+                url = new URL(new URL(url), location).toString();
+            } catch (IOException | RuntimeException e) {
+                return null;
+            } finally {
+                if (c != null) c.disconnect();
+            }
         }
+        return null;
     }
 
     /** "3.10.0" > "3.9.2"; missing parts count as 0; anything unparsable is never newer. */

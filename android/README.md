@@ -2,7 +2,7 @@
 
 The student portal in a WebView, with the AlteX extension's CSS and JS injected.
 
-**[Download AlteX.apk](https://github.com/nikol1313/AlteX-chrome-extension/releases/latest/download/AlteX.apk)**
+**[Download AlteX.apk](https://github.com/nikol1313/AlteX/releases/latest/download/AlteX.apk)**
 
 ## How it works
 
