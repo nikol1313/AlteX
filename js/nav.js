@@ -148,11 +148,19 @@ const mountUserMenu = () => {
 };
 
 // Light / dark switch beside the profile button.
+// The knob moves at once; the page is recoloured a moment later. Recolouring is one long style pass over the whole
+// page: done in the same frame it held the knob still and then made it jump (worst on phones). The knob has its own
+// layer (base.css), so it keeps sliding while that pass runs. Fast taps share one recolouring.
+let themeTimer = 0;
 const setTheme = (next) => {
   theme = next;
-  root.dataset.sxTheme = next;
-  store.set(THEME_KEY, next);
   for (const b of document.querySelectorAll('.sx-theme')) b.setAttribute('aria-checked', String(next === 'light'));
+  if (themeTimer) return;
+  themeTimer = setTimeout(() => {
+    themeTimer = 0;
+    if (root.dataset.sxTheme !== theme) root.dataset.sxTheme = theme;
+    store.set(THEME_KEY, theme);
+  }, 40);
 };
 const flipTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
 const mountThemeToggle = () => {
@@ -165,9 +173,12 @@ const mountThemeToggle = () => {
   btn.setAttribute('aria-checked', String(theme === 'light'));
   btn.append(el('span', 'sx-theme-knob'));
   // Flips the moment the finger or mouse goes down: a click waits for the release, which made fast taps feel late.
-  // The click that follows is swallowed (it would open the profile menu); a click without a pointer is the keyboard.
-  btn.addEventListener('pointerdown', (e) => { if (e.button === 0) flipTheme(); });
-  btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); if (e.detail === 0) flipTheme(); });
+  // The click that follows a press is swallowed (it would flip back, and open the profile menu); a click with no
+  // press before it is the keyboard.
+  let pressed = false;
+  btn.addEventListener('pointerdown', (e) => { if (e.button === 0) { pressed = true; flipTheme(); } });
+  for (const type of ['pointerup', 'pointercancel', 'pointerleave']) btn.addEventListener(type, () => setTimeout(() => { pressed = false; }, 400));
+  btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); if (pressed) pressed = false; else flipTheme(); });
   top.prepend(btn);
 };
 

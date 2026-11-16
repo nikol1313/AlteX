@@ -120,11 +120,12 @@ html.sx.sx personal-data-component .student-card-qr__note span { color: #4A4852 
 @keyframes sx-qr-zoom { from { opacity: 0; transform: scale(.55); } to { opacity: 1; transform: none; } }
 /* "ჯგუფი:" in the profile card has no value: the line (everything after the break) is dropped. */
 html.sx.sx personal-data-component .doc-links > br, html.sx.sx personal-data-component .doc-links > br ~ * { display: none !important; }
-@media (max-width: 640px) {
-  /* Phones: the button gets the card's first row to itself, still on the right. */
-  html.sx.sx personal-data-component .card:has(> app-student-card-qr) { grid-template-columns: minmax(0, 1fr); row-gap: 4px; }
-  html.sx.sx personal-data-component .card > app-student-card-qr { grid-column: 1; grid-row: 1; margin-bottom: 12px; }
-  html.sx.sx personal-data-component .card:has(> app-student-card-qr) > :not(app-student-card-qr) { grid-row: auto; }
+@media (max-width: 760px) {
+  /* Phones: the button goes under the card's text, centred and as wide as the card. */
+  html.sx.sx personal-data-component .card:has(> app-student-card-qr) { grid-template-columns: minmax(0, 1fr); }
+  html.sx.sx personal-data-component .card > app-student-card-qr { grid-column: 1; grid-row: auto; margin-top: 16px; }
+  html.sx.sx personal-data-component .student-card-qr { align-items: stretch !important; }
+  html.sx.sx personal-data-component .student-card-qr > button { width: 100% !important; justify-content: center !important; }
 }
 
 html.sx.sx registration-routes-component .academic-menu {

@@ -2,7 +2,7 @@
 
 html.sx .page-learningCard { display: flex !important; flex-direction: column; }
 /* Same top spacing as the home page: no 96px band under the nav, and no stray <br> above the title box. */
-html.sx.sx .all-page-container:has(> learning-card-component) { padding-top: 40px !important; }
+html.sx.sx .all-page-container:has(> learning-card-component) { padding-top: 32px !important; }
 html.sx .page-learningCard > br { display: none !important; }
 /* Lets the subject unfold animate to height: auto (learning-card.js unfoldToAuto). */
 html.sx .page-learningCard mat-row:has(> .mat-column-expandedDetail) { interpolate-size: allow-keywords; }
@@ -60,6 +60,13 @@ html.sx .sx-bar {
   background-color: var(--line) !important;
 }
 html.sx .sx-bar::after { content: ""; position: absolute; top: 0; bottom: 0; left: 51%; width: 2px; background-color: var(--bg) !important; }
+/* A tapped subject whose details are still on their way (learning-card.js): a line runs along the row's lower edge. */
+html.sx .page-learningCard mat-row[data-sx-busy] { position: relative !important; overflow: hidden !important; }
+html.sx .page-learningCard mat-row[data-sx-busy]::after {
+  content: ""; position: absolute; left: 0; bottom: 0; width: 40%; height: 2px; border-radius: 2px;
+  background-color: var(--pri); animation: sx-busy 900ms linear infinite 120ms both; opacity: 0;
+}
+@keyframes sx-busy { from { transform: translateX(-100%); opacity: 1; } to { transform: translateX(250%); opacity: 1; } }
 html.sx .sx-bar > i { display: block; height: 100%; border-radius: 999px !important; background-color: var(--g, var(--fg3)) !important; transition: width 600ms var(--ease) !important; }
 html.sx.sx .semester-child mat-row .mat-column-result { grid-area: grade; justify-self: center; }
 html.sx.sx .semester-child mat-row .result-color {

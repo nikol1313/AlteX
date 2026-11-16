@@ -1,5 +1,5 @@
 'use strict';
-let queued = false, lastRun = 0;
+let queued = false, lastRun = 0, passCost = 0;
 const PAGE_FLAGS = [['sx-dash', 'dashboard-component'], ['sx-tables', 'student-tables-component'], ['sx-ttdash', 'tables-dashboard-component'], ['sx-program', 'program-view']];
 
 const tagCounts = () => {
@@ -20,6 +20,7 @@ const run = () => {
   queued = false;
   lastRun = performance.now();
   runPass();
+  passCost = performance.now() - lastRun;
   if (PERF) performance.measure('altex:pass', { start: lastRun });
 };
 const runPass = () => {
@@ -57,14 +58,17 @@ const runPass = () => {
   if (document.querySelector('dashboard-component a.dashboard-item-wrapper')) { render(); load(); }
 };
 
-// At most ~5 passes a second (~2.5 on phones, where each pass costs more). A pass runs in requestAnimationFrame:
-// the portal's new markup and AlteX's changes to it reach the screen in the same frame, so nothing jumps (CLS).
+// A pass runs in requestAnimationFrame: the portal's new markup and AlteX's changes to it reach the screen in the
+// same frame, so nothing jumps (CLS) and no section shows the portal's own look first.
+// How soon the next one may follow depends on what the last one cost: passes may take about a sixth of the time.
+// A pass is 1-5ms on a laptop, so there it follows the portal frame by frame; a slow phone gets a longer gap, at
+// most PASS_GAP. (A fixed 200/400ms gap left freshly loaded content in the portal's styling for that long.)
 // Hidden tabs get no frames; the pending pass then runs when the tab is shown again.
 const PASS_GAP = matchMedia('(pointer: coarse)').matches ? 400 : 200;
 const schedule = () => {
   if (queued) return;
   queued = true;
-  const wait = PASS_GAP - (performance.now() - lastRun);
+  const wait = Math.min(PASS_GAP, passCost * 6) - (performance.now() - lastRun);
   if (wait <= 0) requestAnimationFrame(run); else setTimeout(() => requestAnimationFrame(run), wait);
 };
 
