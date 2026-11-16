@@ -30,7 +30,7 @@ The extension is published on chrome web store
 
 ## installation on Android
 
-**[Download AlteX for Android (APK)](https://github.com/nikol1313/AlteX-chrome-extension/releases/latest/download/AlteX.apk)**
+**[Download AlteX for Android (APK)](https://github.com/nikol1313/AlteX/releases/latest/download/AlteX.apk)**
 
 1. Open the link above on your phone; it always downloads the newest version.
 2. Open the downloaded `AlteX.apk`. The first time, Android asks to allow installs from your browser: allow it.
