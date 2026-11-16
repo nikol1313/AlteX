@@ -496,8 +496,9 @@ html.sx :is(.mat-mdc-option, .mat-mdc-menu-item) { color: var(--fg2) !important;
 html.sx :is(.mat-mdc-option, .mat-mdc-menu-item):is(:hover, .mdc-list-item--selected) { color: var(--fg) !important; }
 html.sx :is(.mat-mdc-tooltip-surface, .mdc-tooltip__surface) { background-color: var(--fg) !important; color: var(--bg) !important; }
 
-/* Notification popup: closed by js/nav.js (dismissNotice) on every visit; hidden until then */
-html.sx .cdk-overlay-container:has(alert-dialog) { visibility: hidden !important; }
+/* Notification popup ("ნახვა"): closed by js/nav.js (dismissNotice) on every visit. Any portal alert stays hidden only
+   until dismissNotice has read its button: other alerts (a wrong password, a poll) are marked shown and appear. */
+html.sx .cdk-overlay-container:has(alert-dialog:not([data-sx-shown])) { visibility: hidden !important; }
 
 /* ---------- Footer: our own line replaces the site's copyright ---------- */
 html.sx footer { position: static !important; }
@@ -649,6 +650,7 @@ html.sx .sx-nav-btn { display: none; }
 html.sx app-root > div:nth-of-type(2) { min-height: 100dvh; }
 /* No page scrollbar on the right: the page still scrolls with the wheel, touch, keyboard and trackpad. */
 html.sx { scrollbar-width: none; }
+html.sx::-webkit-scrollbar { display: none; } /* WebViews before Chrome 121 ignore scrollbar-width */
 /* Desktop header = top bar + section nav. On the dashboard the nav is AlteX's own (nav.js mountDashNav) and lands a
    moment after the portal paints: hold its height from the start so the page below never jumps. Phones hide the nav. */
 @media (min-width: 761px) { html.sx user-menu-component .dashboard-page { min-height: 156px; } }
