@@ -48,6 +48,7 @@ const runPass = () => {
   enhanceRegistration();
   enhancePhotos();
   tagBlankProfileCells();
+  tagProfileStats();
   enhanceTasks();
   labelTableCells();
   labelIconButtons();
