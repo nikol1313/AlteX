@@ -4,10 +4,7 @@ const CACHE_MS = 5 * 60 * 1000;
 const untilText = (ms) => {
   const min = Math.max(0, Math.round((ms - Date.now()) / 60000));
   if (min < 1) return 'ახლა';
-  if (min < 60) return `${min} წთ-ში`;
-  if (min < 24 * 60) return `${Math.floor(min / 60)} სთ ${min % 60} წთ-ში`;
-  const days = Math.round(min / 1440);
-  return days === 1 ? 'ხვალ' : `${days} დღეში`;
+  return min < 60 ? `${min} წთ-ში` : `${Math.floor(min / 60)} სთ ${min % 60} წთ-ში`;
 };
 const dayLabel = (date) => {
   const diff = daysUntil(date);
@@ -18,13 +15,13 @@ const agoText = (date) => {
   return days <= 0 ? 'დღეს' : days === 1 ? 'გუშინ' : `${days} დღის წინ`;
 };
 
-// "You have / had today": past tense once every lecture of the day has ended.
+// "You have today": nothing once every lecture of the day has ended.
 const todayLine = (lessons) => {
   const list = [...lessons].sort((x, y) => x.start - y.start);
   if (!list.length) return 'დღეს ლექციები არ გაქვს';
   const left = list.filter((l) => l.end > Date.now());
   const label = (l) => `${l.name || 'ლექცია'}, ${hm(new Date(l.start))}`;
-  if (!left.length) return list.length === 1 ? `დღეს გქონდა 1 ლექცია: ${label(list[0])}` : `დღეს გქონდა ${list.length} ლექცია · ყველა დასრულდა`;
+  if (!left.length) return '';
   if (left.length < list.length) return `დღეს გაქვს კიდევ ${left.length} ლექცია · შემდეგი: ${label(left[0])}`;
   return list.length === 1 ? `დღეს გაქვს 1 ლექცია: ${label(list[0])}` : `დღეს გაქვს ${list.length} ლექცია · პირველი: ${label(list[0])}`;
 };
@@ -36,8 +33,37 @@ const todayLessonsLine = () => {
 
 // Each loader returns plain data (saved for the next visit); its view turns it into the card at render time,
 // so countdowns stay current.
-// The portal gives grades without dates: the last seen scores are remembered and a changed one is the new grade.
+// The portal's card gives only each subject's total: the last seen totals are remembered and a changed one is the
+// subject with the new grade. Which grade it was comes from the subject's breakdown (getCardDetails): its parts are
+// remembered too, and the part that changed is the grade the lecturer just entered (not the whole total).
+// Only one grade is ever shown. The portal dates the subject, not its parts: when several are new at once
+// (nothing remembered yet, or two grades between visits) the smallest is taken, quizzes and homework being
+// entered far more often than exams.
 const NO_GRADE = { lines: ['ახალი შეფასება ჯერ არ დადებულა'], caption: 'No new grades have been posted yet', empty: true };
+const round2 = (n) => Math.round(n * 100) / 100;
+const gradeParts = (rows) => {
+  const parts = {};
+  let at = 0;
+  for (const c of rows || []) {
+    if (!c || c.componentType !== 1) continue;
+    const names = (c.data && c.data.items) || [];
+    const items = (c.items || []).length ? c.items : [{ key: '', value: c.result }];
+    for (const it of items) {
+      const v = parseFloat(String(it.value).replace(',', '.'));
+      if (Number.isNaN(v)) continue;
+      parts[`${c.coId}:${it.key}`] = { v, name: (names[it.key] && names[it.key].name) || c.name || '' };
+      at = Math.max(at, +parseDate(c.updated_at) || 0);
+    }
+  }
+  return { parts, at };
+};
+const onePart = (list) => [...(list || [])].sort((x, y) => Math.abs(x.d) - Math.abs(y.d)).slice(0, 1);
+// Without remembered parts (first look at a subject) the part equal to the total's change is the new one.
+const newParts = (now, before, delta) => {
+  const list = Object.entries(now).map(([k, p]) => ({ name: p.name, d: round2(p.v - ((before && before[k] && before[k].v) || 0)) })).filter((p) => p.d);
+  const exact = before ? [] : list.filter((p) => p.d === delta);
+  return onePart(exact.length ? exact : list);
+};
 const loadCard = async (s) => {
   const res = await api(s, '/student/card');
   const books = ((res && res.card && res.card.books) || []).filter((b) => b && b.id != null && typeof b.score === 'number');
@@ -46,39 +72,56 @@ const loadCard = async (s) => {
   let stored = null;
   try { stored = JSON.parse(store.get(key)); } catch { /* start over */ }
   let last = (stored && stored.last) || null;
+  const parts = (stored && stored.parts) || {};
   if (stored && stored.scores) {
     const changed = books
       .filter((b) => (b.id in stored.scores ? stored.scores[b.id] !== b.score : b.score > 0))
       .sort((x, y) => (Number(y.semester) || 0) - (Number(x.semester) || 0));
     if (changed.length) {
       const b = changed[0];
-      const delta = Math.round((b.score - (stored.scores[b.id] || 0)) * 100) / 100;
-      last = { name: b.name, score: b.score, delta, at: Date.now() };
+      last = { id: b.id, name: b.name, score: b.score, delta: round2(b.score - (stored.scores[b.id] || 0)), at: Date.now() };
+    }
+  }
+  // Also fills in a grade saved before parts were tracked. A failed call leaves it without parts: retried next time.
+  const book = last && books.find((x) => (last.id != null ? x.id === last.id : x.name === last.name && x.score === last.score));
+  if (book && !last.parts) {
+    const b = book;
+    {
+      try {
+        const detail = gradeParts((await api(s, '/student/getCardDetails', { resultId: b.id })).data);
+        last = { ...last, id: b.id, parts: newParts(detail.parts, parts[b.id], last.delta), at: detail.at || last.at };
+        parts[b.id] = detail.parts;
+      } catch { /* the total's change is shown meanwhile */ }
     }
   }
   const scores = {};
   for (const b of books) scores[b.id] = b.score;
-  store.set(key, JSON.stringify({ scores, last }));
+  store.set(key, JSON.stringify({ scores, parts, last }));
   return { last };
+};
+const signed = (n) => (n > 0 ? `+${n}` : String(n));
+const gradedText = (date) => {
+  const days = -daysUntil(date);
+  return `შეტანილია ${days <= 0 ? 'დღეს' : days === 1 ? 'გუშინ' : days === 2 ? 'გუშინწინ' : dmy(date)}`;
 };
 const viewCard = ({ last }) => {
   if (!last) return NO_GRADE;
-  const change = last.delta > 0 ? `+${last.delta} ქულა` : last.delta < 0 ? `${last.delta} ქულა` : '';
+  const [part] = onePart(last.parts);
   return {
-    lines: [`${last.score} / 100`, last.name, [change, dmy(new Date(last.at))].filter(Boolean).join(' · ')],
+    lines: [{ grade: {
+      name: last.name, score: last.score,
+      change: part ? `${signed(part.d)} ${part.name}`.trim() : last.delta ? `${signed(last.delta)} ქულა` : '',
+      when: gradedText(new Date(last.at)),
+    } }],
     caption: 'ბოლო შეფასება · Latest grade',
   };
 };
 
-const KINDS = { lecture: 'ლექცია', seminar: 'სემინარი', lab: 'ლაბი', laboratory: 'ლაბი', practice: 'პრაქტიკა' };
-// activity_type ("lecture_seminar") names the whole format; type alone is just the slot ("seminar").
-const kindOf = (d) => [...new Set(String(d.activity_type || d.type || '').toLowerCase().split(/[_\s,]+/).map((k) => KINDS[k]).filter(Boolean))].join(' / ');
-
-// Live: how far into the lecture. Upcoming: how much of the wait since the previous lecture (at most a day) has passed.
-const countdownShare = (lessons, next, now) => {
+// The countdown starts three hours before a lecture. Live: how far into the lecture. Before: how much of those hours has passed.
+const SOON_MS = 3 * 3600 * 1000;
+const countdownShare = (next, now) => {
   const start = next.start.getTime();
-  const prevEnd = Math.max(start - 86400000, ...lessons.filter((l) => l.end <= start).map((l) => l.end));
-  const share = start <= now ? (now - start) / Math.max(1, next.end - start) : (now - prevEnd) / Math.max(1, start - prevEnd);
+  const share = start <= now ? (now - start) / Math.max(1, next.end - start) : 1 - (start - now) / SOON_MS;
   // Rounded so the card (keyed on its content) is rebuilt every few minutes, not on every pass.
   return Math.round(Math.min(1, Math.max(0, share)) * 200) / 200;
 };
@@ -110,7 +153,7 @@ const loadNextLecture = async (s) => {
         lessons.push({
           start, end: start.getTime() + (d.duration || 0) * 60000,
           course: e.item && e.item.book && e.item.book.name, room: d.auditorium && d.auditorium.name,
-          prof: personName(d.profName), kind: kindOf(d),
+          prof: personName(d.profName),
         });
       }
     });
@@ -128,14 +171,16 @@ const viewNextLecture = (data) => {
   const live = start <= now;
   const free = !live && daysUntil(next.start) >= 2;
   const span = `${hm(next.start)}–${hm(new Date(next.end))}`;
+  const soon = live || start - now <= SOON_MS;
   const lines = free
     ? [{ text: 'ხვალ თავისუფალი ხარ 🎉', cls: 'sx-val sx-lec-free' }, { text: `შემდეგი: ${dayLabel(next.start)}, ${hm(next.start)}`, cls: 'sx-val sx-lec-next' }]
-    : [live ? 'მიმდინარეობს ახლა' : untilText(start), { bar: countdownShare(lessons, next, now) }];
+    : soon ? [live ? 'მიმდინარეობს ახლა' : untilText(start), { bar: countdownShare(next, now) }]
+    : [`${dayLabel(next.start)}, ${hm(next.start)}`];
   if (next.course) lines.push({ text: next.course, cls: 'sx-val sx-lec-course' });
-  const when = live ? `დღეს, ${span}` : `${dayLabel(next.start)}, ${span}`;
+  // The headline already names the day and start when the countdown is not running yet.
+  const when = live ? `დღეს, ${span}` : free || soon ? `${dayLabel(next.start)}, ${span}` : span;
   lines.push(next.room ? `${when} · აუდიტორია ${next.room}` : when);
-  const who = [next.prof, next.kind].filter(Boolean).join(' · ');
-  if (who) lines.push({ text: who, cls: 'sx-val sx-lec-who' });
+  if (next.prof) lines.push({ text: `ლექციას ატარებს ${next.prof}`, cls: 'sx-val sx-lec-who' });
   lines.push({ week: weekStrip(lessons, next.start) });
   return { lines, caption: live ? 'მიმდინარე ლექცია' : 'შემდეგი ლექცია' };
 };
@@ -185,7 +230,7 @@ const loadTasks = async (s) => {
   });
   all.sort((x, y) => y.posted - x.posted);
   const latest = all[0];
-  return { latest: latest && { name: latest.name, text: latest.text, course: latest.course, lecturer: latest.lecturer, posted: +latest.posted, end: latest.end ? +latest.end : null } };
+  return { latest: latest && { id: latest.id, listId: latest.listId, name: latest.name, text: latest.text, course: latest.course, lecturer: latest.lecturer, posted: +latest.posted, end: latest.end ? +latest.end : null } };
 };
 const viewTasks = (data) => {
   const l = data.latest;
@@ -200,6 +245,7 @@ const viewTasks = (data) => {
   const inner = [
     latest.name && { text: latest.name, cls: 'sx-task-title' },
     msg && { text: msg, cls: 'sx-task-desc' },
+    latest.listId != null && { text: 'დავალების გახსნა', go: `/tasks/${latest.listId}`, task: latest.id },
   ].filter(Boolean);
   const lines = [
     latest.lecturer && { text: `ლექტორი: ${latest.lecturer}:`, cls: 'sx-who' },
@@ -291,12 +337,36 @@ const weekNode = (days) => {
   }
   return strip;
 };
+// Subject on top; under it what was entered and when, beside the subject's total with its bar.
+const gradeNode = (g) => {
+  const info = el('span', 'sx-gr-info');
+  if (g.change) info.append(el('span', 'sx-gr-change', g.change));
+  info.append(el('span', 'sx-gr-when', g.when));
+  const num = el('span', 'sx-gr-num', String(g.score));
+  num.append(el('small', '', ' / 100'));
+  const bar = el('span', 'sx-gr-bar');
+  bar.append(el('i'));
+  bar.style.setProperty('--p', (Math.min(100, Math.max(0, g.score)) / 100).toFixed(3));
+  const score = el('span', 'sx-gr-score');
+  score.append(num, bar);
+  const row = el('span', 'sx-gr-row');
+  row.append(info, score);
+  const box = el('span', 'sx-gr');
+  box.append(el('span', 'sx-gr-name', g.name), row);
+  return box;
+};
 const lineNode = (t) => {
+  if (t && t.grade) return gradeNode(t.grade);
   if (t && t.bar != null) return barNode(t.bar);
   if (t && t.week) return weekNode(t.week);
   if (t && t.box) {
     const w = el('div', 'sx-taskbox');
-    w.append(...t.box.map((b) => el('span', b.cls || 'sx-val', b.text)));
+    w.append(...t.box.map((b) => {
+      const node = el('span', b.go ? 'sx-task-open' : b.cls || 'sx-val', b.text);
+      // Not an <a>: the whole card already is one. The handlers at the end of this file open the course's assignments.
+      if (b.go) { node.dataset.go = b.go; if (b.task != null) node.dataset.task = b.task; node.setAttribute('role', 'link'); node.tabIndex = 0; }
+      return node;
+    }));
     return w;
   }
   return typeof t === 'string' ? el('span', 'sx-val', t) : el('span', t.cls || 'sx-val', t.text);
@@ -318,7 +388,7 @@ const render = () => {
   }
 };
 
-// Greeting above the boxes: name, date, today's lectures and the nearest exam period.
+// Greeting above the boxes: name, date, today's lectures; beside it the final exams and the next day off.
 const mountHello = () => {
   const cont = document.querySelector('dashboard-component .dashboard-item-container');
   let box = document.querySelector('.sx-hello');
@@ -328,9 +398,15 @@ const mountHello = () => {
   const name = s ? s.firstName : '';
   const date = `${WEEKDAYS[weekdayOf(now)]}, ${now.getDate()} ${MONTHS[now.getMonth()]}`;
   const line = todayLessonsLine();
-  const exam = upcomingExams().sort((x, y) => x.p.days - y.p.days)[0];
-  const examText = !exam ? '' : exam.p.state === 'now' ? 'მიმდინარეობს' : daysWord(exam.p.days);
-  const key = [name, date, line, exam && exam.e.key, examText].join('|');
+  // Beside the greeting: this semester's final exams and the next day off.
+  const exam = upcomingExams().find((x) => x.e.key === 'final');
+  const off = nextPeriod(DAYS_OFF);
+  const offDef = off && DAYS_OFF.find(([d]) => dayOf(d).getTime() === off.start.getTime());
+  const chips = [
+    exam && { cls: 'sx-hello-final', cap: `${exam.e.ka} · ${exam.e.en}`, val: exam.p.state === 'now' ? 'მიმდინარეობს' : daysWord(exam.p.days), sub: rangeText(exam.p.start, exam.p.end) },
+    offDef && { cls: 'sx-hello-off', cap: 'შემდეგი დასვენების დღე · Next day off', val: off.state === 'now' ? 'დღეს' : daysWord(off.days), sub: `${offDef[2]} · ${rangeText(off.start, off.end)}` },
+  ].filter(Boolean);
+  const key = JSON.stringify([name, date, line, chips]);
   if (box && box.dataset.key === key && box.nextElementSibling === cont) return;
   if (!box) box = el('div', 'sx-hello');
   box.dataset.key = key;
@@ -338,10 +414,14 @@ const mountHello = () => {
   text.append(el('span', 'sx-hello-date', date), el('h1', 'sx-hello-title', name ? `გამარჯობა, ${name}` : 'გამარჯობა'));
   if (line) text.append(el('p', 'sx-hello-line', line));
   box.replaceChildren(text);
-  if (exam) {
-    const chip = el('div', 'sx-hello-exam');
-    chip.append(el('span', 'sx-hello-exam-cap', `${exam.e.ka} · ${exam.e.en}`), el('span', 'sx-hello-exam-val', examText), el('span', 'sx-hello-exam-sub', rangeText(exam.p.start, exam.p.end)));
-    box.append(chip);
+  if (chips.length) {
+    const side = el('div', 'sx-hello-chips');
+    side.append(...chips.map((c) => {
+      const chip = el('div', `sx-hello-exam ${c.cls}`);
+      chip.append(el('span', 'sx-hello-exam-cap', c.cap), el('span', 'sx-hello-exam-val', c.val), el('span', 'sx-hello-exam-sub', c.sub));
+      return chip;
+    }));
+    box.append(side);
   }
   if (box.nextElementSibling !== cont) cont.before(box);
   // Lets phones lay greeting, boxes and the exam countdown out as one column (dashboard.css).
@@ -349,8 +429,22 @@ const mountHello = () => {
 };
 
 // A day in the week strip opens the timetable at that day (timetable.js scrolls to it).
+// The button in the assignments box opens that course's assignments instead of the card's own page, and there
+// the assignment itself (assignments.js taps its row once the list is drawn).
 let pendingTTDay = null;
+let pendingTask = null;
+const openTask = (e) => {
+  const btn = e.target.closest && e.target.closest('.sx-task-open');
+  if (!btn) return false;
+  e.preventDefault();
+  e.stopPropagation();
+  pendingTask = btn.dataset.task ? { id: btn.dataset.task, path: btn.dataset.go, at: Date.now() } : null;
+  go(btn.dataset.go);
+  return true;
+};
 document.addEventListener('click', (e) => {
+  if (openTask(e)) return;
   const day = e.target.closest && e.target.closest('a.dashboard-item-wrapper[href="/tables"] .sx-wk-day');
   pendingTTDay = day ? { iso: day.dataset.iso, at: Date.now() } : null;
 }, true);
+document.addEventListener('keydown', (e) => { if (e.key === 'Enter') openTask(e); }, true);

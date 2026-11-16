@@ -10,8 +10,6 @@ const taskItem = (t) => {
     if (t.end.getTime() < Date.now()) due.classList.add('sx-past');
     meta.append(due);
   }
-  const files = (t.files || []).length;
-  if (files) meta.append(el('span', 'sx-tf-files', `${files} ფაილი`));
   item.append(el('div', 'sx-tf-name', t.name || 'დავალება'), meta);
   // The portal stores HTML: read it as text, never insert it as markup.
   const text = plainText(t.text);
@@ -20,12 +18,29 @@ const taskItem = (t) => {
     a.href = text; a.target = '_blank'; a.rel = 'noopener noreferrer';
     item.append(a);
   } else if (text) item.append(el('p', 'sx-tf-text', text));
+  for (const f of t.files || []) {
+    if (!f || !/^https:\/\//.test(f.address || '')) continue;
+    const a = el('a', 'sx-file', f.fileName || 'ფაილი');
+    a.href = f.address; a.download = f.fileName || ''; a.rel = 'noopener noreferrer';
+    item.append(a);
+  }
   return item;
+};
+
+// Arriving from the dashboard's "open assignment" button: tap that assignment's row so its dialog opens.
+const openPendingTask = (page) => {
+  if (!pendingTask) return;
+  if (Date.now() - pendingTask.at > 8000) { pendingTask = null; return; }
+  if (!page || location.pathname !== pendingTask.path) return;
+  const row = [...page.querySelectorAll('mat-row')].find((r) => r.querySelector('.mat-column-id')?.textContent.trim() === pendingTask.id);
+  const btn = row && row.querySelector('.mat-column-actions button');
+  if (btn) { pendingTask = null; btn.click(); }
 };
 
 let taskBookMap = null;
 const enhanceTasks = () => {
   const page = document.querySelector('tasks-mini-component');
+  openPendingTask(page);
   const s = page && session();
   if (!s) return;
   if (!taskBookMap) {

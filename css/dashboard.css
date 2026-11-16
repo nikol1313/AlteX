@@ -12,6 +12,7 @@ html.sx .sx-hello-text { display: flex; flex-direction: column; gap: 6px; min-wi
 html.sx .sx-hello-date { font-size: 15px !important; color: var(--acc) !important; }
 html.sx.sx .sx-hello-title { margin: 0 !important; font-size: clamp(36px, 4.6vw, 60px) !important; font-weight: 500 !important; line-height: 1.08 !important; letter-spacing: -0.035em !important; color: var(--fg) !important; }
 html.sx .sx-hello-line { margin: 6px 0 0; font-size: 18px !important; color: var(--fg2) !important; }
+html.sx .sx-hello-chips { display: flex; flex-wrap: wrap; gap: 16px; }
 html.sx .sx-hello-exam {
   display: grid; gap: 2px; padding: 16px 22px; border-radius: 18px !important; min-width: 240px; box-sizing: border-box;
   background-color: var(--box) !important; border: 1px solid var(--line) !important; box-shadow: var(--shadow) !important;
@@ -52,7 +53,7 @@ html.sx.sx dashboard-component .dashboard-item {
 html.sx.sx dashboard-component .dashboard-item-wrapper:is(:hover, :focus-visible) .dashboard-item {
   transform: translateY(-6px) !important;
   background-color: color-mix(in srgb, var(--c) 11%, var(--box)) !important; border-color: var(--c) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04), 0 30px 50px -24px rgba(0, 0, 0, .85), 0 18px 40px -28px color-mix(in srgb, var(--c) 70%, transparent) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04), 0 30px 50px -24px var(--shade), 0 18px 40px -28px color-mix(in srgb, var(--c) 70%, transparent) !important;
 }
 html.sx.sx dashboard-component .dashboard-item-wrapper[href="/learningCard"] .dashboard-item {
   background-color: var(--box) !important; background-image: linear-gradient(160deg, rgba(147, 96, 227, .14), transparent 55%) !important;
@@ -107,13 +108,29 @@ html.sx.sx dashboard-component .sx-data.sx-none .sx-val:first-child { font-size:
 html.sx.sx dashboard-component .sx-data .sx-cap { display: block; margin-top: auto; padding-top: 24px; font-size: 13px !important; line-height: 1.5 !important; color: color-mix(in srgb, var(--c) 40%, var(--fg2)) !important; }
 html.sx.sx dashboard-component [href="/learningCard"] .sx-data .sx-cap { color: var(--fg3) !important; }
 
+/* Grade box: subject on top; left what was entered and when, right the subject's total with its bar. */
+html.sx dashboard-component .sx-gr { display: flex; flex-direction: column; gap: 18px; }
+html.sx.sx dashboard-component .sx-gr-name { display: block; font-size: 24px !important; font-weight: 500 !important; line-height: 1.3 !important; letter-spacing: -0.015em !important; color: var(--fg) !important; overflow-wrap: anywhere; }
+html.sx dashboard-component .sx-gr-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px; }
+html.sx dashboard-component .sx-gr-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+html.sx.sx dashboard-component .sx-gr-change { font-size: 28px !important; font-weight: 500 !important; line-height: 1.25 !important; letter-spacing: -0.02em !important; color: var(--c, var(--acc)) !important; overflow-wrap: anywhere; }
+html.sx.sx dashboard-component .sx-gr-when { font-size: 13px !important; line-height: 1.45 !important; color: var(--fg3) !important; }
+html.sx dashboard-component .sx-gr-score {
+  display: flex; flex-direction: column; gap: 12px; min-width: 116px; padding: 14px 16px; box-sizing: border-box; border-radius: 14px !important;
+  background-color: var(--veil) !important; border: 1px solid var(--veil-line) !important;
+}
+html.sx.sx dashboard-component .sx-gr-num { font-size: 30px !important; font-weight: 500 !important; line-height: 1 !important; letter-spacing: -0.02em !important; color: var(--fg) !important; white-space: nowrap; }
+html.sx.sx dashboard-component .sx-gr-num small { font-size: 13px !important; font-weight: 400 !important; letter-spacing: 0 !important; color: var(--fg3) !important; }
+html.sx dashboard-component .sx-gr-bar { display: block; height: 4px; border-radius: 999px !important; overflow: hidden; background-color: var(--line) !important; }
+html.sx dashboard-component .sx-gr-bar > i { display: block; height: 100%; width: calc(var(--p, 0) * 100%); border-radius: inherit; background-color: var(--pri) !important; background-image: linear-gradient(90deg, #9360E3, #B99CF3) !important; }
+
 /* Assignments box: lecturer → course → title and quoted description → meta */
 html.sx.sx dashboard-component .sx-data :is(.sx-who, .sx-course, .sx-task-title, .sx-task-desc, .sx-task-meta) { display: block; }
 html.sx.sx dashboard-component .sx-data .sx-who { font-size: 13px !important; font-weight: 500 !important; color: var(--acc) !important; }
 html.sx.sx dashboard-component .sx-data .sx-course { font-size: 15px !important; color: var(--fg2) !important; }
 html.sx.sx dashboard-component .sx-data .sx-taskbox {
   margin-top: 8px; padding: 14px 16px; box-sizing: border-box; border-radius: 14px !important;
-  background-color: rgba(255, 255, 255, .045) !important; border: 1px solid rgba(255, 255, 255, .14) !important;
+  background-color: var(--veil) !important; border: 1px solid var(--veil-line) !important;
 }
 html.sx.sx dashboard-component .sx-data .sx-task-title { margin: 0 0 4px; font-size: 20px !important; font-weight: 500 !important; letter-spacing: -0.01em !important; color: var(--fg) !important; }
 html.sx.sx dashboard-component .sx-data .sx-task-desc {
@@ -121,6 +138,13 @@ html.sx.sx dashboard-component .sx-data .sx-task-desc {
   font-size: 14px !important; line-height: 1.55 !important; color: var(--fg2) !important;
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
 }
+html.sx.sx dashboard-component .sx-data .sx-task-open {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 40px; margin-top: 14px; padding: 8px 16px; box-sizing: border-box; border-radius: 999px !important; cursor: pointer;
+  background-color: rgba(155, 110, 232, .16) !important; box-shadow: inset 0 0 0 1px rgba(155, 110, 232, .38) !important;
+  font-size: 14px !important; font-weight: 500 !important; line-height: 1.3 !important; color: var(--on-tint) !important; transition: background-color 150ms linear, color 150ms linear !important;
+}
+html.sx.sx dashboard-component .sx-data .sx-task-open::after { content: "→"; font-size: 16px; line-height: 1; }
+html.sx.sx dashboard-component .sx-data .sx-task-open:is(:hover, :focus-visible) { background-color: var(--btn) !important; color: #fff !important; }
 html.sx.sx dashboard-component .sx-data .sx-task-meta { margin-top: 12px; font-size: 13px !important; color: var(--fg3) !important; }
 
 /* Entrance after the welcome screen: header → nav → boxes */
@@ -134,13 +158,14 @@ html.sx.sx.sx-enter dashboard-component .dashboard-item-wrapper[href="/learningC
   html.sx.sx dashboard-component .dashboard-item-container { grid-template-columns: minmax(0, 1fr); grid-auto-rows: auto; }
   html.sx.sx dashboard-component .dashboard-item-wrapper:is([href="/tables"], [href="/tasks-books"], [href="/learningCard"]) { grid-column: 1; grid-row: auto; }
   html.sx.sx dashboard-component .dashboard-item { padding: 30px 28px !important; }
-  html.sx .sx-hello-exam { width: 100%; }
-  /* Phones: timetable, learning card, assignments, then the exam countdown last. */
+  html.sx .sx-hello-chips { width: 100%; }
+  html.sx .sx-hello-exam { flex: 1 1 240px; }
+  /* Phones: timetable, learning card, assignments, then the final exams and day off last. */
   html.sx.sx .sx-dash-stack { display: flex !important; flex-direction: column; }
   html.sx.sx .sx-dash-stack > * { order: 1; }
   html.sx.sx .sx-dash-stack > .sx-hello { display: contents; }
   html.sx.sx .sx-dash-stack .sx-hello-text { order: 0; margin-bottom: 24px; }
-  html.sx.sx .sx-dash-stack .sx-hello-exam { order: 2; margin-top: 20px; }
+  html.sx.sx .sx-dash-stack .sx-hello-chips { order: 2; margin-top: 20px; }
   html.sx.sx dashboard-component .dashboard-item-wrapper[href="/tables"] { order: 1; }
   html.sx.sx dashboard-component .dashboard-item-wrapper[href="/learningCard"] { order: 2; }
   html.sx.sx dashboard-component .dashboard-item-wrapper[href="/tasks-books"] { order: 3; }

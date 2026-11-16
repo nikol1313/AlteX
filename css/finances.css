@@ -46,8 +46,8 @@ html.sx .sx-fin-count-n { display: flex; align-items: baseline; gap: 10px; }
 html.sx .sx-fin-count-num { font-size: 60px !important; font-weight: 500 !important; line-height: 1 !important; letter-spacing: -0.04em !important; color: #fff !important; }
 html.sx .sx-fin-count-unit { font-size: 16px !important; color: rgba(255, 255, 255, .86) !important; }
 html.sx.sx .sx-fin-count .sx-fin-sub { color: rgba(255, 255, 255, .9) !important; font-size: 14px !important; }
-html.sx.sx .sx-fin-count.sx-late { background-color: #3A2433 !important; background-image: none !important; border: 1px solid var(--clay) !important; box-shadow: none !important; }
-html.sx.sx .sx-fin-count.sx-late :is(.sx-fin-count-num, .sx-fin-cap, .sx-fin-count-unit, .sx-fin-sub) { color: #F3C3DC !important; }
+html.sx.sx .sx-fin-count.sx-late { background-color: var(--err-bg) !important; background-image: none !important; border: 1px solid var(--clay) !important; box-shadow: none !important; }
+html.sx.sx .sx-fin-count.sx-late :is(.sx-fin-count-num, .sx-fin-cap, .sx-fin-count-unit, .sx-fin-sub) { color: var(--err-fg) !important; }
 /* Phones get three rows per instalment from the site: title, labels, values. */
 html.sx.sx .page-finances .wrapper-menu[data-sx-rows="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px 12px; }
 html.sx.sx .page-finances .wrapper-menu[data-sx-rows="3"] .wrapper-row:first-child > div { grid-row: auto; grid-column: 1 / -1; font-size: 16px !important; color: var(--fg) !important; }

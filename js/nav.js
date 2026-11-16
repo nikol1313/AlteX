@@ -147,6 +147,30 @@ const mountUserMenu = () => {
   }
 };
 
+// Light / dark switch beside the profile button.
+const setTheme = (next) => {
+  theme = next;
+  root.dataset.sxTheme = next;
+  store.set(THEME_KEY, next);
+  for (const b of document.querySelectorAll('.sx-theme')) b.setAttribute('aria-checked', String(next === 'light'));
+};
+const flipTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
+const mountThemeToggle = () => {
+  const top = document.querySelector('user-menu-component .user-menu-top');
+  if (!top || top.querySelector(':scope > .sx-theme')) return;
+  const btn = el('button', 'sx-theme');
+  btn.type = 'button';
+  btn.setAttribute('role', 'switch');
+  btn.setAttribute('aria-label', 'ნათელი რეჟიმი / Light mode');
+  btn.setAttribute('aria-checked', String(theme === 'light'));
+  btn.append(el('span', 'sx-theme-knob'));
+  // Flips the moment the finger or mouse goes down: a click waits for the release, which made fast taps feel late.
+  // The click that follows is swallowed (it would open the profile menu); a click without a pointer is the keyboard.
+  btn.addEventListener('pointerdown', (e) => { if (e.button === 0) flipTheme(); });
+  btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); if (e.detail === 0) flipTheme(); });
+  top.prepend(btn);
+};
+
 
 // Phones: a menu button in the header opens every section as a full-screen list (CSS hides the bar).
 const NAV_DRAWER = [

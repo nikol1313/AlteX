@@ -334,7 +334,7 @@ html.sx .sx-exam[data-next] :is(.sx-exam-en, .sx-exam-unit, .sx-exam-sub) { colo
 html.sx .sx-exam[data-next] .sx-exam-bar { background-color: rgba(255, 255, 255, .22) !important; }
 html.sx .sx-exam[data-next] .sx-exam-bar > i { background-color: #fff !important; background-image: none !important; }
 html.sx .sx-exam[data-state="now"] .sx-exam-num { font-size: 40px !important; }
-html.sx .sx-exam-off { background-color: transparent !important; border-style: dashed !important; border-color: #4A4D55 !important; box-shadow: none !important; }
+html.sx .sx-exam-off { background-color: transparent !important; border-style: dashed !important; border-color: var(--line-hi) !important; box-shadow: none !important; }
 html.sx .sx-exam-offname { margin-top: auto; font-size: 24px !important; font-weight: 500 !important; line-height: 1.25 !important; letter-spacing: -0.015em !important; color: var(--acc) !important; overflow-wrap: anywhere; }
 @media (max-width: 1280px) { html.sx .sx-exams { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 640px) { html.sx .sx-exams { grid-template-columns: minmax(0, 1fr); }
