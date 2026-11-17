@@ -4,7 +4,36 @@ Visual redesign of the Alte University student portal (`students.alte.edu.ge`).
 
 ## Demos PC & Android
 
-ill add soon, changed the design so the old one is irrelavent.
+Screenshots use a made-up student and made-up data, not a real account.
+
+### Dashboard
+
+Next lecture with a countdown, the latest assignment, the latest grade, and days until exams.
+
+<img src="docs/screenshots/dashboard-dark.png" width="100%" alt="AlteX dashboard, dark theme">
+
+<p>
+  <img src="docs/screenshots/dashboard-light.png" width="64%" alt="AlteX dashboard, light theme">
+  <img src="docs/screenshots/dashboard-phone.png" width="30%" alt="AlteX dashboard on a phone">
+</p>
+
+### Timetable
+
+One card per day, today highlighted, the running lecture marked, and exam countdowns on top.
+
+<p>
+  <img src="docs/screenshots/timetable.png" width="64%" alt="AlteX timetable">
+  <img src="docs/screenshots/timetable-phone.png" width="30%" alt="AlteX timetable on a phone">
+</p>
+
+### Login
+
+<p>
+  <img src="docs/screenshots/login.png" width="64%" alt="AlteX login page">
+  <img src="docs/screenshots/login-phone.png" width="30%" alt="AlteX login page on a phone">
+</p>
+
+To retake them after a design change: `npm run screenshots` (see `scripts/demo/`).
 
 
 
