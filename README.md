@@ -33,10 +33,6 @@ One card per day, today highlighted, the running lecture marked, and exam countd
   <img src="docs/screenshots/login-phone.png" width="30%" alt="AlteX login page on a phone">
 </p>
 
-To retake them after a design change: `npm run screenshots` (see `scripts/demo/`).
-
-
-
 ## Problem
 The Alte University student portal is functional, but the experience is far from user-friendly. Its outdated design, cluttered layout, confusing navigation, and unnecessary clicks make even simple tasks frustrating. Important information is harder to find than it should be, the timetable is difficult to read, and several interface elements lack the clarity students need.
 
