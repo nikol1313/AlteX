@@ -3,7 +3,8 @@
 // document start), shot on a desktop window (the Chrome extension) and on a phone (the Android app, which keeps the
 // classic timetable, student card and homework files, see android/app/build.gradle.kts).
 // Made-up student and data only; nothing here talks to the real portal.
-// Run: npm run screenshots  →  docs/screenshots/*.png
+// Run: npm run screenshots  →  docs/screenshots/*.png (README) and docs/store/*.jpg (Chrome Web Store: 1280×800,
+// JPEG so there is no alpha channel; drawn in a 1920×1200 window, same 16:10 shape, then scaled down).
 const fs = require('fs');
 const path = require('path');
 const { chromium, devices } = require('playwright');
@@ -124,13 +125,25 @@ const SHOTS = [
   { name: 'learning-card', url: '/learningCard', body: page('/learningCard', LEARNING_CARD) },
   { name: 'login', url: '/login', body: LOGIN, storage: {} },
 ];
+const STORE_OUT = path.join(ROOT, 'docs', 'store');
 const DEVICES = [
   { suffix: '', app: false, use: { viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1.25 } },
   { suffix: '-phone', app: true, use: { ...devices['Pixel 7'] } },
+  { store: true, app: false, use: { viewport: { width: 1920, height: 1200 }, deviceScaleFactor: 1 } },
 ];
+// One 1280×800 JPEG from an image (a PNG buffer or file), drawn centred on the app's background colour.
+const storeShot = async (browser, png, file) => {
+  const p = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await p.setContent(`<body style="margin:0;width:1280px;height:800px;display:grid;place-items:center;background:#1C1E1F"><img style="max-width:1280px;max-height:800px;width:100%;height:100%;object-fit:contain" src="data:image/png;base64,${png.toString('base64')}"></body>`);
+  await p.locator('img').evaluate((img) => img.decode());
+  await p.screenshot({ path: file, type: 'jpeg', quality: 92 });
+  await p.close();
+  console.log(path.relative(ROOT, file));
+};
 
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
+  fs.mkdirSync(STORE_OUT, { recursive: true });
   const browser = await chromium.launch();
   for (const d of DEVICES) {
     const { js, css } = bundle(d.app);
@@ -144,7 +157,7 @@ const DEVICES = [
         if (/^https:\/\/fonts\.(googleapis|gstatic)\.com$/.test(u.origin)) return route.continue(); // Material Icons, as on the portal
         if (u.origin !== ORIGIN) return route.abort();
         if (route.request().resourceType() === 'document') {
-          return route.fulfill({ contentType: 'text/html; charset=utf-8', body: `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><title>Student</title><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"><style>button { display: inline-flex; align-items: center; justify-content: center; }</style>${init}<style>${css}</style><script>${js.replace(/<\/script/gi, '<\\/script')}</script></head><body>${shot.body}</body></html>` });
+          return route.fulfill({ contentType: 'text/html; charset=utf-8', body: `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><title>Student</title><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"><style>login-component button { align-items: center; }</style>${init}<style>${css}</style><script>${js.replace(/<\/script/gi, '<\\/script')}</script></head><body>${shot.body}</body></html>` });
         }
         if (u.pathname.startsWith('/__altex/fonts/')) return route.fulfill({ contentType: 'font/woff2', body: fs.readFileSync(path.join(ROOT, 'fonts', path.basename(u.pathname))) });
         if (u.pathname in API) return route.fulfill({ contentType: 'application/json', body: JSON.stringify(API[u.pathname]) });
@@ -154,11 +167,16 @@ const DEVICES = [
       await p.goto(ORIGIN + shot.url);
       await p.waitForTimeout(2200); // entrances and data
       await p.mouse.move(0, 0);
-      const file = path.join(OUT, `${shot.name}${d.suffix}.png`);
-      await p.screenshot({ path: file });
-      console.log(path.relative(ROOT, file));
+      if (d.store) {
+        await storeShot(browser, await p.screenshot(), path.join(STORE_OUT, `${SHOTS.indexOf(shot) + 1}-${shot.name}.jpg`));
+      } else {
+        const file = path.join(OUT, `${shot.name}${d.suffix}.png`);
+        await p.screenshot({ path: file });
+        console.log(path.relative(ROOT, file));
+      }
       await context.close();
     }
   }
+  await storeShot(browser, fs.readFileSync(path.join(ROOT, 'docs', 'speed.png')), path.join(STORE_OUT, `${SHOTS.length + 1}-speed.jpg`));
   await browser.close();
 })();
