@@ -1,0 +1,87 @@
+@layer sx {
+
+html.sx.sx tasks-mini-component .width { max-width: 1120px !important; }
+html.sx.sx tasks-mini-component :is(mat-table, .mat-mdc-table).mat-elevation-z8 {
+  display: flex !important; flex-direction: column; gap: 16px; background-color: transparent !important; border: 0 !important; padding: 0 !important;
+  overflow: visible !important; border-radius: 0 !important; box-shadow: none !important;
+}
+html.sx.sx tasks-mini-component mat-header-row { display: none !important; }
+html.sx.sx.sx tasks-mini-component .mat-column-id { display: none !important; }
+html.sx.sx tasks-mini-component mat-row {
+  display: grid !important; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name act" "fold fold"; align-items: center; column-gap: 20px;
+  min-height: 0 !important; padding: 28px 32px !important; box-sizing: border-box; border-radius: 22px !important;
+  background-color: var(--box) !important; border: 1px solid var(--line) !important; box-shadow: var(--shadow) !important;
+  animation: sx-rise 480ms var(--ease) both !important; transition: border-color 180ms linear !important;
+}
+html.sx.sx tasks-mini-component mat-row:hover { border-color: var(--line-hi) !important; }
+html.sx.sx tasks-mini-component mat-row mat-cell { padding: 0 !important; min-width: 0 !important; flex: none !important; }
+html.sx.sx tasks-mini-component mat-row .mat-column-name { grid-area: name; font-size: 28px !important; font-weight: 500 !important; line-height: 1.25 !important; letter-spacing: -0.02em !important; color: var(--fg) !important; }
+html.sx.sx tasks-mini-component mat-row .mat-column-actions { grid-area: act; justify-self: end; }
+html.sx.sx tasks-mini-component .mat-button-toggle-button {
+  display: grid !important; place-items: center; width: 52px !important; height: 52px !important; padding: 0 !important; border-radius: 999px !important; cursor: pointer;
+  background-color: var(--box-hi) !important; box-shadow: inset 0 0 0 1px var(--line) !important;
+  transition: background-color 150ms linear !important;
+}
+html.sx.sx tasks-mini-component .mat-button-toggle-button:is(:hover, :focus-visible) { background-color: var(--btn) !important; }
+html.sx.sx tasks-mini-component .mat-button-toggle-button mat-icon { color: var(--on-tint) !important; width: 24px !important; height: 24px !important; font-size: 24px !important; line-height: 24px !important; }
+html.sx.sx tasks-mini-component .mat-button-toggle-button:is(:hover, :focus-visible) mat-icon { color: #fff !important; }
+html.sx.sx tasks-mini-component .mat-button-toggle-label-content { padding: 0 !important; line-height: 1 !important; display: grid !important; place-items: center; }
+html.sx.sx tasks-mini-component .mat-mdc-paginator { margin-top: 8px; }
+
+html.sx .sx-tf { grid-area: fold; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line) !important; min-width: 0; }
+html.sx .sx-tf-sum {
+  display: inline-flex; align-items: center; gap: 12px; padding: 12px 18px; border-radius: 12px !important; cursor: pointer; list-style: none; user-select: none;
+  background-color: var(--well) !important; border: 1px solid var(--line) !important; transition: border-color 150ms linear, background-color 150ms linear !important;
+}
+html.sx .sx-tf-sum::-webkit-details-marker { display: none; }
+html.sx .sx-tf-sum:hover { border-color: var(--pri2) !important; background-color: var(--box-hi) !important; }
+html.sx .sx-tf-label { font-size: 16px !important; color: var(--fg) !important; }
+html.sx .sx-tf-en { font-size: 13px !important; color: var(--fg2) !important; }
+html.sx .sx-tf-count { min-width: 26px; padding: 2px 9px; box-sizing: border-box; text-align: center; border-radius: 999px !important; background-color: var(--pri) !important; color: #fff !important; font-size: 13px !important; font-weight: 500 !important; }
+html.sx .sx-tf.sx-tf-none .sx-tf-count { background-color: var(--line) !important; color: var(--fg2) !important; }
+html.sx .sx-tf .sx-chev { margin: 0 2px 4px 2px; border-color: var(--fg2) !important; transform: rotate(45deg); }
+html.sx .sx-tf[open] .sx-chev { transform: rotate(225deg); margin-bottom: -4px; }
+html.sx .sx-tf-list { display: grid; gap: 12px; margin-top: 16px; }
+html.sx .sx-tf-item {
+  display: flex; flex-direction: column; gap: 8px; padding: 18px 22px; border-radius: 12px !important; min-width: 0;
+  background-color: var(--well) !important; border: 1px solid var(--line) !important; border-left: 3px solid var(--pri) !important;
+  animation: sx-rise 320ms var(--ease) both !important;
+}
+html.sx .sx-tf-name { font-size: 19px !important; font-weight: 500 !important; line-height: 1.35 !important; color: var(--fg) !important; overflow-wrap: anywhere; }
+html.sx .sx-tf-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+html.sx .sx-tf-meta > span { font-size: 14px !important; color: var(--fg2) !important; }
+html.sx .sx-tf-meta > .sx-tf-due { padding: 3px 12px; border-radius: 999px !important; background-color: var(--tint) !important; color: var(--on-tint) !important; }
+html.sx .sx-tf-meta > .sx-tf-due.sx-past { background-color: rgba(238, 143, 143, .16) !important; color: var(--bad) !important; }
+html.sx .sx-tf-text { margin: 0; font-size: 15px !important; line-height: 1.55 !important; color: var(--fg2) !important; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+html.sx.sx .sx-tf-link { align-self: flex-start; display: inline-flex; align-items: center; min-height: 44px; font-size: 15px !important; color: var(--acc) !important; text-decoration: underline 1px color-mix(in srgb, var(--acc) 50%, transparent) !important; text-underline-offset: 4px !important; }
+html.sx.sx .sx-tf-link:hover { color: var(--fg) !important; }
+html.sx .sx-tf-empty { margin: 0; padding: 4px 2px; font-size: 15px !important; color: var(--fg2) !important; }
+
+/* One assignment (the portal's dialog): even padding, and each attached file as a download button. */
+html.sx .cdk-overlay-pane:has(view-mini-task-dialog) { width: min(560px, 92vw) !important; max-width: 92vw !important; }
+html.sx.sx view-mini-task-dialog .mat-mdc-dialog-title { margin: 0 !important; padding: 28px 28px 0 !important; font-size: 22px !important; font-weight: 500 !important; line-height: 1.3 !important; letter-spacing: -0.01em !important; color: var(--fg) !important; overflow-wrap: anywhere; }
+html.sx.sx view-mini-task-dialog .mat-mdc-dialog-content { padding: 14px 28px 28px !important; max-height: 60vh !important; font-size: 15px !important; line-height: 1.6 !important; color: var(--fg2) !important; overflow-wrap: anywhere; }
+html.sx.sx view-mini-task-dialog .mat-mdc-dialog-actions { gap: 10px; min-height: 0 !important; padding: 0 !important; align-items: stretch !important; }
+html.sx.sx view-mini-task-dialog .mat-mdc-dialog-actions:has(a) { padding: 0 28px 28px !important; }
+html.sx.sx view-mini-task-dialog .mat-mdc-dialog-actions > div { width: 100%; }
+html.sx.sx :is(view-mini-task-dialog .mat-mdc-dialog-actions a, .sx-file) {
+  display: flex !important; align-items: center; gap: 10px; min-height: 48px; padding: 10px 16px; box-sizing: border-box; border-radius: 12px !important;
+  background-color: var(--box-hi) !important; box-shadow: inset 0 0 0 1px var(--line) !important;
+  font-size: 15px !important; line-height: 1.35 !important; color: var(--on-tint) !important; text-decoration: none !important; overflow-wrap: anywhere;
+  transition: background-color 150ms linear, color 150ms linear !important;
+}
+html.sx.sx :is(view-mini-task-dialog .mat-mdc-dialog-actions a, .sx-file):is(:hover, :focus-visible) { background-color: var(--btn) !important; color: #fff !important; }
+html.sx.sx :is(view-mini-task-dialog .mat-mdc-dialog-actions a, .sx-file)::after { content: "ჩამოტვირთვა ↓"; flex: none; margin-left: auto; padding-left: 12px; font-size: 13px; font-weight: 500; white-space: nowrap; }
+html.sx.sx view-mini-task-dialog .mat-mdc-dialog-actions a mat-icon { flex: none; width: 20px !important; height: 20px !important; font-size: 20px !important; line-height: 20px !important; color: inherit !important; }
+html.sx .sx-tf-item > .sx-file { margin-top: 4px; }
+@media (max-width: 640px) {
+  html.sx.sx view-mini-task-dialog .mat-mdc-dialog-title { padding: 22px 20px 0 !important; }
+  html.sx.sx view-mini-task-dialog .mat-mdc-dialog-content { padding: 12px 20px 22px !important; }
+  html.sx.sx view-mini-task-dialog .mat-mdc-dialog-actions:has(a) { padding: 0 20px 22px !important; }
+  html.sx.sx :is(view-mini-task-dialog .mat-mdc-dialog-actions a, .sx-file)::after { content: "↓"; font-size: 18px; }
+  html.sx.sx tasks-mini-component mat-row { padding: 22px 20px !important; }
+  html.sx.sx tasks-mini-component mat-row .mat-column-name { font-size: 22px !important; }
+  html.sx .sx-tf-sum { flex-wrap: wrap; }
+}
+
+}

@@ -8,19 +8,19 @@ html.sx.sx .page-program .program-form {
 }
 html.sx.sx .page-program .program-form { position: relative; margin-top: 24px !important; }
 html.sx .page-program .program-form label { display: none !important; }
-html.sx .page-program .program-form::before { content: "საგანმანათლებლო პროგრამა"; position: absolute; left: 2px; top: -24px; font-size: 13px; color: var(--fg3); }
+html.sx .page-program .program-form::before { content: "საგანმანათლებლო პროგრამა"; position: absolute; left: 2px; top: -24px; font-size: 13px; color: var(--fg2); }
 html.sx.sx .page-program .program-form .mat-mdc-text-field-wrapper {
-  height: 50px !important; padding: 0 16px !important; box-sizing: border-box; border-radius: 14px !important;
+  height: 50px !important; padding: 0 16px !important; box-sizing: border-box; border-radius: 12px !important;
   background-color: var(--well) !important; border: 1px solid var(--line) !important;
 }
 html.sx .page-program .program-form :is(.mat-mdc-form-field-flex, .mat-mdc-form-field-infix) { height: 100% !important; min-height: 0 !important; padding: 0 !important; display: flex !important; align-items: center !important; }
 html.sx .page-program .program-form .mat-mdc-form-field-subscript-wrapper { display: none !important; }
 
-html.sx.sx program-view .program-wrapper { padding: 0 !important; border-radius: 24px !important; }
+html.sx.sx program-view .program-wrapper { padding: 0 !important; border-radius: 12px !important; }
 html.sx.sx program-view .program-title {
   margin: 0 !important; padding: 26px 32px !important; text-align: left !important;
   font-size: 24px !important; font-weight: 500 !important; letter-spacing: -0.02em !important; color: var(--fg) !important;
-  background-image: linear-gradient(120deg, rgba(147, 96, 227, .22), transparent 70%) !important;
+  background-image: none !important;
   border-bottom: 1px solid var(--line) !important;
 }
 
@@ -39,7 +39,7 @@ html.sx.sx program-view :is(.program-header, .module-header, .group-header, .pro
 
 /* column titles */
 html.sx.sx program-view .program-header { padding-block: 14px !important; border-bottom: 1px solid var(--line) !important; }
-html.sx.sx program-view .program-header :is(.prog-row, .prog-row *, .prog-row-sub) { font-size: 12px !important; line-height: 1.4 !important; color: var(--fg3) !important; }
+html.sx.sx program-view .program-header :is(.prog-row, .prog-row *, .prog-row-sub) { font-size: 12px !important; line-height: 1.4 !important; color: var(--fg2) !important; }
 html.sx program-view .program-header .prog-row3 { justify-content: center !important; text-align: center !important; }
 html.sx.sx program-view .prog-row5 { display: flex !important; flex-direction: column !important; gap: 6px; }
 html.sx program-view .prog-row-sub-title { justify-content: flex-start !important; }
@@ -50,12 +50,12 @@ html.sx program-view :is(.prog-row5, .book-row5) > div:not(.prog-row-sub-title),
 }
 html.sx.sx.sx program-view .semester-wrapper {
   flex: 1 1 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; min-width: 0 !important; width: auto !important;
-  height: 30px; padding: 0 !important; margin: 0 !important; border: 0 !important; border-radius: 8px !important; box-shadow: none !important; overflow: visible !important;
+  height: 30px; padding: 0 !important; margin: 0 !important; border: 0 !important; border-radius: 6px !important; box-shadow: none !important; overflow: visible !important;
   text-align: center !important; text-indent: 0 !important; background-color: var(--veil) !important;
 }
 html.sx.sx program-view .program-header .semester-wrapper { background-color: transparent !important; height: auto; }
 html.sx program-view .semester-wrapper mat-icon { width: 18px !important; height: 18px !important; font-size: 18px !important; line-height: 18px !important; color: var(--line) !important; }
-html.sx.sx program-view .semester-wrapper:has(mat-icon[style*="opacity: 1"]) { background-color: rgba(147, 96, 227, .24) !important; }
+html.sx.sx program-view .semester-wrapper:has(mat-icon[style*="opacity: 1"]) { background-color: var(--box-hi) !important; }
 html.sx.sx program-view .semester-wrapper mat-icon[style*="opacity: 1"] { color: var(--acc) !important; }
 
 /* module (A, B …) */
@@ -64,14 +64,14 @@ html.sx program-view .program-module { margin-top: 0; border-top: 1px solid var(
 html.sx program-view .program-module { content-visibility: auto; contain-intrinsic-size: auto 900px; }
 html.sx program-view .program-group { content-visibility: auto; contain-intrinsic-size: auto 600px; }
 html.sx program-view .program-module:first-of-type { border-top: 0 !important; }
-html.sx.sx program-view .module-header { padding-block: 16px !important; background-color: rgba(147, 96, 227, .12) !important; }
+html.sx.sx program-view .module-header { padding-block: 16px !important; background-color: var(--well) !important; }
 html.sx.sx program-view .module-header .mod-row1 { color: var(--acc) !important; font-weight: 500 !important; }
 html.sx.sx program-view .module-header .mod-row2 { font-size: 18px !important; font-weight: 500 !important; color: var(--fg) !important; }
 html.sx.sx program-view .module-header .mod-row4 { font-size: 13px !important; color: var(--fg2) !important; }
 
 /* group (A-1 …) */
 html.sx.sx program-view .group-header { background-color: var(--veil) !important; border-top: 1px solid var(--line) !important; }
-html.sx.sx program-view .group-header .group-row1 { font-size: 13px !important; color: var(--fg3) !important; }
+html.sx.sx program-view .group-header .group-row1 { font-size: 13px !important; color: var(--fg2) !important; }
 html.sx.sx program-view .group-header .group-row2 { font-size: 16px !important; font-weight: 500 !important; color: var(--fg) !important; }
 
 html.sx.sx program-view :is(.mod-row3, .group-row3) { justify-content: center !important; }
@@ -81,22 +81,22 @@ html.sx.sx program-view :is(.mod-row3, .group-row3) {
 }
 
 /* course rows */
-html.sx.sx program-view .program-book-wrapper { border-top: 1px solid var(--line) !important; transition: background-color 150ms linear !important; }
-html.sx.sx program-view .program-book-wrapper:hover { background-color: var(--box-hi) !important; }
-html.sx.sx program-view .book-row1 { font-size: 13px !important; color: var(--fg3) !important; }
+html.sx.sx program-view .program-book-wrapper { border-top: 1px solid var(--line) !important; transition: background-color 150ms var(--ease-out) !important; }
+@media (hover: hover) { html.sx.sx program-view .program-book-wrapper:hover { background-color: var(--box-hi) !important; } }
+html.sx.sx program-view .book-row1 { font-size: 13px !important; color: var(--fg2) !important; }
 html.sx.sx program-view .book-row2 { font-size: 16px !important; color: var(--fg) !important; }
 html.sx.sx program-view .book-row3 { justify-content: center !important; text-align: center !important; color: var(--fg2) !important; }
-html.sx.sx program-view .pr__empty { display: block !important; margin: 0 !important; text-align: left !important; font-size: 13px !important; color: var(--fg3) !important; }
+html.sx.sx program-view .pr__empty { display: block !important; margin: 0 !important; text-align: left !important; font-size: 13px !important; color: var(--fg2) !important; }
 html.sx.sx program-view .program-book-wrapper > .book-row4 { display: block !important; place-content: normal !important; text-align: left !important; }
 html.sx program-view .pr-stack { display: flex; flex-direction: column; gap: 6px; }
 html.sx.sx program-view .book-row4 { display: block !important; text-align: left !important; }
 html.sx program-view .pr__head { display: flex; align-items: baseline; gap: 6px; }
 html.sx.sx program-view :is(.pr, .pr__course) {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 6px 10px; border-radius: 10px !important;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 6px 10px; border-radius: 6px !important;
   background-color: rgba(222, 141, 184, .10) !important; border: 1px solid rgba(222, 141, 184, .28) !important;
 }
 html.sx program-view :is(.pr, .pr__course) * { font-size: 13px !important; line-height: 1.4 !important; overflow-wrap: normal !important; word-break: normal !important; }
-html.sx program-view .pr__code { color: var(--clay) !important; }
+html.sx program-view .pr__code { color: var(--bad) !important; }
 html.sx program-view :is(.pr__name, .pr__type) { color: var(--fg) !important; }
 html.sx program-view .pr__marker { display: none; }
 html.sx program-view .pr__list { margin: 0; padding: 0; list-style: none; width: 100%; }
@@ -127,9 +127,9 @@ html.sx program-view .program-book-wrapper > button.syllabuses mat-icon { width:
   }
   html.sx.sx program-view .program-book-wrapper > .book-row2 { grid-area: name; overflow-wrap: anywhere; }
   html.sx.sx program-view .program-book-wrapper > .book-row3 { grid-area: ects; justify-content: flex-start !important; white-space: nowrap; font-size: 13px !important; }
-  html.sx.sx program-view .program-book-wrapper > .book-row3::after { content: "ECTS"; margin-left: 4px; color: var(--fg3); }
+  html.sx.sx program-view .program-book-wrapper > .book-row3::after { content: "ECTS"; margin-left: 4px; color: var(--fg2); }
   html.sx.sx program-view .program-book-wrapper > .book-row4 { grid-area: pre; font-size: 13px !important; color: var(--fg2) !important; }
-  html.sx.sx program-view .program-book-wrapper > .book-row4::before { content: "წინაპირობა: "; color: var(--fg3); }
+  html.sx.sx program-view .program-book-wrapper > .book-row4::before { content: "წინაპირობა: "; color: var(--fg2); }
   html.sx.sx program-view .program-book-wrapper > .book-row5:nth-child(4) { grid-area: syl; }
   html.sx.sx program-view .program-book-wrapper > .book-row5:nth-child(5) { grid-area: dl; }
   html.sx.sx program-view .program-title { padding: 20px 18px !important; font-size: 20px !important; }

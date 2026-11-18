@@ -1,34 +1,78 @@
-# AlteX — Student Portal Chrome Extension
+# AlteX — Student Portal
 
-Visual redesign of the Alte University student portal (`students.alte.edu.ge`).
+A redesign of the Alte University student portal (`students.alte.edu.ge`): clearer, easier to use, and about **7× faster** when switching between sections.
 
-## Demos PC & Android
-
-<table>
-  <tr>
-    <td><video src="https://github.com/user-attachments/assets/c821d8af-7cae-4ee4-b661-59dd24ea9db3" width="500" controls></video></td>
-    <td><video src="https://github.com/user-attachments/assets/2bcc8a21-1b6f-4dcb-b97f-c578dde4ecc2" width="200" controls></video></td>
-  </tr>
-</table>
-
+**[Install on PC](#installation-on-pc)** · **[Install on Android](#installation-on-android)**
 
 ## Problem
-The Alte University student portal is functional, but the experience is far from user-friendly. Its outdated design, cluttered layout, confusing navigation, and unnecessary clicks make even simple tasks frustrating. Important information is harder to find than it should be, the timetable is difficult to read, and several interface elements lack the clarity students need.
+
+The Alte University student portal works, but it is far from user-friendly. Its outdated design, cluttered layout, confusing navigation and unnecessary clicks make even simple tasks frustrating. Important information is hard to find, the timetable is hard to read, and many parts of the interface lack the clarity students need.
 
 Students shouldn't have to fight the portal just to keep up with university life.
 
+## Screenshots: PC & Android
+
+Made-up student and made-up data, not a real account. Made with `node scripts/screenshots.js`.
+
+### Dashboard
+
+Next lecture with a live countdown, the latest assignment, the latest grade, and days until exams.
+
+<p>
+  <img src="docs/screenshots/dashboard.png" width="68%" alt="AlteX dashboard on a desktop">
+  <img src="docs/screenshots/dashboard-phone.png" width="27%" alt="AlteX dashboard in the Android app">
+</p>
+
+### Timetable
+
+The week as a time grid: today highlighted, the running lecture marked, a line at the current time. The exam countdowns take Sunday's column when it has no lessons.
+
+<p>
+  <img src="docs/screenshots/timetable.png" width="68%" alt="AlteX timetable on a desktop">
+  <img src="docs/screenshots/timetable-phone.png" width="27%" alt="AlteX timetable in the Android app">
+</p>
+
+### Learning card
+
+GPA, credits and the average at a glance; every subject with its score bar and pass mark, and what is still needed to pass.
+
+<p>
+  <img src="docs/screenshots/learning-card.png" width="68%" alt="AlteX learning card on a desktop">
+  <img src="docs/screenshots/learning-card-phone.png" width="27%" alt="AlteX learning card in the Android app">
+</p>
+
+### Login
+
+<p>
+  <img src="docs/screenshots/login.png" width="68%" alt="AlteX login page on a desktop">
+  <img src="docs/screenshots/login-phone.png" width="27%" alt="AlteX login page in the Android app">
+</p>
+
+## Speed
+
+<img src="docs/speed.png" width="100%" alt="AlteX vs the original portal: section data ready in 0.14 s instead of 0.95 s on average">
+
+AlteX remembers each section's data, so going back to a section is almost instant:
+
+- **Instant repeat visits:** sections you opened in the last 5 minutes show their data from memory, then refresh quietly in the background.
+- **Loads ahead:** pointing at a link starts fetching that section before you click.
+- **No duplicate requests:** switching back and forth quickly asks the server only once.
+- **Never stale after a change:** any save or logout clears the memory straight away.
+
+On average a section's data is ready in **0.14 s instead of 0.95 s**. The first visit to a section still waits for the portal's server.
+
 ## What it does
 
-- Injects stylesheets (`css/`) that restyle the portal UI.
-- Runs content scripts (`js/`) that adapt page behavior and markup (read-only: nothing is submitted for you).
+- Restyles the portal with its own stylesheets (`css/`).
+- Adapts the portal's pages with content scripts (`js/`). It only reads: nothing is ever submitted for you.
 
-## Installation for PC
+## Installation on PC
 
-The extension is published on chrome web store
+AlteX is on the Chrome Web Store:
 
-**[AlteX-Chrome-Extension](https://chromewebstore.google.com/detail/gjbaoejelhdhbfcegfkommmgpogffloo?utm_source=item-share-cb)**
+**[AlteX on the Chrome Web Store](https://chromewebstore.google.com/detail/gjbaoejelhdhbfcegfkommmgpogffloo?utm_source=item-share-cb)**
 
-## installation on Android
+## Installation on Android
 
 **[Download AlteX for Android (APK)](https://github.com/nikol1313/AlteX/releases/latest/download/AlteX.apk)**
 
@@ -38,6 +82,4 @@ The extension is published on chrome web store
 
 Newer versions install over the old one and keep you logged in.
 
-`android/` wraps the portal in an Android WebView and injects this same extension code, so phones get the
-redesign and live data too. It is built from `manifest.json` (no separate copy of the code) and released as an
-APK on GitHub Releases. See [`android/README.md`](android/README.md).
+`android/` wraps the portal in an Android WebView and injects this same extension code, so phones get the redesign and live data too. It is built from `manifest.json` (no separate copy of the code) and released as an APK on GitHub Releases. See [`android/README.md`](android/README.md).

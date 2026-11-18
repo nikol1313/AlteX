@@ -131,6 +131,9 @@ const mountDashNav = () => {
 
 // The site's user dropdown: "Profile" opens personal data instead.
 const mountUserMenu = () => {
+  // The profile button shows the student's initial (base.css draws it from this attribute).
+  const menu = document.querySelector('user-menu-component .user-menu');
+  if (menu && !menu.dataset.sxInitial) menu.dataset.sxInitial = (session()?.firstName || '').trim().charAt(0).toUpperCase();
   const sub = document.querySelector('.user-subMenu');
   if (!sub || sub.dataset.sxBound) return;
   sub.dataset.sxBound = '1';
@@ -152,42 +155,6 @@ const mountUserMenu = () => {
     }
   }
 };
-
-// Light / dark switch beside the profile button.
-// The knob moves at once; the page is recoloured a moment later. Recolouring is one long style pass over the whole
-// page: done in the same frame it held the knob still and then made it jump (worst on phones). The knob has its own
-// layer (base.css), so it keeps sliding while that pass runs. Fast taps share one recolouring.
-let themeTimer = 0;
-const setTheme = (next) => {
-  theme = next;
-  for (const b of document.querySelectorAll('.sx-theme')) b.setAttribute('aria-checked', String(next === 'light'));
-  if (themeTimer) return;
-  themeTimer = setTimeout(() => {
-    themeTimer = 0;
-    if (root.dataset.sxTheme !== theme) root.dataset.sxTheme = theme;
-    store.set(THEME_KEY, theme);
-  }, 40);
-};
-const flipTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
-const mountThemeToggle = () => {
-  const top = document.querySelector('user-menu-component .user-menu-top');
-  if (!top || top.querySelector(':scope > .sx-theme')) return;
-  const btn = el('button', 'sx-theme');
-  btn.type = 'button';
-  btn.setAttribute('role', 'switch');
-  btn.setAttribute('aria-label', 'ნათელი რეჟიმი / Light mode');
-  btn.setAttribute('aria-checked', String(theme === 'light'));
-  btn.append(el('span', 'sx-theme-knob'));
-  // Flips the moment the finger or mouse goes down: a click waits for the release, which made fast taps feel late.
-  // The click that follows a press is swallowed (it would flip back, and open the profile menu); a click with no
-  // press before it is the keyboard.
-  let pressed = false;
-  btn.addEventListener('pointerdown', (e) => { if (e.button === 0) { pressed = true; flipTheme(); } });
-  for (const type of ['pointerup', 'pointercancel', 'pointerleave']) btn.addEventListener(type, () => setTimeout(() => { pressed = false; }, 400));
-  btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); if (pressed) pressed = false; else flipTheme(); });
-  top.prepend(btn);
-};
-
 
 // Phones: a menu button in the header opens every section as a full-screen list (CSS hides the bar).
 const NAV_DRAWER = [

@@ -1,138 +1,262 @@
 @layer sx {
 
+/* ---------- Student card: title line, one stats panel, then each semester as a panel of subject rows ---------- */
+@keyframes sx-grow { from { transform: scaleX(0); } to { transform: none; } }
+@keyframes sx-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes sx-pop { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
+
 html.sx .page-learningCard { display: flex !important; flex-direction: column; }
-/* Same top spacing as the home page: no 96px band under the nav, and no stray <br> above the title box. */
+/* Same top spacing as the home page: no 96px band under the nav, and no stray <br> above the title. */
 html.sx.sx .all-page-container:has(> learning-card-component) { padding-top: 32px !important; }
 html.sx .page-learningCard > br { display: none !important; }
 /* Lets the subject unfold animate to height: auto (learning-card.js unfoldToAuto). */
 html.sx .page-learningCard mat-row:has(> .mat-column-expandedDetail) { interpolate-size: allow-keywords; }
 html.sx .page-learningCard > .semesters-container { order: 0; }
-html.sx .page-learningCard > .ini-block { order: 1; margin: 0 0 24px !important; }
-html.sx .page-learningCard > .semester-child { order: 2; margin-bottom: 24px !important; }
-html.sx .semester-child mat-header-row .mat-column-bookName * { color: inherit !important; font-weight: inherit !important; }
-html.sx .ini-block .last-stat { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-html.sx.sx .ini-block .last-stat h3 {
-  display: flex !important; flex-direction: column !important; align-items: flex-start; gap: 4px; margin: 0 !important;
-  font-size: 14px !important; letter-spacing: 0 !important; color: var(--fg3) !important;
-}
-html.sx .last-stat h3 mat-icon { display: none !important; }
-html.sx.sx .ini-block .last-stat h3 :is(span, b) { font-family: var(--sans) !important; font-size: 14px !important; line-height: 1.4 !important; color: var(--fg3) !important; }
-html.sx.sx .ini-block .last-stat h3 .sx-stat-val { font-family: var(--serif) !important; font-size: 34px !important; line-height: 1.1 !important; color: var(--acc) !important; order: -1; }
+html.sx .page-learningCard > .ini-block { order: 1; }
+html.sx .page-learningCard > .semester-child { order: 2; margin-bottom: 16px !important; }
 
-html.sx.sx .semester-child mat-header-row {
-  display: flex !important; align-items: center; gap: 14px; flex-wrap: wrap; cursor: pointer; min-height: 0 !important;
-  padding: 0 !important; border: 0 !important; user-select: none;
-}
-html.sx.sx.sx .semester-child mat-header-row > mat-header-cell:not(.mat-column-bookName) { display: none !important; }
-html.sx.sx .semester-child mat-header-row .mat-column-bookName { flex: 1 1 auto !important; padding: 0 !important; font-size: 21px !important; font-weight: 500 !important; color: var(--fg) !important; }
-html.sx .sx-sem-badge {
-  padding: 4px 12px; border-radius: 999px !important; font-size: 13px !important; white-space: nowrap;
-  background-color: color-mix(in srgb, var(--acc) 18%, var(--box)) !important; color: var(--acc) !important;
-}
-html.sx .sx-sem-sum { font-size: 14px !important; color: var(--fg3) !important; white-space: nowrap; }
-html.sx .semester-child[data-sx-fold="closed"] .sx-chev { transform: rotate(-45deg); margin-bottom: 0; }
-html.sx.sx.sx .semester-child[data-sx-fold="closed"] mat-row { display: none !important; }
-html.sx .semester-child[data-sx-fold="closed"] .mat-elevation-z8 { padding-block: 20px !important; }
-html.sx .semester-child[data-sx-fold="closed"] .mat-elevation-z8:hover { background-color: var(--box-hi) !important; }
-html.sx .semester-child[data-sx-fold="open"] mat-header-row { padding-bottom: 18px !important; margin-bottom: 4px; border-bottom: 1px solid var(--line) !important; }
-html.sx .semester-child[data-sx-fold="open"] mat-row:not(:has(.mat-column-expandedDetail)) { animation: sx-rise 360ms var(--ease) both !important; }
-
-html.sx.sx .semester-child mat-row:not(:has(.mat-column-expandedDetail)) {
-  display: grid !important; align-items: center; column-gap: 20px; row-gap: 4px;
-  grid-template-columns: minmax(0, 1fr) auto 190px 52px 140px;
-  grid-template-areas: "course course score grade details" "prof credit score grade details";
-  padding: 16px 0 !important; border-bottom: 1px solid var(--line) !important;
-}
-html.sx.sx .semester-child mat-row:not(:has(.mat-column-expandedDetail)):last-of-type { border-bottom: 0 !important; }
-html.sx.sx .semester-child mat-row mat-cell { padding: 0 !important; flex: none !important; min-width: 0 !important; }
-html.sx.sx .semester-child mat-row .mat-column-bookName { grid-area: course; font-family: var(--serif) !important; font-size: 19px !important; color: var(--fg) !important; }
-html.sx.sx .semester-child mat-row .mat-column-prof { grid-area: prof; font-size: 14px !important; color: var(--fg2) !important; display: flex !important; align-items: center; gap: 4px; }
-html.sx.sx .semester-child mat-row .mat-column-prof * { font-size: inherit !important; }
-html.sx.sx .semester-child mat-row .mat-column-credit { grid-area: credit; font-size: 14px !important; color: var(--fg3) !important; white-space: nowrap; }
-html.sx.sx .semester-child mat-row .mat-column-credit::after { content: "\00a0კრედიტი"; }
-html.sx.sx .semester-child mat-row .mat-column-score {
-  grid-area: score; display: grid !important; grid-template-columns: auto 1fr; align-items: baseline; column-gap: 4px; row-gap: 8px;
-  font-family: var(--serif) !important; font-size: 22px !important; color: var(--fg) !important;
-}
-html.sx.sx .semester-child mat-row .mat-column-score::after { content: "/100"; font-family: var(--sans); font-size: 13px; color: var(--fg3); }
-html.sx .sx-bar {
-  grid-column: 1 / -1; position: relative; display: block; height: 6px; border-radius: 999px !important; overflow: hidden;
-  background-color: var(--line) !important;
-}
-html.sx .sx-bar::after { content: ""; position: absolute; top: 0; bottom: 0; left: 51%; width: 2px; background-color: var(--bg) !important; }
-/* A tapped subject whose details are still on their way (learning-card.js): a line runs along the row's lower edge. */
-html.sx .page-learningCard mat-row[data-sx-busy] { position: relative !important; overflow: hidden !important; }
-html.sx .page-learningCard mat-row[data-sx-busy]::after {
-  content: ""; position: absolute; left: 0; bottom: 0; width: 40%; height: 2px; border-radius: 2px;
-  background-color: var(--pri); animation: sx-busy 900ms linear infinite 120ms both; opacity: 0;
-}
-@keyframes sx-busy { from { transform: translateX(-100%); opacity: 1; } to { transform: translateX(250%); opacity: 1; } }
-html.sx .sx-bar > i { display: block; height: 100%; border-radius: 999px !important; background-color: var(--g, var(--fg3)) !important; transition: width 600ms var(--ease) !important; }
-html.sx.sx .semester-child mat-row .mat-column-result { grid-area: grade; justify-self: center; }
-html.sx.sx .semester-child mat-row .result-color {
-  display: inline-grid !important; place-items: center; min-width: 40px; height: 40px !important; padding: 0 8px !important;
-  border-radius: 12px !important; font-family: var(--sans) !important; font-size: 18px !important; font-weight: 500 !important;
-  background-color: color-mix(in srgb, var(--g, var(--fg3)) 18%, var(--box)) !important; color: var(--g, var(--fg2)) !important;
-}
-html.sx.sx .semester-child mat-row .mat-column-details { grid-area: details; justify-self: end; }
-html.sx mat-row:is([data-grade="A"], [data-grade="B"]) { --g: var(--sage); }
-html.sx mat-row:is([data-grade="C"], [data-grade="D"]) { --g: var(--fg2); }
-html.sx mat-row:is([data-grade="E"], [data-grade="FX"], [data-grade="F"]) { --g: var(--clay); }
-html.sx.sx .semester-child mat-row:has(.mat-column-expandedDetail) { padding: 0 !important; border: 0 !important; }
-html.sx.sx .semester-child .mat-column-expandedDetail { padding: 0 !important; }
-html.sx.sx .semester-child .mat-column-expandedDetail > * { padding: 4px 0 12px !important; }
-@media (max-width: 760px) {
-  html.sx.sx .semester-child mat-row:not(:has(.mat-column-expandedDetail)) {
-    grid-template-columns: minmax(0, 1fr) 52px; grid-template-areas: "course grade" "prof grade" "credit credit" "score score" "details details";
-  }
-  html.sx .ini-block .last-stat { grid-template-columns: minmax(0, 1fr); }
-}
+/* Title line: no box, the programme picker and view switch on the right. */
 html.sx.sx .page-learningCard > .semesters-container {
-  display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important;
-  flex-wrap: wrap; gap: 20px 32px; margin: 0 0 16px !important; padding: 28px 32px !important;
-  background-color: var(--box) !important; border: 1px solid var(--line) !important; border-radius: var(--r-lg) !important; box-shadow: var(--shadow) !important;
+  display: flex !important; flex-direction: row !important; align-items: flex-end !important; justify-content: space-between !important;
+  flex-wrap: wrap; gap: 12px 32px; margin: 0 0 20px !important; padding: 0 !important;
+  background-color: transparent !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important;
 }
-html.sx.sx .semesters-container .commandsh3 { margin: 0 !important; font-size: 40px !important; white-space: nowrap; }
+html.sx.sx .semesters-container .commandsh3 { margin: 0 !important; font-size: 24px !important; font-weight: 500 !important; letter-spacing: -0.02em !important; line-height: 1.2 !important; white-space: nowrap; }
 html.sx.sx .semesters-container .semesters { display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0 !important; flex-wrap: nowrap; }
 html.sx.sx .semesters-container .semester-item:not(.button) {
-  position: relative; display: flex !important; align-items: center; width: 360px; max-width: 100%; height: 48px; box-sizing: border-box;
-  margin: 18px 12px 0 0 !important; padding: 0 16px !important; border-radius: 14px !important;
-  background-color: var(--bg) !important; border: 1px solid var(--line) !important;
-}
-html.sx.sx .semesters-container .semester-item:not(.button)::before {
-  content: "პროგრამა"; position: absolute; left: 2px; top: -21px; font-size: 13px; color: var(--fg3);
+  position: relative; display: flex !important; align-items: center; width: 320px; max-width: 100%; height: 40px; box-sizing: border-box;
+  margin: 0 10px 0 0 !important; padding: 0 12px !important; border-radius: 10px !important;
+  background-color: var(--box) !important; border: 1px solid var(--line) !important;
 }
 html.sx.sx .semesters-container .semester-item:not(.button) mat-form-field { width: 100% !important; margin: 0 !important; }
 html.sx.sx .semesters-container .semester-item:not(.button) :is(.mat-mdc-form-field-subscript-wrapper, .mat-mdc-floating-label, label, mat-label) { display: none !important; }
 html.sx.sx .semesters-container .semester-item:not(.button) :is(.mat-mdc-text-field-wrapper, .mat-mdc-form-field-flex, .mat-mdc-form-field-infix) {
-  height: 46px !important; min-height: 0 !important; padding: 0 !important; display: flex !important; align-items: center !important; width: 100% !important;
+  height: 38px !important; min-height: 0 !important; padding: 0 !important; display: flex !important; align-items: center !important; width: 100% !important;
 }
 html.sx.sx .semesters-container .mat-mdc-select { width: 100% !important; }
 html.sx.sx .semesters-container :is(.mat-mdc-select-value, .mat-mdc-select-value *) {
-  font-size: 16px !important; color: var(--fg) !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+  font-size: 14px !important; color: var(--fg) !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
 }
-html.sx.sx .semesters-container .semester-item.button { margin: 18px 0 0 !important; }
+html.sx.sx .semesters-container .semester-item.button { margin: 0 !important; }
 html.sx.sx .semesters-container .semester-item.button button {
-  width: 52px !important; height: 48px !important; min-width: 0 !important; padding: 0 !important;
+  width: 44px !important; height: 40px !important; min-width: 0 !important; padding: 0 !important;
   display: flex !important; align-items: center !important; justify-content: center !important;
-  background-color: var(--bg) !important; border: 1px solid var(--line) !important; color: var(--fg2) !important;
-  transition: background-color 150ms linear, color 150ms linear !important;
+  background-color: var(--box) !important; border: 1px solid var(--line) !important; color: var(--fg2) !important;
+  transition: background-color 150ms var(--ease-out), color 150ms var(--ease-out) !important;
 }
-html.sx.sx .semesters-container .semester-item.button:nth-last-child(2) button { border-radius: 14px 0 0 14px !important; }
-html.sx.sx .semesters-container .semester-item.button:last-child button { border-radius: 0 14px 14px 0 !important; border-left-width: 0 !important; }
-html.sx.sx .semesters-container .semester-item.button button:hover { background-color: var(--box-hi) !important; color: var(--fg) !important; }
-html.sx.sx .semesters-container .semester-item.button button.mat-primary {
-  background-color: color-mix(in srgb, var(--acc) 16%, var(--box)) !important; color: var(--acc) !important;
-}
+html.sx.sx .semesters-container .semester-item.button:nth-last-child(2) button { border-radius: 10px 0 0 10px !important; }
+html.sx.sx .semesters-container .semester-item.button:last-child button { border-radius: 0 10px 10px 0 !important; border-left-width: 0 !important; }
+@media (hover: hover) { html.sx.sx .semesters-container .semester-item.button button:hover { background-color: var(--box-hi) !important; color: var(--fg) !important; } }
+html.sx.sx .semesters-container .semester-item.button button.mat-primary { background-color: var(--box-hi) !important; color: var(--acc) !important; }
 html.sx.sx .semesters-container .semester-item.button button mat-icon {
   margin: 0 !important; width: 20px !important; height: 20px !important; font-size: 20px !important; line-height: 20px !important; color: inherit !important;
 }
 html.sx.sx .semesters-container .semester-item.button button .mdc-button__label { display: none !important; }
+
+/* Stats: one panel, cells split by hairlines (the panel's line colour shows through a 1px gap). */
+/* Any depth: the portal may wrap the stats box, and base.css's box padding must not come back as a thick frame. */
+html.sx.sx.sx .page-learningCard .ini-block { margin: 0 0 24px !important; padding: 0 !important; border-radius: 16px !important; background-color: var(--line) !important; }
+html.sx.sx .page-learningCard .ini-block > :not(.last-stat) { display: none !important; }
+html.sx.sx .page-learningCard .ini-block .last-stat { margin: 0 !important; padding: 0 !important; width: auto !important; }
+html.sx .ini-block .last-stat { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1px; }
+html.sx.sx.sx .ini-block .last-stat > h3 { display: none !important; }
+html.sx .sx-card-stats { display: contents !important; }
+html.sx.sx .ini-block .last-stat :is(.sx-cstat, .sx-trend) {
+  display: flex; flex-direction: column; justify-content: center; gap: 8px; min-width: 0; min-height: 112px; box-sizing: border-box; padding: 18px 24px;
+  background-color: var(--box) !important; animation: sx-rise 300ms var(--ease-out) both !important;
+}
+html.sx .sx-cstat:nth-child(2) { animation-delay: 60ms !important; }
+html.sx .sx-cstat:nth-child(3) { animation-delay: 120ms !important; }
+html.sx .sx-cstat:nth-child(4) { animation-delay: 180ms !important; }
+html.sx .sx-cstat-label { font-size: 13px !important; line-height: 1.35 !important; color: var(--fg2) !important; overflow-wrap: break-word; }
+html.sx .sx-cstat-num { font-family: var(--display) !important; font-size: 32px !important; font-weight: 500 !important; letter-spacing: -0.03em !important; line-height: 1 !important; color: var(--fg) !important; font-variant-numeric: tabular-nums; }
+html.sx .sx-cstat-gpa .sx-cstat-num { color: var(--acc) !important; }
+html.sx.sx .ini-block .last-stat > .sx-trend { grid-column: span 2; gap: 8px; animation-delay: 240ms !important; }
+html.sx .sx-trend-plot { position: relative; width: calc(100% - 24px); height: 44px; margin: 4px 12px 0; }
+html.sx .sx-trend-plot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+html.sx .sx-trend-plot polyline {
+  fill: none; stroke: var(--acc); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round;
+  stroke-dasharray: 1; animation: sx-draw 1100ms var(--ease-out) both 250ms !important;
+}
+html.sx .sx-trend-plot > i {
+  position: absolute; width: 9px; height: 9px; translate: -50% -50%; border-radius: 999px !important; box-sizing: border-box;
+  background-color: var(--box) !important; border: 2px solid var(--acc) !important; animation: sx-pop 300ms var(--ease-out) both !important;
+  animation-delay: calc(150ms + (sibling-index() - 2) * 60ms) !important;
+}
+html.sx .sx-trend-plot > i.sx-trend-now { width: 11px; height: 11px; background-color: var(--acc) !important; }
+html.sx .sx-trend-label { font-size: 13px !important; line-height: 1.4 !important; color: var(--fg2) !important; }
+html.sx .sx-trend-pts { display: flex; justify-content: space-between; width: 100%; font-variant-numeric: tabular-nums; }
+html.sx .sx-trend-pts > span { display: flex; flex-direction: column; align-items: center; min-width: 24px; gap: 1px; }
+html.sx .sx-trend-pts > span:first-child { align-items: flex-start; }
+html.sx .sx-trend-pts > span:last-child { align-items: flex-end; }
+html.sx .sx-trend-pts b { font-size: 15px !important; font-weight: 500 !important; color: var(--fg) !important; }
+html.sx .sx-trend-pts small { font-size: 11px !important; color: var(--fg2) !important; white-space: nowrap; }
+
+/* Semester panels: header row, then subject rows edge to edge. */
+html.sx.sx .semester-child .mat-elevation-z8 { padding: 0 !important; border-radius: 16px !important; }
+html.sx .semester-child mat-header-row .mat-column-bookName * { color: inherit !important; font-weight: inherit !important; }
+html.sx.sx .semester-child mat-header-row {
+  display: flex !important; align-items: center; gap: 12px 20px; flex-wrap: wrap; cursor: pointer; min-height: 0 !important;
+  padding: 14px 20px !important; border: 0 !important; user-select: none; transition: background-color 150ms var(--ease-out) !important;
+}
+html.sx.sx .semester-child mat-header-row:focus-visible { background-color: var(--box-hi) !important; }
+@media (hover: hover) { html.sx.sx .semester-child mat-header-row:hover { background-color: var(--box-hi) !important; } }
+html.sx.sx.sx .semester-child mat-header-row > mat-header-cell:not(.mat-column-bookName) { display: none !important; }
+html.sx.sx .semester-child mat-header-row .mat-column-bookName { flex: 0 1 auto !important; padding: 0 !important; font-size: 16px !important; font-weight: 500 !important; letter-spacing: -0.01em !important; color: var(--fg) !important; }
+html.sx .sx-sem-badge {
+  margin-right: auto; padding: 2px 9px; border-radius: 999px !important; font-size: 12px !important; font-weight: 500 !important; white-space: nowrap;
+  background-color: var(--tint) !important; color: var(--acc) !important;
+}
+html.sx .sx-sem-sum { margin-left: auto; font-size: 14px !important; color: var(--fg2) !important; white-space: nowrap; font-variant-numeric: tabular-nums; }
+html.sx .sx-sem-badge + .sx-sem-sum { margin-left: 0; }
+html.sx .semester-child[data-sx-fold="closed"] .sx-chev { transform: rotate(-45deg); margin-bottom: 0; }
+html.sx.sx.sx .semester-child[data-sx-fold="closed"] mat-row { display: none !important; }
+html.sx .semester-child[data-sx-fold="open"] mat-header-row { border-bottom: 1px solid var(--line) !important; }
+
+html.sx.sx .semester-child mat-row:not(:has(.mat-column-expandedDetail)) {
+  display: grid !important; align-items: center; column-gap: 18px; row-gap: 2px;
+  grid-template-columns: 6px minmax(0, 1fr) 96px minmax(160px, 260px) 40px 16px;
+  grid-template-areas: "dot course credit score grade fold" "dot prof credit score grade fold";
+  cursor: pointer; background-color: var(--row) !important;
+  padding: 11px 20px !important; border-bottom: 1px solid var(--line) !important; transition: background-color 150ms var(--ease-out) !important;
+}
+/* Hover tint only with a real pointer: on touch a tap counts as hover and the tint would stay after it. */
+@media (hover: hover) { html.sx.sx .semester-child mat-row:not(:has(.mat-column-expandedDetail)):hover { background-color: var(--box-hi) !important; } }
+html.sx.sx .semester-child mat-row:not(:has(.mat-column-expandedDetail))::before {
+  content: ""; grid-area: dot; align-self: stretch; width: 6px; min-height: 28px; border-radius: 3px !important; background-color: var(--c, var(--line)) !important;
+}
+html.sx .semester-child[data-sx-fold="open"] mat-row:not(:has(.mat-column-expandedDetail)) { animation: sx-rise 380ms var(--ease-out) both !important; animation-delay: calc(min(sibling-index(), 12) * 35ms) !important; }
+html.sx.sx .semester-child mat-row:last-of-type { border-bottom: 0 !important; }
+html.sx.sx .semester-child mat-row mat-cell { padding: 0 !important; flex: none !important; min-width: 0 !important; }
+html.sx.sx .semester-child mat-row .mat-column-bookName { grid-area: course; font-size: 14px !important; font-weight: 500 !important; line-height: 1.3 !important; color: var(--fg) !important; }
+html.sx.sx .semester-child mat-row .mat-column-prof { grid-area: prof; font-size: 12px !important; color: var(--fg2) !important; display: flex !important; align-items: center; gap: 4px; }
+html.sx.sx .semester-child mat-row .mat-column-prof * { font-size: inherit !important; }
+html.sx.sx .semester-child mat-row .mat-column-credit { grid-area: credit; font-size: 13px !important; color: var(--fg2) !important; white-space: nowrap; }
+html.sx.sx .semester-child mat-row .mat-column-credit::after { content: "\00a0კრედიტი"; }
+/* Score cell: bar first, then the number and "/100" (the number is a bare text node, so the bar and suffix are ordered around it). */
+html.sx.sx .semester-child mat-row .mat-column-score {
+  grid-area: score; display: grid !important; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; column-gap: 12px;
+  font-family: var(--display) !important; font-weight: 500 !important; letter-spacing: -0.02em !important; font-size: 17px !important; color: var(--fg) !important;
+  font-variant-numeric: tabular-nums; text-align: right;
+}
+html.sx.sx .semester-child mat-row .mat-column-score::after { content: "/100"; order: 1; margin-left: -8px; font-family: var(--sans); font-size: 12px; font-weight: 400; letter-spacing: 0; color: var(--fg2); }
+html.sx .sx-bar { order: -1; position: relative; display: block; height: 6px; border-radius: 999px !important; background-color: var(--line) !important; }
+/* Pass mark (51): a tick across the bar. */
+html.sx .sx-bar::after { content: ""; position: absolute; top: -4px; bottom: -4px; left: 51%; width: 2px; border-radius: 1px; background-color: var(--fg2) !important; opacity: .55; }
+html.sx .sx-bar > i {
+  display: block; height: 100%; border-radius: 999px !important; background-color: var(--g, var(--fg2)) !important; transform-origin: left;
+  transition: width 600ms var(--ease) !important; animation: sx-grow 600ms var(--ease-out) both 100ms !important;
+}
+html.sx.sx.sx .semester-child mat-row[data-sx-running] .sx-bar > i { background-color: var(--acc) !important; }
+/* A tapped subject whose details are still on their way (learning-card.js): a line runs along the row's lower edge. */
+/* Drawn in the row's background, so the row's ::after stays free for its fold arrow. */
+html.sx.sx.sx.sx .page-learningCard mat-row[data-sx-busy] {
+  background-image: linear-gradient(var(--pri), var(--pri)) !important; background-repeat: no-repeat !important; background-size: 40% 2px !important;
+  animation: sx-busy 900ms linear infinite 120ms both !important;
+}
+@keyframes sx-busy { from { background-position: -70% 100%; } to { background-position: 170% 100%; } }
+html.sx.sx .semester-child mat-row .mat-column-result { grid-area: grade; justify-self: end; }
+html.sx.sx .semester-child :is(mat-row .result-color, .sx-m-grade .result-color) {
+  display: inline-grid !important; place-items: center; min-width: 34px; height: 26px !important; padding: 0 6px !important; box-sizing: border-box;
+  border-radius: 8px !important; font-family: var(--sans) !important; font-size: 13px !important; font-weight: 500 !important;
+  background-color: color-mix(in srgb, var(--g, var(--fg2)) 14%, transparent) !important; color: var(--g, var(--fg2)) !important;
+}
+/* The breakdown button (შეფასება) is gone: opening the subject shows the same breakdown. */
+html.sx.sx.sx .semester-child .mat-column-details { display: none !important; }
+/* Each subject says it opens: an arrow at the end of its row, flipped while its details are open. */
+html.sx.sx .semester-child mat-row:not(:has(.mat-column-expandedDetail))::after {
+  content: ""; grid-area: fold; justify-self: center; align-self: center; width: 8px; height: 8px; margin-top: -4px; box-sizing: border-box;
+  border: solid var(--fg2) !important; border-width: 0 1.5px 1.5px 0 !important; transform: rotate(45deg); transition: transform 240ms var(--ease), border-color 150ms var(--ease-out) !important;
+}
+html.sx.sx .semester-child mat-row[data-sx-open]:not(:has(.mat-column-expandedDetail))::after { transform: rotate(225deg); margin-top: 4px; border-color: var(--fg) !important; }
+@media (hover: hover) { html.sx.sx .semester-child mat-row:not(:has(.mat-column-expandedDetail)):hover::after { border-color: var(--fg) !important; } }
+html.sx.sx.sx .semester-child .mat-column-details :is(button, a) { padding: 4px 10px !important; border-radius: 8px !important; font-size: 12px !important; color: var(--fg2) !important; }
+@media (hover: hover) { html.sx.sx.sx .semester-child .mat-column-details :is(button, a):is(:hover, :focus-visible) { color: var(--fg) !important; } }
+html.sx mat-row:is([data-grade="A"], [data-grade="B"]) { --g: var(--good); }
+html.sx mat-row:is([data-grade="C"], [data-grade="D"]) { --g: var(--fg2); }
+html.sx mat-row:is([data-grade="E"], [data-grade="FX"], [data-grade="F"]) { --g: var(--bad); }
+html.sx.sx.sx .semester-child mat-row[data-sx-running] .result-color { font-size: 0 !important; color: var(--fg2) !important; background-color: transparent !important; border: 1px dashed var(--line-hi) !important; }
+html.sx.sx.sx .semester-child mat-row[data-sx-running] .result-color::after { content: "—"; font-size: 14px; color: var(--fg2); }
+
+/* An opened subject, readable at a glance: first the answer (points so far, a bar with the pass mark, one sentence
+   on what is still needed), then a plain list of the parts, name left and points right. One column, big type. */
+html.sx.sx .semester-child mat-row:has(.mat-column-expandedDetail) { padding: 0 !important; border: 0 !important; }
+/* The band colour lives on the whole opened row, so the centred box below can be narrower than the row. */
+/* Reading surface for an opened subject: the darkest background, for the highest contrast (text 15.8:1, secondary 7.5:1). */
+html.sx { --read: var(--well); --row: color-mix(in srgb, var(--box) 82%, var(--box-hi)); }
+html.sx.sx .semester-child mat-row:has(.result-detail-wrapper) { display: flex !important; justify-content: center !important; background-color: var(--read) !important; }
+html.sx.sx .semester-child mat-row:has(.result-detail-wrapper) { border-bottom: 1px solid var(--line) !important; }
+/* Any wrapper the portal puts between the cell and the details stretches, so nothing pins the box to the left. */
+html.sx.sx.sx .semester-child .mat-column-expandedDetail :is(div, section):has(.result-detail-wrapper) { display: flex !important; justify-content: center !important; width: 100% !important; max-width: none !important; margin-inline: 0 !important; }
+html.sx.sx .semester-child .mat-column-expandedDetail { display: flex !important; justify-content: center !important; padding: 0 !important; width: 100% !important; max-width: none !important; flex: 1 1 100% !important; }
+html.sx.sx .semester-child .mat-column-expandedDetail > * { padding: 0 !important; }
+html.sx.sx .semester-child .result-detail-wrapper {
+  display: flex !important; flex-direction: column !important; gap: 0; width: 100% !important; max-width: 600px !important; height: auto !important; box-sizing: border-box;
+  margin: 0 auto !important; padding: 6px 20px 20px !important; border: 0 !important; border-radius: 0 !important; background-color: transparent !important;
+}
+/* Centred in the subject's band, one readable column. */
+html.sx.sx.sx .semester-child .result-detail-wrapper > * { width: 100% !important; max-width: none; box-sizing: border-box; margin-inline: 0 !important; }
+
+html.sx .sx-dsum { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; padding: 16px 18px; border-radius: 14px !important; background-color: var(--read) !important; border: 1px solid var(--line) !important; }
+html.sx .sx-dsum-top { display: flex; align-items: baseline; gap: 8px; }
+html.sx .sx-dsum-num { font-family: var(--display) !important; font-size: 34px !important; font-weight: 500 !important; line-height: 1 !important; letter-spacing: -0.03em !important; color: var(--fg) !important; font-variant-numeric: tabular-nums; }
+html.sx .sx-dsum-of { font-size: 15px !important; color: var(--fg2) !important; }
+html.sx .sx-dsum-bar { position: relative; height: 10px; margin: 4px 0 18px; border-radius: 999px !important; background-color: var(--line) !important; }
+html.sx .sx-dsum-bar > i { position: absolute; inset: 0 auto 0 0; border-radius: 999px !important; background-color: var(--bad) !important; transform-origin: left; animation: sx-grow 600ms var(--ease-out) both 100ms !important; }
+html.sx .sx-dsum.sx-passed .sx-dsum-bar > i { background-color: var(--good) !important; }
+/* The pass mark: a line through the bar with its number under it. */
+html.sx .sx-dsum-bar > b { position: absolute; top: -4px; bottom: -4px; width: 2px; translate: -1px 0; border-radius: 1px; background-color: var(--fg) !important; }
+html.sx .sx-dsum-pass { position: absolute; top: calc(100% + 6px); translate: -50% 0; font-size: 11px !important; font-weight: 500 !important; line-height: 1 !important; color: var(--fg2) !important; }
+html.sx .sx-dsum-note { font-size: 15px !important; font-weight: 500 !important; line-height: 1.4 !important; color: var(--fg) !important; }
+html.sx .sx-dsum.sx-passed .sx-dsum-note { color: var(--good) !important; }
+
+html.sx.sx.sx .semester-child .result-detail.sx-est-row {
+  display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; gap: 16px;
+  height: auto !important; min-height: 0 !important; margin-block: 0 !important; padding: 8px 2px !important;
+  border: 0 !important; border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent) !important; border-radius: 0 !important; background-color: transparent !important;
+}
+html.sx.sx.sx .semester-child .result-detail.sx-est-row .result-detail-name { width: auto !important; height: auto !important; min-width: 0 !important; padding: 0 !important; margin: 0 !important; }
+html.sx.sx.sx .semester-child .result-detail.sx-est-row .result-detail-result { width: auto !important; height: auto !important; margin: 0 !important; }
+html.sx.sx.sx .semester-child .result-detail .result-detail-name { font-size: 14px !important; line-height: 1.45 !important; color: var(--fg) !important; text-align: left !important; overflow-wrap: break-word; }
+html.sx.sx.sx .semester-child .result-detail .result-detail-result {
+  flex: none; display: inline-flex !important; align-items: center; justify-content: center; min-width: 44px !important; max-width: 55%; min-height: 30px; padding: 3px 10px !important; box-sizing: border-box;
+  border-radius: 8px !important; background-color: var(--read) !important; border: 1px solid var(--line-hi) !important;
+  font-size: 13px !important; line-height: 1.35 !important; color: var(--fg) !important; text-align: center !important; overflow-wrap: break-word;
+}
+html.sx.sx.sx .semester-child .result-detail.sx-num .result-detail-result { font-size: 16px !important; font-weight: 500 !important; font-variant-numeric: tabular-nums; }
+html.sx.sx.sx .semester-child .result-detail.sx-est-empty .result-detail-result { font-size: 12px !important; color: var(--fg2) !important; background-color: transparent !important; border-style: dashed !important; }
+html.sx.sx .semester-child .result-detail.sx-est-empty .result-detail-result::after { content: "ჯერ არ არის"; }
+html.sx.sx.sx .semester-child .result-detail.sx-denied .result-detail-result { color: var(--bad) !important; background-color: var(--read) !important; border-color: color-mix(in srgb, var(--bad) 55%, var(--line)) !important; }
+html.sx.sx .semester-child .result-detail-result * { font-size: inherit !important; color: inherit !important; }
+/* Total and grade are already said by the summary on top and the row above. */
+html.sx.sx.sx .semester-child .result-detail-wrapper:has(> .sx-dsum) > .result-detail:is(.sx-total, .sx-grade) { display: none !important; }
+html.sx.sx.sx .semester-child .result-detail.sx-grade { display: none !important; }
+
+html.sx .sx-est > .sx-need {
+  margin-top: 12px; padding: 9px 14px; border-radius: 10px !important; font-size: 13px !important; line-height: 1.5 !important;
+  background-color: var(--well) !important; color: var(--fg) !important;
+}
+html.sx .sx-est > .sx-need.sx-passed { color: var(--good) !important; }
+
 @media (max-width: 760px) {
-  html.sx.sx .semesters-container .commandsh3 { font-size: 32px !important; white-space: normal; }
   html.sx.sx .semesters-container .semesters { width: 100%; flex-wrap: wrap; }
-  html.sx.sx .semesters-container .semester-item:not(.button) { width: 100%; margin-right: 0 !important; }
-  html.sx.sx .semesters-container .semester-item.button { margin-top: 12px !important; }
+  html.sx.sx .semesters-container .semester-item:not(.button) { flex: 1 1 auto; width: auto; }
+  html.sx.sx .ini-block .last-stat { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  html.sx.sx .ini-block .last-stat :is(.sx-cstat, .sx-trend) { padding: 14px; }
+  html.sx .sx-cstat-num { font-size: 24px !important; }
+  /* Semester header: name (and badge) on the first line, the summary under it, the chevron pinned right. */
+  html.sx.sx .semester-child mat-header-row { position: relative; padding-right: 44px !important; row-gap: 4px; }
+  html.sx .sx-sem-sum { flex-basis: 100%; margin-left: 0; font-size: 13px !important; }
+  html.sx .semester-child mat-header-row > .sx-chev { position: absolute; right: 18px; top: 50%; margin: -7px 0 0; }
+  html.sx .semester-child[data-sx-fold="closed"] mat-header-row > .sx-chev { margin-top: -5px; }
+  html.sx.sx .ini-block .last-stat > .sx-trend { grid-column: 1 / -1; }
+  html.sx.sx .semester-child mat-header-row { padding: 14px 16px !important; }
+  html.sx.sx .semester-child mat-row:not(:has(.mat-column-expandedDetail)) {
+    grid-template-columns: 6px minmax(0, 1fr) auto 16px; grid-template-areas: "dot course grade fold" "dot prof grade fold" "dot score score score" "dot credit credit credit";
+    padding: 14px 16px !important; column-gap: 12px; row-gap: 6px;
+  }
+  html.sx.sx .semester-child .result-detail-wrapper { padding: 2px 16px 16px !important; }
+  html.sx .sx-dsum-num { font-size: 30px !important; }
 }
 
 html.sx .est-details-dialog { width: min(640px, 94vw) !important; max-width: 94vw !important; }
@@ -140,7 +264,7 @@ html.sx est-details-dialog .mat-mdc-dialog-title {
   margin: 0 !important; padding: 28px 32px 8px !important; height: auto !important; line-height: 1.3 !important;
   font-size: 20px !important; font-weight: 500 !important; color: var(--fg) !important;
 }
-html.sx est-details-dialog .mat-mdc-dialog-title span { display: block; font-size: 13px !important; color: var(--fg3) !important; font-weight: 400 !important; margin-bottom: 4px; }
+html.sx est-details-dialog .mat-mdc-dialog-title span { display: block; font-size: 13px !important; color: var(--fg2) !important; font-weight: 400 !important; margin-bottom: 4px; }
 html.sx est-details-dialog .mat-mdc-dialog-content { padding: 8px 32px 28px !important; max-height: 70vh !important; }
 html.sx est-details-dialog .est-dialog-wrapper:has(> .sx-est) > :not(.sx-est) { display: none !important; }
 html.sx est-details-dialog .est-dialog-wrapper { padding: 0 !important; margin: 0 !important; }
@@ -149,67 +273,44 @@ html.sx .sx-est-row { display: grid !important; grid-template-columns: minmax(18
 html.sx .sx-est-row:last-child { border-bottom: 0 !important; }
 html.sx .sx-est-name { font-size: 15px !important; line-height: 1.45 !important; color: var(--fg2) !important; overflow-wrap: break-word !important; }
 html.sx .sx-est-val { font-size: 15px !important; line-height: 1.45 !important; color: var(--fg) !important; overflow-wrap: break-word !important; text-align: right !important; }
-html.sx .sx-est-row.sx-num .sx-est-val { font-family: var(--serif) !important; font-size: 19px !important; line-height: 1.25 !important; }
-html.sx .sx-est-row.sx-est-empty .sx-est-val { color: var(--fg3) !important; }
+html.sx .sx-est-row.sx-num .sx-est-val { font-family: var(--display) !important; font-weight: 500 !important; letter-spacing: -0.02em !important; font-size: 19px !important; line-height: 1.25 !important; }
+html.sx .sx-est-row.sx-est-empty .sx-est-val { color: var(--fg2) !important; }
 html.sx .sx-est-row.sx-text .sx-est-val { text-align: left !important; color: var(--fg2) !important; }
-html.sx .sx-est-row.sx-denied .sx-est-val { text-align: left !important; color: color-mix(in srgb, var(--clay) 85%, var(--fg2)) !important; }
+html.sx .sx-est-row.sx-denied .sx-est-val { text-align: left !important; color: color-mix(in srgb, var(--bad) 85%, var(--fg2)) !important; }
 html.sx .sx-est-row.sx-total { margin-top: 8px !important; padding: 14px 16px !important; border: 0 !important; border-radius: 12px !important; align-items: center !important; background-color: color-mix(in srgb, var(--acc) 12%, var(--box)) !important; }
 html.sx .sx-est-row.sx-total .sx-est-name { color: var(--fg) !important; font-weight: 500 !important; }
-html.sx .sx-est-row.sx-total .sx-est-val { font-family: var(--serif) !important; font-size: 26px !important; color: var(--acc) !important; }
+html.sx .sx-est-row.sx-total .sx-est-val { font-family: var(--display) !important; font-weight: 500 !important; letter-spacing: -0.02em !important; font-size: 26px !important; color: var(--acc) !important; }
 html.sx .sx-est-row.sx-grade { padding: 14px 16px !important; border: 0 !important; align-items: center !important; }
-html.sx .sx-est-row.sx-grade .sx-est-val { justify-self: end !important; display: inline-grid !important; place-items: center !important; min-width: 40px !important; height: 40px !important; padding: 0 8px !important; border-radius: 12px !important; font-family: var(--sans) !important; font-size: 18px !important; font-weight: 500 !important; background-color: color-mix(in srgb, var(--g, var(--fg3)) 18%, var(--box)) !important; color: var(--g, var(--fg)) !important; }
+html.sx .sx-est-row.sx-grade .sx-est-val { justify-self: end !important; display: inline-grid !important; place-items: center !important; min-width: 40px !important; height: 40px !important; padding: 0 8px !important; border-radius: 12px !important; font-family: var(--sans) !important; font-size: 18px !important; font-weight: 500 !important; background-color: color-mix(in srgb, var(--g, var(--fg2)) 18%, var(--box)) !important; color: var(--g, var(--fg)) !important; }
 @media (max-width: 480px) {
   html.sx .sx-est-row { grid-template-columns: minmax(0, 1fr) !important; row-gap: 4px !important; }
   html.sx .sx-est-row :is(.sx-est-val) { text-align: left !important; }
 }
-html.sx .sx-est-row:is([data-grade="A"], [data-grade="B"]) { --g: var(--sage); }
+html.sx .sx-est-row:is([data-grade="A"], [data-grade="B"]) { --g: var(--good); }
 html.sx .sx-est-row:is([data-grade="C"], [data-grade="D"]) { --g: var(--fg2); }
-html.sx .sx-est-row:is([data-grade="E"], [data-grade="FX"], [data-grade="F"]) { --g: var(--clay); }
+html.sx .sx-est-row:is([data-grade="E"], [data-grade="FX"], [data-grade="F"]) { --g: var(--bad); }
 
-html.sx.sx .semester-child mat-row:has(> .responsive-row) { display: block !important; padding: 16px 0 !important; border-bottom: 1px solid var(--line) !important; }
-html.sx.sx .semester-child mat-cell.responsive-row {
-  display: grid !important; grid-template-columns: minmax(0, 1fr) auto; column-gap: 14px; row-gap: 6px; padding: 0 !important; width: 100% !important;
-  grid-template-areas: "name grade" "lect grade" "score credit";
+/* Phones: the portal gives each subject one .responsive-row cell (name + lecturer, credits, score, grade). */
+html.sx.sx .semester-child mat-row:has(> .responsive-row) {
+  display: grid !important; grid-template-columns: 6px minmax(0, 1fr) 16px; grid-template-areas: "dot cell fold"; column-gap: 12px; cursor: pointer; background-color: var(--row) !important; padding: 14px 16px !important; border-bottom: 1px solid var(--line) !important;
 }
-html.sx.sx .semester-child .responsive-row .subj-name { grid-area: name; padding: 0 !important; font-family: var(--serif) !important; font-size: 18px !important; color: var(--fg) !important; text-align: left !important; }
+html.sx.sx .semester-child mat-row:has(> .responsive-row)::before { grid-area: dot; content: ""; align-self: stretch; border-radius: 3px !important; background-color: var(--c, var(--line)) !important; }
+html.sx.sx .semester-child mat-cell.responsive-row {
+  grid-area: cell; display: grid !important; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 6px; padding: 0 !important; width: 100% !important;
+  grid-template-areas: "name grade" "lect grade" "score score" "credit credit";
+}
+html.sx.sx .semester-child .responsive-row .subj-name { grid-area: name; padding: 0 !important; font-size: 15px !important; font-weight: 500 !important; line-height: 1.3 !important; color: var(--fg) !important; text-align: left !important; }
 html.sx.sx .semester-child .responsive-row .icons-row { display: contents !important; }
 html.sx.sx .semester-child .responsive-row .icons-row > div { padding: 0 !important; }
-html.sx.sx .semester-child .sx-m-lect { grid-area: lect; display: flex; align-items: center; gap: 4px; font-size: 14px !important; color: var(--fg2) !important; }
+html.sx.sx .semester-child .sx-m-lect { grid-area: lect; display: flex; align-items: center; gap: 4px; font-size: 13px !important; color: var(--fg2) !important; }
 html.sx.sx .semester-child .sx-m-lect * { font-size: inherit !important; color: inherit !important; }
-html.sx.sx .semester-child .sx-m-credit { grid-area: credit; align-self: start; font-size: 13px !important; color: var(--fg3) !important; white-space: nowrap; }
+html.sx.sx .semester-child .sx-m-credit { grid-area: credit; font-size: 12px !important; color: var(--fg2) !important; white-space: nowrap; }
 html.sx.sx .semester-child .sx-m-credit::after { content: "\00a0კრედიტი"; }
 html.sx.sx .semester-child .sx-m-score {
-  grid-area: score; display: grid !important; grid-template-columns: auto 1fr; align-items: baseline; column-gap: 4px; row-gap: 6px;
-  font-family: var(--serif) !important; font-size: 20px !important; color: var(--fg) !important; white-space: nowrap;
+  grid-area: score; display: grid !important; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; column-gap: 10px;
+  font-family: var(--display) !important; font-weight: 500 !important; letter-spacing: -0.02em !important; font-size: 17px !important; color: var(--fg) !important; white-space: nowrap; font-variant-numeric: tabular-nums;
 }
-html.sx.sx .semester-child .sx-m-score::after { content: "/100"; font-family: var(--sans); font-size: 12px; color: var(--fg3); }
+html.sx.sx .semester-child .sx-m-score::after { content: "/100"; order: 1; margin-left: -6px; font-family: var(--sans); font-size: 12px; font-weight: 400; letter-spacing: 0; color: var(--fg2); }
 html.sx.sx .semester-child .sx-m-grade { grid-area: grade; align-self: center; }
-html.sx.sx .semester-child .sx-m-grade .result-color {
-  display: inline-grid !important; place-items: center; min-width: 40px; height: 40px !important; padding: 0 8px !important;
-  border-radius: 12px !important; font-family: var(--sans) !important; font-size: 18px !important; font-weight: 500 !important;
-  background-color: color-mix(in srgb, var(--g, var(--fg3)) 18%, var(--box)) !important; color: var(--g, var(--fg2)) !important;
-}
-
-html.sx.sx .semester-child .mat-column-expandedDetail { width: 100% !important; max-width: none !important; flex: 1 1 100% !important; }
-html.sx.sx .semester-child .result-detail-wrapper {
-  display: flex !important; flex-direction: column !important; width: 100% !important; height: auto !important; box-sizing: border-box;
-  margin: 2px 0 16px !important; padding: 10px 22px !important; border-radius: 14px !important; background-color: var(--bg) !important;
-}
-html.sx.sx .semester-child .result-detail { width: auto !important; height: auto !important; min-height: 0 !important; margin: 0 !important; }
-html.sx.sx .semester-child :is(.result-detail-name, .result-detail-result) { width: auto !important; height: auto !important; min-width: 0 !important; padding: 0 !important; margin: 0 !important; }
-html.sx.sx .semester-child .result-detail-result * { font-size: inherit !important; color: inherit !important; }
-html.sx.sx .semester-child .result-detail.sx-est-empty .result-detail-result::after { content: "—"; }
-
-html.sx.sx .semester-child .result-detail.sx-grade .result-detail-result {
-  display: block !important; justify-self: end !important; min-width: 0 !important; height: auto !important; padding: 0 !important; background-color: transparent !important;
-}
-html.sx.sx.sx .semester-child mat-row[data-sx-running] .result-color { font-size: 0 !important; color: var(--fg3) !important; background-color: transparent !important; border: 1px dashed var(--line) !important; }
-html.sx.sx.sx .semester-child mat-row[data-sx-running] .result-color::after { content: "—"; font-size: 18px; color: var(--fg3); }
-html.sx .sx-need {
-  margin-top: 12px; padding: 12px 16px; border-radius: 12px !important; font-size: 14px !important; line-height: 1.5 !important;
-  background-color: color-mix(in srgb, var(--clay) 12%, var(--box)) !important; color: var(--clay) !important;
-}
-html.sx .sx-need.sx-passed { background-color: color-mix(in srgb, var(--sage) 12%, var(--box)) !important; color: var(--sage) !important; }
-html.sx .sx-est > .sx-need { grid-column: 1 / -1; }
 
 }

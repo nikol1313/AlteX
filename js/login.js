@@ -9,8 +9,6 @@ const LOGIN_WEEK = [ // per weekday: [top %, height %] of each lesson block
 ];
 const LOGIN_TOASTS = [
   ['next', 'შემდეგი ლექცია', '14 წთ-ში · აუდ. 204'],
-  ['grade', 'ახალი შეფასება', 'შუალედური · 27 / 30'],
-  ['task', 'დავალება დაემატა', 'ვადა: პარასკევი, 23:59'],
 ];
 const mountLogin = () => {
   const page = document.querySelector('login-component');
@@ -43,10 +41,9 @@ const mountLogin = () => {
   });
   week.append(el('span', 'sx-la-now'));
   const stage = el('div', 'sx-la-stage');
-  stage.append(week, ...LOGIN_TOASTS.map(([kind, title, sub], i) => {
+  stage.append(week, ...LOGIN_TOASTS.map(([kind, title, sub]) => {
     const t = el('div', 'sx-la-toast');
     t.dataset.kind = kind;
-    t.style.setProperty('--n', String(i));
     const text = el('div', 'sx-la-toast-text');
     text.append(el('span', 'sx-la-toast-title', title), el('span', 'sx-la-toast-sub', sub));
     t.append(el('span', 'sx-la-toast-dot'), text);

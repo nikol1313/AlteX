@@ -8,7 +8,9 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 const ORIGIN = 'https://students.alte.edu.ge';
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.json'), 'utf8'));
-const { js, css } = manifest.content_scripts[0];
+// Every entry in order, the page-world one (api-cache.js) included: the harness runs all of it in the page, like the app.
+const js = manifest.content_scripts.flatMap((c) => c.js || []);
+const css = manifest.content_scripts.flatMap((c) => c.css || []);
 const read = (file) => fs.readFileSync(path.join(ROOT, file), 'utf8');
 const SCRIPT = js.map(read).join('\n;\n');
 const STYLES = css.map(read).join('\n');
