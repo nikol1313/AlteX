@@ -18,27 +18,82 @@ const parseLesson = (item) => {
   return out;
 };
 
+const LESSON_MIN = 60; // shortcut: a lesson without a duration is drawn as one hour; fix if the portal starts omitting it often
+
 const buildLesson = (l) => {
   const start = toMin(l.time);
   const dur = parseInt(l.duration, 10);
+  const end = start == null ? null : start + (dur > 0 ? dur : LESSON_MIN);
   const box = el('div', 'sx-lesson');
-  const top = el('div', 'sx-lesson-top');
-  top.append(el('span', 'sx-time', l.time || '—'));
-  if (start != null && dur > 0) top.append(el('span', 'sx-until', '– ' + fromMin(start + dur)));
+  box.tabIndex = 0;
+  box.dataset.c = courseHue(l.course);
+  const top = el('div', 'sx-l-top');
+  top.append(el('span', 'sx-time', l.time ? (end != null ? `${l.time}–${fromMin(end)}` : l.time) : '—'));
   if (l.room) top.append(el('span', 'sx-room', l.room));
   box.append(top, el('div', 'sx-course', l.course || ''));
-  if (l.lecturer) box.append(el('div', 'sx-lecturer', l.lecturer));
   const meta = [l.type, dur > 0 ? `${dur} წთ` : ''].filter(Boolean).join(' · ');
   if (meta) box.append(el('div', 'sx-meta', meta));
-  box._sx = { start, end: start != null && dur > 0 ? start + dur : start };
+  if (l.lecturer) box.append(el('div', 'sx-lecturer', l.lecturer));
+  box.append(el('i', 'sx-l-fill'));
+  box._sx = { start, end };
   return box;
 };
 
+// Lessons that overlap are stacked, full width, one under the other: together they fill the overlapping stretch
+// (earliest start to latest end), so the group still lines up with the hour axis. Each card keeps its real times.
+const stackOverlaps = (views) => {
+  const timed = views.filter((v) => v._sx.start != null).sort((a, b) => a._sx.start - b._sx.start);
+  let group = [], from = 0, to = -1;
+  const place = () => {
+    group.forEach((v, k) => {
+      const one = group.length === 1;
+      const s = one ? v._sx.start : from + ((to - from) * k) / group.length;
+      const e = one ? v._sx.end : from + ((to - from) * (k + 1)) / group.length;
+      v.style.setProperty('--s', s);
+      v.style.setProperty('--e', e);
+      v.toggleAttribute('data-stacked', !one);
+    });
+    group = [];
+  };
+  for (const v of timed) {
+    if (v._sx.start >= to) { place(); from = v._sx.start; to = v._sx.end; }
+    group.push(v);
+    to = Math.max(to, v._sx.end);
+  }
+  place();
+};
+
+// Hour labels down the left edge, one per hour of the week's range.
+const mountAxis = (wrap, t0, t1) => {
+  let axis = wrap.querySelector(':scope > .sx-tt-axis');
+  const key = `${t0}-${t1}`;
+  if (axis && axis.dataset.range === key) { if (wrap.firstElementChild !== axis) wrap.prepend(axis); return; }
+  if (!axis) { axis = el('div', 'sx-tt-axis'); axis.setAttribute('aria-hidden', 'true'); }
+  axis.dataset.range = key;
+  const hours = [];
+  for (let m = t0; m <= t1; m += 60) { const h = el('span', 'sx-hour', fromMin(m)); h.style.setProperty('--m', m); hours.push(h); }
+  axis.replaceChildren(...hours);
+  wrap.prepend(axis);
+};
+
+// Week summary next to the month name: how many lessons and hours this week.
+const mountWeekSum = (count, minutes) => {
+  const nav = document.querySelector('student-tables-component .calendar-navigation');
+  if (!nav) return;
+  let sum = nav.querySelector(':scope > .sx-tt-sum');
+  const text = count ? `${count} ლექცია · ${Math.round(minutes / 6) / 10} სთ ამ კვირაში` : 'ამ კვირაში ლექციები არ არის';
+  if (!sum) { sum = el('span', 'sx-tt-sum'); nav.append(sum); }
+  if (sum.textContent !== text) sum.textContent = text;
+};
+
 const enhanceWeek = () => {
+  const wrap = document.querySelector('.weeklist-container');
   const heads = [...document.querySelectorAll('.weeklist-container > .headInfo')];
-  if (!heads.length) return;
+  if (!wrap || !heads.length) return;
   const nowIdx = heads.findIndex((h) => h.classList.contains('now'));
-  const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  let t0 = Infinity, t1 = -Infinity, count = 0, minutes = 0;
 
   heads.forEach((h, i) => {
     const ka = (h.querySelector('.day-name') || {}).textContent;
@@ -49,10 +104,11 @@ const enhanceWeek = () => {
     h.style.setProperty('--i', i);
 
     const label = h.querySelector('.day-title .mdc-button__label') || h.querySelector('.day-title');
-    if (label && !label.querySelector('.sx-en')) label.prepend(el('span', 'sx-today-chip', 'Today · დღეს'), el('span', 'sx-en', day.en));
+    if (label && !label.querySelector('.sx-en')) label.prepend(el('span', 'sx-en', day.en.slice(0, 3)));
 
     const list = h.querySelector('.weeklist');
-    if (!list) return;
+    // The portal leaves the lesson list out of a day with no lessons (seen on Sundays): that day is empty too.
+    if (!list) { if (!h.hasAttribute('data-empty')) h.setAttribute('data-empty', ''); return; }
     for (const v of list.querySelectorAll(':scope > .sx-lesson')) {
       const src = v.previousElementSibling;
       if (!src || !src.classList.contains('day-item') || src.textContent !== v.dataset.src) v.remove();
@@ -67,24 +123,61 @@ const enhanceWeek = () => {
       }
       return v;
     });
+    stackOverlaps(views);
+    const empty = !items.length;
+    if (h.hasAttribute('data-empty') !== empty) h.toggleAttribute('data-empty', empty);
     let nextMarked = false;
-    for (const v of views) {
-      let status = '';
+    views.forEach((v, n) => {
       const t = v._sx;
+      v.style.setProperty('--n', n);
+      if (t.start != null) { t0 = Math.min(t0, t.start); t1 = Math.max(t1, t.end); count++; minutes += t.end - t.start; }
+      let status = '';
       if (when === 'today' && t.start != null) {
-        const end = t.end != null ? t.end : t.start;
-        if (end <= nowMin) status = 'done';
+        if (t.end <= nowMin) status = 'done';
         else if (t.start <= nowMin) { status = 'live'; nextMarked = true; }
         else if (!nextMarked) { status = 'next'; nextMarked = true; }
       }
+      if (status === 'live') v.style.setProperty('--p', ((nowMin - t.start) / (t.end - t.start)).toFixed(3));
       if (v.dataset.status !== status) {
         v.dataset.status = status;
         v.querySelector('.sx-status')?.remove();
-        if (status === 'live') v.querySelector('.sx-lesson-top').append(el('span', 'sx-status', 'Now · ახლა'));
+        if (status) v.querySelector('.sx-l-top').prepend(el('span', 'sx-status', status === 'live' ? 'ახლა' : status === 'next' ? 'შემდეგი' : 'დასრულდა'));
       }
-    }
-    setEmpty(list, !items.length, 'No classes', 'თავისუფალი დღე');
+    });
+    setEmpty(list, empty, 'თავისუფალი დღე');
   });
+
+  // Range: whole hours around the week's lessons, at least 09:00–18:00, so short weeks keep a calm grid.
+  t0 = Math.min(9 * 60, Math.floor(t0 / 60) * 60);
+  t1 = Math.max(18 * 60, Math.ceil(t1 / 60) * 60);
+  if (wrap.style.getPropertyValue('--t0') !== String(t0)) wrap.style.setProperty('--t0', t0);
+  if (wrap.style.getPropertyValue('--t1') !== String(t1)) wrap.style.setProperty('--t1', t1);
+  mountAxis(wrap, t0, t1);
+  mountWeekSum(count, minutes);
+  // Where the grid starts on the page (after the summary line, which can wrap above it), so CSS can size the hours to end at the bottom of the window.
+  const top = `${Math.round(wrap.getBoundingClientRect().top + scrollY)}px`;
+  if (wrap.style.getPropertyValue('--tt-top') !== top) wrap.style.setProperty('--tt-top', top);
+
+  // The red "now" line across today's column.
+  const today = nowIdx >= 0 ? heads[nowIdx].querySelector('.weeklist') : null;
+  const showNow = today && nowMin >= t0 && nowMin <= t1;
+  for (const line of wrap.querySelectorAll('.sx-now')) if (!showNow || line.parentElement !== today) line.remove();
+  const axis = wrap.querySelector(':scope > .sx-tt-axis');
+  let tag = axis.querySelector(':scope > .sx-now-tag');
+  if (!showNow) tag?.remove();
+  else {
+    let line = today.querySelector(':scope > .sx-now');
+    if (!line) { line = el('div', 'sx-now'); line.setAttribute('aria-hidden', 'true'); today.append(line); }
+    if (!tag) { tag = el('span', 'sx-now-tag'); axis.append(tag); }
+    line.style.setProperty('--m', nowMin);
+    tag.style.setProperty('--m', nowMin);
+    if (tag.textContent !== hm(now)) tag.textContent = hm(now);
+  }
+  // Narrow screens scroll the week sideways: start on today, once per rendered week.
+  if (nowIdx >= 0 && wrap.scrollWidth > wrap.clientWidth + 4 && wrap.dataset.sxScrolled !== heads[0].textContent.slice(0, 40)) {
+    wrap.dataset.sxScrolled = heads[0].textContent.slice(0, 40);
+    wrap.scrollLeft = heads[nowIdx].offsetLeft - (wrap.querySelector('.sx-tt-axis')?.offsetWidth || 0);
+  }
   focusPendingDay(heads);
 };
 
@@ -97,7 +190,7 @@ const focusPendingDay = (heads) => {
   if (!day || Date.now() - at > 15000) return;
   const head = heads.find((h) => h.dataset.day === DAYS[day.d - 1].key);
   if (!head) return;
-  head.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  head.scrollIntoView({ block: 'nearest', inline: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   head.classList.add('sx-tt-focus');
   setTimeout(() => head.classList.remove('sx-tt-focus'), 1800);
 };
@@ -212,7 +305,16 @@ const enhanceTablesLoading = () => {
   } else if (!need && skel) skel.remove();
 };
 
-// Exam countdown tiles above the week, plus the next day off.
+// Exam countdown tiles, plus the next day off. With no lessons on Sunday (and the week shown as columns, not the phone
+// layout) they take Sunday's column; otherwise they sit under the week.
+const WIDE_WEEK = matchMedia('(min-width: 761px)');
+WIDE_WEEK.addEventListener('change', () => schedule());
+const placeExamStrip = (comp, strip) => {
+  const sunday = comp.querySelector('.weeklist-container > .headInfo[data-day="sun"]');
+  const cols = WIDE_WEEK.matches && sunday && sunday.hasAttribute('data-empty') ? sunday.parentElement : null;
+  if (strip.hasAttribute('data-col') !== !!cols) strip.toggleAttribute('data-col', !!cols);
+  if (cols) { if (cols.lastElementChild !== strip) cols.append(strip); } else if (comp.firstElementChild !== strip) comp.prepend(strip);
+};
 const mountExamStrip = () => {
   const comp = document.querySelector('student-tables-component');
   if (!comp) return;
@@ -224,8 +326,8 @@ const mountExamStrip = () => {
   });
   const off = nextPeriod(DAYS_OFF);
   const key = JSON.stringify([tiles.map((t) => [t.big, t.sub, Math.round(t.pct)]), off && [off.state, off.days, off.start.getTime()]]);
-  let strip = comp.querySelector(':scope > .sx-exams');
-  if (strip && strip.dataset.key === key) { if (comp.firstElementChild !== strip) comp.prepend(strip); return; }
+  let strip = comp.querySelector('.sx-exams');
+  if (strip && strip.dataset.key === key) { placeExamStrip(comp, strip); return; }
   if (!strip) { strip = el('section', 'sx-exams'); strip.setAttribute('aria-label', 'გამოცდებამდე დარჩენილი დრო · Exam countdowns'); }
   strip.dataset.key = key;
   const nearest = [...tiles].sort((x, y) => (x.state === 'now' ? -1 : +x.big) - (y.state === 'now' ? -1 : +y.big))[0];
@@ -249,5 +351,5 @@ const mountExamStrip = () => {
       el('span', 'sx-exam-sub', `${off.def[3]} · ${rangeText(off.start, off.end)} · ${off.state === 'now' ? 'დღეს' : daysWord(off.days)}`));
     strip.append(tile);
   }
-  if (comp.firstElementChild !== strip) comp.prepend(strip);
+  placeExamStrip(comp, strip);
 };

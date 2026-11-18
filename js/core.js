@@ -36,6 +36,8 @@ const el = (tag, cls, text) => {
   if (text != null) e.textContent = text;
   return e;
 };
+// Same course, same colour on every page (timetable, student card): a stable hash of its name picks one of 7 palette slots.
+const courseHue = (name) => { let h = 0; for (const ch of String(name || '').trim()) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return String(h % 7); };
 // "Nothing here" notice at the end of wrap, one span per line; removed again once there is content.
 const setEmpty = (wrap, show, ...lines) => {
   const note = wrap.querySelector(':scope > .sx-empty');
@@ -50,11 +52,6 @@ const store = {
   set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* storage blocked */ } },
   remove: (k) => { try { localStorage.removeItem(k); } catch { /* storage blocked */ } },
 };
-
-// Dark unless the student switched to light (the header switch, nav.js). Set here, before the first paint.
-const THEME_KEY = 'sx-theme';
-let theme = store.get(THEME_KEY) === 'light' ? 'light' : 'dark';
-root.dataset.sxTheme = theme;
 
 const session = () => {
   const token = store.get('Student-Token');

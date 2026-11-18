@@ -11,7 +11,8 @@ val extDir: File = rootProject.projectDir.parentFile
 @Suppress("UNCHECKED_CAST")
 val extManifest = JsonSlurper().parse(extDir.resolve("manifest.json")) as Map<String, Any>
 @Suppress("UNCHECKED_CAST")
-val contentScript = (extManifest["content_scripts"] as List<Map<String, Any>>).single()
+// Every content_scripts entry, in order (the page-world api-cache.js entry first): the app runs them all in the page.
+val contentScripts = extManifest["content_scripts"] as List<Map<String, Any>>
 val extVersion = extManifest["version"] as String
 val (vMajor, vMinor, vPatch) = extVersion.split(".").map(String::toInt)
 
@@ -73,11 +74,15 @@ abstract class BundleExtension : DefaultTask() {
     }
 }
 
+// The app keeps the classic timetable, student card and homework look; the Chrome extension has the redesigns.
+val appOnly = listOf("css/timetable.css", "js/timetable.js", "css/learning-card.css", "js/learning-card.js", "css/assignments.css")
+    .associateWith { "android/classic/" + it.substringAfter('/') }
+
 val bundleExtension = tasks.register<BundleExtension>("bundleExtension") {
     @Suppress("UNCHECKED_CAST")
-    cssFiles.from((contentScript["css"] as List<String>).map(extDir::resolve))
+    cssFiles.from(contentScripts.flatMap { (it["css"] as List<String>?).orEmpty() }.map { extDir.resolve(appOnly[it] ?: it) })
     @Suppress("UNCHECKED_CAST")
-    jsFiles.from((contentScript["js"] as List<String>).map(extDir::resolve))
+    jsFiles.from(contentScripts.flatMap { (it["js"] as List<String>?).orEmpty() }.map { extDir.resolve(appOnly[it] ?: it) })
     fontFiles.from(fileTree(extDir.resolve("fonts")) { include("*.woff2") })
     outputDir.set(layout.buildDirectory.dir("generated/altex-assets"))
 }

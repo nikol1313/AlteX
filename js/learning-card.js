@@ -14,6 +14,32 @@ const placeNeed = (host, totalText) => {
   if (host.lastElementChild !== line) host.append(line);
 };
 
+// An opened subject starts with the answer: points so far out of 100, a bar with the pass mark on it, and one
+// sentence saying how many points are still needed (or that it is passed). The parts are listed under it.
+const placeSummary = (wrap, totalText) => {
+  const total = parseFloat(String(totalText || '').replace(',', '.'));
+  let box = wrap.querySelector(':scope > .sx-dsum');
+  if (Number.isNaN(total)) { box?.remove(); return; }
+  const gap = Math.round((PASS - total) * 100) / 100;
+  const key = `${total}`;
+  if (box && box.dataset.key === key) { if (wrap.firstElementChild !== box) wrap.prepend(box); return; }
+  if (!box) box = el('div', 'sx-dsum');
+  box.dataset.key = key;
+  box.classList.toggle('sx-passed', gap <= 0);
+  const top = el('div', 'sx-dsum-top');
+  top.append(el('span', 'sx-dsum-num', String(total)), el('span', 'sx-dsum-of', '/ 100 ქულა'));
+  const bar = el('div', 'sx-dsum-bar');
+  bar.setAttribute('role', 'img');
+  bar.setAttribute('aria-label', `${total} ქულა 100-დან, ჩასაბარებლად საჭიროა ${PASS}`);
+  const fill = el('i'); fill.style.width = `${Math.max(0, Math.min(100, total))}%`;
+  const mark = el('b'); mark.style.left = `${PASS}%`;
+  const label = el('span', 'sx-dsum-pass', String(PASS)); label.style.left = `${PASS}%`;
+  bar.append(fill, mark, label);
+  const note = el('div', 'sx-dsum-note', gap > 0 ? `ჩასაბარებლად კიდევ ${gap} ქულა გჭირდება` : 'ჩაბარებულია');
+  box.replaceChildren(top, bar, note);
+  wrap.prepend(box);
+};
+
 // A subject's inline details get the same row classes as the breakdown dialog.
 const tagDetailRows = () => {
   for (const d of document.querySelectorAll('.page-learningCard .result-detail')) {
@@ -34,7 +60,7 @@ const tagDetailRows = () => {
     val.classList.add('sx-est-val');
   }
   for (const wrap of document.querySelectorAll('.page-learningCard .result-detail-wrapper')) {
-    placeNeed(wrap, wrap.querySelector('.result-detail.sx-total .result-detail-result')?.textContent.trim());
+    placeSummary(wrap, wrap.querySelector('.result-detail.sx-total .result-detail-result')?.textContent.trim());
   }
 };
 
@@ -75,6 +101,19 @@ document.addEventListener('click', (e) => {
   row.dataset.sxBusy = '';
   setTimeout(() => { delete row.dataset.sxBusy; }, 6000);
 }, true);
+// The fold arrow on each subject follows whether its details are open. The portal keeps a closed subject's details
+// in the page at zero height, so "open" is read from the rendered height; checked again once its unfold has run.
+document.addEventListener('click', (e) => {
+  if (e.target.closest && e.target.closest('.page-learningCard .semester-child mat-row')) { setTimeout(schedule, 60); setTimeout(schedule, 420); }
+}, true);
+const markOpenRows = () => {
+  for (const row of document.querySelectorAll('.page-learningCard .semester-child mat-row:not(:has(.mat-column-expandedDetail))')) {
+    const next = row.nextElementSibling;
+    const detail = next && next.querySelector(':scope > .mat-column-expandedDetail');
+    const open = !!detail && detail.getBoundingClientRect().height > 8;
+    if (row.hasAttribute('data-sx-open') !== open) row.toggleAttribute('data-sx-open', open);
+  }
+};
 const clearBusyRows = () => {
   for (const row of document.querySelectorAll('.page-learningCard mat-row[data-sx-busy]')) {
     if (row.nextElementSibling && row.nextElementSibling.querySelector('.result-detail')) delete row.dataset.sxBusy;
@@ -165,20 +204,21 @@ const enhanceCourseRow = (row, current, ended) => {
     if (chip && running) { chip.setAttribute('aria-label', 'მიმდინარე · In progress'); chip.title = 'მიმდინარე · In progress'; }
     else if (chip) { chip.removeAttribute('aria-label'); chip.removeAttribute('title'); }
   }
+  const name = (rr ? rr.querySelector('.subj-name') : row.querySelector('.mat-column-bookName'))?.textContent;
+  const hue = courseHue(name);
+  if (row.dataset.c !== hue) row.dataset.c = hue;
   let bar = scoreCell.querySelector(':scope > .sx-bar');
   if (!bar) { bar = el('span', 'sx-bar'); bar.append(el('i')); scoreCell.append(bar); }
   const w = `${score}%`;
   if (bar.firstChild.style.width !== w) bar.firstChild.style.width = w;
-  return parseFloat(creditText) || 0;
+  return { credits: parseFloat(creditText) || 0, score };
 };
 
 const enhanceCard = () => {
   tagDetailRows();
+  markOpenRows();
   fitDetailUnfold();
-  for (const sp of document.querySelectorAll('.page-learningCard .ini-block .last-stat h3 :is(span, b)')) {
-    const isVal = /^\s*[\d.,]+\s*$/.test(sp.textContent);
-    if (sp.classList.contains('sx-stat-val') !== isVal) sp.classList.toggle('sx-stat-val', isVal);
-  }
+  mountStats();
   // Newest semester first; blocks without a number keep the site's order after the numbered ones.
   const sems = [...document.querySelectorAll('.page-learningCard .semester-child')];
   const semNo = sems.map((sem) => {
@@ -189,6 +229,7 @@ const enhanceCard = () => {
   const newest = numbered.length ? Math.max(...numbered) : null;
   const ended = semesterEnded(newest);
   const rank = sems.map((_, i) => i).sort((x, y) => (semNo[y] ?? -1) - (semNo[x] ?? -1) || x - y);
+  const trend = [];
   sems.forEach((sem, i) => {
     const head = sem.querySelector('mat-header-row');
     if (!head) return;
@@ -197,22 +238,92 @@ const enhanceCard = () => {
     if (sem.style.order !== order) sem.style.order = order;
     if (!sem.dataset.sxFold) sem.dataset.sxFold = current ? 'open' : 'closed';
     if (!head.dataset.sxBound) bindSemesterHead(sem, head);
-    let credits = 0, count = 0;
+    let credits = 0, count = 0, weighted = 0;
     for (const row of sem.querySelectorAll('mat-row')) {
       const c = enhanceCourseRow(row, current, ended);
       if (c == null) continue;
       count++;
-      credits += c;
+      credits += c.credits;
+      weighted += c.score * (c.credits || 1);
     }
+    const avg = count ? Math.round(weighted / (credits || count)) : null;
+    // The running semester's average is low only because its grades are still coming in: left out of the trend.
+    if (avg != null && semNo[i] != null && !(current && !ended)) trend.push({ no: semNo[i], avg });
     let sum = head.querySelector(':scope > .sx-sem-sum');
     if (!sum) {
       if (current) head.append(el('span', 'sx-sem-badge', 'მიმდინარე · Current'));
       sum = el('span', 'sx-sem-sum');
       head.append(sum, el('span', 'sx-chev'));
     }
-    const text = `${count} საგანი · ${credits} კრედიტი`;
+    const text = `${count} საგანი · ${credits} კრედიტი` + (avg != null ? ` · საშ. ${avg}` : '');
     if (sum.textContent !== text) sum.textContent = text;
   });
+  mountTrend(trend.sort((a, b) => a.no - b.no));
+};
+
+// The portal's stats (GPA, credits, …) as clean cells: each heading's text split into its label and its number,
+// whatever markup the portal wraps them in. The headings stay in the page, hidden (learning-card.css).
+const mountStats = () => {
+  const stats = document.querySelector('.page-learningCard .ini-block .last-stat');
+  if (!stats) return;
+  const items = [...stats.querySelectorAll(':scope > h3')].map((h) => {
+    const copy = h.cloneNode(true);
+    copy.querySelectorAll('mat-icon').forEach((i) => i.remove()); // icon names are ligature text ("star")
+    const text = (copy.textContent || '').replace(/\s+/g, ' ').trim();
+    const nums = text.match(/\d+(?:[.,]\d+)?/g);
+    const value = nums ? nums[nums.length - 1] : '';
+    const label = (value ? text.slice(0, text.lastIndexOf(value)) + text.slice(text.lastIndexOf(value) + value.length) : text)
+      .replace(/^[\s:·-]+|[\s:·-]+$/g, '');
+    return { label, value };
+  }).filter((x) => x.label || x.value);
+  const key = JSON.stringify(items);
+  let box = stats.querySelector(':scope > .sx-card-stats');
+  if (box && box.dataset.key === key) return;
+  if (!box) { box = el('div', 'sx-card-stats'); stats.prepend(box); }
+  box.dataset.key = key;
+  box.replaceChildren(...items.map(({ label, value }) => {
+    const c = el('div', 'sx-cstat');
+    if (/gpa/i.test(label)) c.classList.add('sx-cstat-gpa');
+    c.append(el('span', 'sx-cstat-label', label), el('span', 'sx-cstat-num', value || '—'));
+    return c;
+  }));
+};
+
+// Average score per semester (credit-weighted, from the rows above) as a small line in the stats panel.
+const mountTrend = (pts) => {
+  const stats = document.querySelector('.page-learningCard .ini-block .last-stat');
+  let cell = stats && stats.querySelector(':scope > .sx-trend');
+  if (!stats || pts.length < 2) { cell?.remove(); return; }
+  const key = JSON.stringify(pts);
+  if (cell && cell.dataset.key === key) return;
+  if (!cell) { cell = el('div', 'sx-trend'); stats.append(cell); }
+  cell.dataset.key = key;
+  const lo = Math.min(...pts.map((p) => p.avg)) - 5, hi = Math.max(...pts.map((p) => p.avg)) + 5;
+  const xy = pts.map((p, i) => [8 + (i * 384) / (pts.length - 1), 56 - ((p.avg - lo) / (hi - lo)) * 48]);
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 400 64');
+  svg.setAttribute('preserveAspectRatio', 'none');
+  svg.setAttribute('aria-hidden', 'true');
+  const line = document.createElementNS(NS, 'polyline');
+  line.setAttribute('points', xy.map((q) => q.join(',')).join(' '));
+  line.setAttribute('pathLength', '1');
+  svg.append(line);
+  const plot = el('div', 'sx-trend-plot');
+  const labels = el('div', 'sx-trend-pts');
+  pts.forEach((p, i) => {
+    const dot = el('i', i === pts.length - 1 ? 'sx-trend-now' : null);
+    dot.style.left = `${(xy[i][0] / 400) * 100}%`;
+    dot.style.top = `${(xy[i][1] / 64) * 100}%`;
+    plot.append(dot);
+    const lab = el('span');
+    lab.append(el('b', null, String(p.avg)), el('small', null, `${p.no} სემესტრი`));
+    labels.append(lab);
+  });
+  plot.prepend(svg);
+  cell.replaceChildren(el('span', 'sx-trend-label', 'საშუალო ქულა 100-დან · დასრულებული სემესტრები'), plot, labels);
+  cell.setAttribute('role', 'img');
+  cell.setAttribute('aria-label', 'საშუალო ქულა სემესტრების მიხედვით: ' + pts.map((p) => `${p.no} სემესტრი ${p.avg}`).join(', '));
 };
 
 // Grade breakdown dialog: the site's rotated names and values become one list.

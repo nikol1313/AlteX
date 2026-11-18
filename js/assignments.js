@@ -50,6 +50,8 @@ const enhanceTasks = () => {
   for (const row of page.querySelectorAll('mat-row')) {
     const id = row.querySelector('.mat-column-id')?.textContent.trim();
     const book = taskBookMap.get(id);
+    const hue = courseHue(row.querySelector('.mat-column-name')?.textContent);
+    if (row.dataset.c !== hue) row.dataset.c = hue; // same colour as the course in the timetable and student card
     let fold = row.querySelector(':scope > .sx-tf');
     if (fold && fold.dataset.id !== id) { fold.remove(); fold = null; }
     if (!book || fold) continue;

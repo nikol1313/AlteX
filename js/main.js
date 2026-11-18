@@ -30,7 +30,6 @@ const runPass = () => {
   tagCounts();
   dismissNotice();
   mountUserMenu();
-  mountThemeToggle();
   mountDashNav();
   mountNav();
   mountDrawer();
@@ -67,16 +66,68 @@ const runPass = () => {
 // most PASS_GAP. (A fixed 200/400ms gap left freshly loaded content in the portal's styling for that long.)
 // Hidden tabs get no frames; the pending pass then runs when the tab is shown again.
 const PASS_GAP = matchMedia('(pointer: coarse)').matches ? 400 : 200;
+
+// Section switches. The portal swaps the page component under .all-page-container the moment it routes. For the next
+// ROUTE_FAST ms passes run frame by frame (no gap), so the new section never shows in the portal's own styling while
+// its data comes in. A spinner (base.css) stays until the section stops changing for ROUTE_QUIET ms, at most ROUTE_MAX ms.
+const ROUTE_FAST = 1500, ROUTE_QUIET = 250, ROUTE_MAX = 5000;
+let routePage, routeAt = -Infinity, routeQuiet = 0;
+// Sections already opened this visit come back without their entrance animations (sx-calm, base.css): switching is
+// frequent, and the same motion every time only makes it feel slower.
+const routeSeen = new Set();
+const routeDone = () => { clearTimeout(routeQuiet); root.classList.remove('sx-routing'); };
+const watchRoute = () => {
+  const page = document.querySelector('.all-page-container > :not(router-outlet)');
+  if (page !== routePage) {
+    if (page) {
+      const calm = routeSeen.has(page.tagName);
+      if (root.classList.contains('sx-calm') !== calm) root.classList.toggle('sx-calm', calm);
+      routeSeen.add(page.tagName);
+    }
+    if (routePage !== undefined && page) { // not the first page of the visit
+      routeAt = performance.now();
+      if (!document.querySelector('.sx-route-busy')) document.body.append(el('div', 'sx-route-busy'));
+      root.classList.add('sx-routing');
+    }
+    routePage = page;
+  }
+  if (!root.classList.contains('sx-routing')) return;
+  clearTimeout(routeQuiet);
+  if (performance.now() - routeAt > ROUTE_MAX) routeDone(); else routeQuiet = setTimeout(routeDone, ROUTE_QUIET);
+};
+
 const schedule = () => {
   if (queued) return;
   queued = true;
-  const wait = Math.min(PASS_GAP, passCost * 6) - (performance.now() - lastRun);
+  const wait = performance.now() - routeAt < ROUTE_FAST ? 0 : Math.min(PASS_GAP, passCost * 6) - (performance.now() - lastRun);
   if (wait <= 0) requestAnimationFrame(run); else setTimeout(() => requestAnimationFrame(run), wait);
+};
+
+// Smooth wheel scrolling (Lenis, js/lenis.min.js) for mouse and trackpad. Touch keeps the native scroll (phones, the
+// Android app). The page's own inner scroll areas (dialogs, portal menus and popups, the timetable rail) scroll
+// natively; reduced motion turns smoothing off. Named here instead of allowNestedScroll, which reads the computed
+// style of every element under the pointer on each wheel event.
+const LENIS_NATIVE = ['cdk-overlay-container', 'tables-dashboard', 'sx-more-menu'];
+const startLenis = () => {
+  if (typeof Lenis !== 'function' || !matchMedia('(pointer: fine)').matches) return;
+  // Lenis caps scrolling at the page height it last measured, refreshed by a resize watcher with a 250ms delay. That
+  // measurement went stale (seen on the student card right after loading): the wheel then moved the page 0px even with
+  // room to scroll. Each wheel turn checks the page height first and re-measures when it changed (a cheap read: layout
+  // is clean between frames).
+  let measured = 0;
+  const lenis = new Lenis({ autoRaf: true, stopInertiaOnNavigate: true,
+    prevent: (node) => node.nodeName === 'DIALOG' || LENIS_NATIVE.some((c) => node.classList?.contains(c)),
+    virtualScroll: () => {
+      const h = document.documentElement.scrollHeight;
+      if (h !== measured) { measured = h; lenis.resize(); }
+      return true;
+    } });
 };
 
 const start = () => {
   run();
-  new MutationObserver(() => { onCardMutation(); schedule(); }).observe(document.body, { childList: true, subtree: true, characterData: true });
+  startLenis();
+  new MutationObserver(() => { onCardMutation(); watchRoute(); schedule(); }).observe(document.body, { childList: true, subtree: true, characterData: true });
   setInterval(schedule, 60 * 1000);
 };
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
