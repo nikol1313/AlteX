@@ -12,7 +12,7 @@ Students shouldn't have to fight the portal just to keep up with university life
 
 ## Screenshots: PC & Android
 
-Made-up student and made-up data, not a real account. Made with `node scripts/screenshots.js`.
+Made-up student and made-up data, not a real account. Made with `npm run screenshots`.
 
 ### Dashboard
 
@@ -47,6 +47,15 @@ GPA, credits and the average at a glance; every subject with its score bar and p
   <img src="docs/screenshots/login.png" width="68%" alt="AlteX login page on a desktop">
   <img src="docs/screenshots/login-phone.png" width="27%" alt="AlteX login page in the Android app">
 </p>
+
+### Videos
+
+<table>
+  <tr>
+    <td><video src="https://github.com/user-attachments/assets/c821d8af-7cae-4ee4-b661-59dd24ea9db3" width="500" controls></video></td>
+    <td><video src="https://github.com/user-attachments/assets/2bcc8a21-1b6f-4dcb-b97f-c578dde4ecc2" width="200" controls></video></td>
+  </tr>
+</table>
 
 ## Speed
 
