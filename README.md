@@ -1,5 +1,7 @@
 # AlteX — Student Portal Chrome Extension
 
+**[Install on PC](https://chromewebstore.google.com/detail/gjbaoejelhdhbfcegfkommmgpogffloo?utm_source=item-share-cb)** · **[Install on Android](https://github.com/nikol1313/AlteX/releases/latest/download/AlteX.apk)** · **[View Screenshots](#demos-pc--android)** · **[Installation Guide](#installation-for-pc)**
+
 Visual redesign of the Alte University student portal (`students.alte.edu.ge`).
 
 ## Demos PC & Android
@@ -42,6 +44,17 @@ Students shouldn't have to fight the portal just to keep up with university life
 
 - Injects stylesheets (`css/`) that restyle the portal UI.
 - Runs content scripts (`js/`) that adapt page behavior and markup (read-only: nothing is submitted for you).
+
+### Performance Optimization
+
+AlteX makes portal navigation significantly faster through smart caching, preloading, and background data refresh.
+
+- **Instant navigation** with cached section data.
+- **Preloading** before sections are opened.
+- **Background refresh** to keep data up to date.
+- **Duplicate request prevention** for efficient loading.
+
+**Result:** Faster section switching and a smoother overall portal experience.
 
 ## Installation for PC
 
