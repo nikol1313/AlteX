@@ -61,17 +61,10 @@ GPA, credits and the average at a glance; every subject with its score bar and p
   <img src="docs/screenshots/login-phone.png" width="19%" alt="AlteX login page in the Android app">
 </p>
 
-### Videos
-
-<table>
-  <tr>
-    <td><video src="https://github.com/user-attachments/assets/c821d8af-7cae-4ee4-b661-59dd24ea9db3" width="380" controls></video></td>
-    <td><video src="https://github.com/user-attachments/assets/2bcc8a21-1b6f-4dcb-b97f-c578dde4ecc2" width="150" controls></video></td>
-  </tr>
-</table>
 
 ## What it does
 
+Idea is simple.
 - Restyles the portal with its own stylesheets (`css/`).
 - Adapts the portal's pages with content scripts (`js/`). It only reads: nothing is ever submitted for you.
 
