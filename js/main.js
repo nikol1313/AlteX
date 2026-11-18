@@ -21,7 +21,7 @@ const run = () => {
   for (const [cls, sel] of PAGE_FLAGS) root.classList.toggle(cls, !!document.querySelector(sel));
   maybeWelcome();
   tagCounts();
-  mountIdc();
+  dismissNotice();
   mountUserMenu();
   mountDashNav();
   mountNav();
@@ -45,7 +45,6 @@ const run = () => {
   mountHello();
   mountLogin();
   mountRemember();
-  goStatementList();
   if (document.querySelector('dashboard-component a.dashboard-item-wrapper')) { render(); load(); }
 };
 
