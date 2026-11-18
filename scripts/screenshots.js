@@ -3,7 +3,7 @@
 // document start), shot on a desktop window (the Chrome extension) and on a phone (the Android app, which keeps the
 // classic timetable, student card and homework files, see android/app/build.gradle.kts).
 // Made-up student and data only; nothing here talks to the real portal.
-// Run: node scripts/screenshots.js  →  docs/screenshots/*.png
+// Run: npm run screenshots  →  docs/screenshots/*.png
 const fs = require('fs');
 const path = require('path');
 const { chromium, devices } = require('playwright');

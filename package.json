@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "test": "playwright test",
-    "pack": "scripts/pack-chrome.sh"
+    "pack": "scripts/pack-chrome.sh",
+    "screenshots": "node scripts/screenshots.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.0"
