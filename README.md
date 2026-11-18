@@ -25,7 +25,7 @@ Students shouldn't have to fight the portal just to keep up with university life
 
 ## Screenshots: PC & Android
 
-Made-up student and made-up data, not a real account. Made with `npm run screenshots`.
+Made-up student and made-up data, not a real account.
 
 ### Dashboard
 
@@ -80,7 +80,7 @@ AlteX is on the Chrome Web Store:
 
 1. Open the link above on your phone; it always downloads the newest version.
 2. Open the downloaded `AlteX.apk`. The first time, Android asks to allow installs from your browser: allow it.
-3. Tap **Install**, open AlteX and log in. Tick "დამახსოვრება ამ ტელეფონზე" to stay logged in.
+3. Tap **Install**, open AlteX and log in.
 
 Newer versions install over the old one and keep you logged in.
 
