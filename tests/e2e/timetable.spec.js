@@ -123,6 +123,28 @@ test.describe('lecture timetable as a time grid', () => {
     expect(strip.y).toBeGreaterThan((await grid.boundingBox()).y + (await grid.boundingBox()).height);
   });
 
+  test('phones: one day per screen, arrows step one day, a tap on the grid turns the whole week sideways', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'the day pager is for phones');
+    await openPortal(page, week(2), { url: '/tables/learningTables', now: '2026-11-18T10:45:00+04:00' });
+    const grid = page.locator('.weeklist-container');
+    const shown = () => grid.evaluate((w) => Math.round(w.scrollLeft / w.querySelector('.headInfo').offsetWidth));
+    await expect.poll(shown).toBe(2); // opens on today, Wednesday
+    await expect(page.locator('[data-day="wed"] > .sx-today')).toHaveText('დღეს');
+    await expect(page.locator('.sx-tt-dots > i[data-on]')).toHaveCount(1);
+    await page.locator('.sx-tt-next').click();
+    await expect.poll(shown).toBe(3);
+    await expect(page.locator('.sx-tt-dots > i').nth(3)).toHaveAttribute('data-on', '');
+    // No side rail on phones: the section tabs sit above the week.
+    expect((await page.locator('.tables-tab-menu').boundingBox()).y).toBeLessThan((await grid.boundingBox()).y);
+    const box = await grid.boundingBox();
+    await page.mouse.click(box.x + box.width * 0.6, box.y + box.height * 0.5); // Thursday early afternoon: no lesson
+    await expect(page.locator('html')).toHaveClass(/sx-tt-turned/);
+    await expect(page.locator('.sx-tt-scrim')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.locator('html')).not.toHaveClass(/sx-tt-turned/);
+    await expect(page.locator('.sx-tt-scrim')).toHaveCount(0);
+  });
+
   test('hover: finished lessons stay dimmed until hovered; a stacked lesson opens to show all of it', async ({ page }) => {
     await openPortal(page, week(2), { url: '/tables/learningTables', now: '2026-11-18T12:15:00+04:00' });
 

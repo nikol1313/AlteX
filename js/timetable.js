@@ -105,6 +105,13 @@ const enhanceWeek = () => {
 
     const label = h.querySelector('.day-title .mdc-button__label') || h.querySelector('.day-title');
     if (label && !label.querySelector('.sx-en')) label.prepend(el('span', 'sx-en', day.en.slice(0, 3)));
+    const badge = h.querySelector(':scope > .sx-today');
+    if (when === 'today' && !badge) h.append(el('span', 'sx-today', 'დღეს'));
+    else if (when !== 'today') badge?.remove();
+    // Phones: small moving chevrons at the header's edges say the week goes on to either side (timetable.css).
+    if (!h.querySelector(':scope > .sx-swipe')) {
+      for (const dir of ['prev', 'next']) { const s = el('span', 'sx-swipe'); s.dataset.dir = dir; s.setAttribute('aria-hidden', 'true'); h.append(s); }
+    }
 
     const list = h.querySelector('.weeklist');
     // The portal leaves the lesson list out of a day with no lessons (seen on Sundays): that day is empty too.
@@ -195,7 +202,7 @@ const SVG = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/>
 const ICON_PREV = SVG('M15 5l-7 7 7 7');
 const ICON_NEXT = SVG('M9 5l7 7-7 7');
 // A phone outline with a turning arrow: "show the week sideways".
-const ICON_TURN = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M3.5 12a8.5 8.5 0 0 0 5 7.7M20.5 12a8.5 8.5 0 0 0-5-7.7M14.5 2.6l1 1.7-1.9.6M9.5 21.4l-1-1.7 1.9-.6"/></svg>';
+const ICON_TURN = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="6" width="7" height="12" rx="1.6"/><path d="M2.6 13.5A9.5 9.5 0 0 1 9.5 2.8M21.4 10.5a9.5 9.5 0 0 1-6.9 10.7"/><path d="M7.2 1.4l2.3 1.4-1.4 2.3M16.8 22.6l-2.3-1.4 1.4-2.3"/></svg>';
 const ICON_CLOSE = SVG('M6 6l12 12M18 6L6 18');
 const shownDays = (heads) => heads.filter((h) => h.getClientRects().length);
 // Which day the week is scrolled to: one day is one column width.
@@ -261,6 +268,11 @@ const mountDayPager = (wrap, heads) => {
   }
   if (!wrap._sxPager) {
     wrap._sxPager = true;
+    // A tap on the grid itself (not a lesson, not a control) turns the week sideways too; a swipe fires no click.
+    wrap.addEventListener('click', (e) => {
+      if (!PHONE_WEEK.matches || root.classList.contains('sx-tt-turned') || e.target.closest('.sx-lesson, button, a, .sx-exams')) return;
+      setTurned(true);
+    });
     let frame = 0;
     wrap.addEventListener('scroll', () => {
       if (frame) return;
@@ -269,7 +281,12 @@ const mountDayPager = (wrap, heads) => {
   }
   // Measured (a forced layout) only when the week or the window changed; scrolling keeps it current otherwise.
   const key = `${innerWidth}|${heads.length}|${heads[0].textContent.slice(0, 40)}`;
-  if (bar.dataset.key !== key) { bar.dataset.key = key; syncPager(wrap, bar); }
+  if (bar.dataset.key !== key) {
+    bar.dataset.key = key;
+    const days = shownDays(heads);
+    days.forEach((d, i) => { d.toggleAttribute('data-sx-first', i === 0); d.toggleAttribute('data-sx-last', i === days.length - 1); });
+    syncPager(wrap, bar);
+  }
 };
 
 // Set by a click on the dashboard week strip: bring that day into view once the current week has rendered.
@@ -330,7 +347,7 @@ const buildRail = (menu) => {
   head.append(el('span', 'sx-rail-title', 'ცხრილი'), el('span', 'sx-rail-sub', 'Schedule'));
   menu.prepend(btn, head);
   menu.addEventListener('click', (e) => {
-    if (e.target.closest('.sx-rail-toggle')) return;
+    if (e.target.closest('.sx-rail-toggle') || PHONE_WEEK.matches) return; // phones: tabs sit on top, no rail to open
     if (!root.classList.contains('sx-rail-open')) { setRail(true); return; }
     if (e.target.closest('.tables-tab-menu a') && window.innerWidth < 860) setRail(false);
   });
