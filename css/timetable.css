@@ -117,7 +117,9 @@ html.sx .calendar-navigation .monthName, html.sx .calendar-navigation .monthName
 
 html.sx .weeklist-container {
   --hd: 76px; --axis: 58px; --t0: 540; --t1: 1080;
-  --ppm: clamp(.8px, ((100dvh - var(--tt-top, 320px)) / var(--z) - var(--hd) - 24px) / (var(--t1) - var(--t0)), 1.6px);
+  /* Floor .76px: two lessons stacked in a 90-minute slot get 45 minutes each, still the 34px a card needs (34 / 45),
+     and a 9-hour week still fits a 1280x720 window at the 1.25 zoom. */
+  --ppm: clamp(.76px, ((100dvh - var(--tt-top, 320px)) / var(--z) - var(--hd) - 24px) / (var(--t1) - var(--t0)), 1.6px);
   position: relative; display: grid !important; grid-template-columns: var(--axis); grid-auto-flow: column; grid-auto-columns: minmax(168px, 1fr);
   width: auto !important; max-width: none !important; float: none !important; gap: 0; box-sizing: border-box;
   overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none;
