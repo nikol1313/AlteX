@@ -37,3 +37,15 @@ test.describe('portal reads answered from memory', () => {
     expect(hits()).toBe(3);
   });
 });
+
+test('<html data-sx-waiting> is set only while a portal request waits on the server', async ({ page }) => {
+  await openPortal(page, '<div></div>', { api: { '/student/program/get': { name: 'CS' } } });
+  await page.evaluate(`window.__xhr = ${xhr.toString()}`);
+  const during = await page.evaluate(() => {
+    const p = window.__xhr('/student/program/get');
+    const set = document.documentElement.hasAttribute('data-sx-waiting');
+    return p.then(() => set);
+  });
+  expect(during).toBe(true);
+  await expect(page.locator('html')).not.toHaveAttribute('data-sx-waiting', '');
+});

@@ -63,6 +63,13 @@ html.sx program-view .program-module { margin-top: 0; border-top: 1px solid var(
 /* Long programmes have thousands of rows: off-screen modules skip style and layout until scrolled to. */
 html.sx program-view .program-module { content-visibility: auto; contain-intrinsic-size: auto 900px; }
 html.sx program-view .program-group { content-visibility: auto; contain-intrinsic-size: auto 600px; }
+html.sx.sx program-view .sx-prog-more { display: block !important; width: 100% !important; padding: 14px !important; border: 0 !important; border-top: 1px solid var(--line) !important; background: var(--box) !important; color: var(--acc) !important; font: inherit !important; font-weight: 500 !important; cursor: pointer !important; }
+html.sx.sx program-view .sx-prog-more[hidden] { display: none !important; }
+@media (hover: hover) { html.sx.sx program-view .sx-prog-more:hover { background: var(--box-hi) !important; } }
+html.sx.sx .sx-prog-top { position: fixed !important; right: 20px !important; bottom: calc(20px + env(safe-area-inset-bottom)) !important; z-index: 50 !important; width: 48px !important; height: 48px !important; padding: 0 !important; border: 1px solid var(--line) !important; border-radius: 50% !important; background: var(--box) !important; color: var(--acc) !important; font-size: 22px !important; line-height: 1 !important; cursor: pointer !important; box-shadow: 0 4px 16px rgb(0 0 0 / .35) !important; opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity .2s, transform .2s, visibility .2s; }
+html.sx.sx .sx-prog-top[data-shown] { opacity: 1; visibility: visible; transform: none; }
+@media (hover: hover) { html.sx.sx .sx-prog-top:hover { background: var(--box-hi) !important; } }
+@media (prefers-reduced-motion: reduce) { html.sx.sx .sx-prog-top { transition: none; } }
 html.sx program-view .program-module:first-of-type { border-top: 0 !important; }
 html.sx.sx program-view .module-header { padding-block: 16px !important; background-color: var(--well) !important; }
 html.sx.sx program-view .module-header .mod-row1 { color: var(--acc) !important; font-weight: 500 !important; }

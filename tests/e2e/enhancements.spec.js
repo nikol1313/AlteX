@@ -102,3 +102,17 @@ test.describe('accessibility', () => {
     await expect(page.locator('#other')).toHaveAttribute('data-label', '');
   });
 });
+
+test.describe('section entrance', () => {
+  test('a section page slides in; the timetable (fixed rail) only fades', async ({ page }) => {
+    await openPortal(page, '<div class="all-page-container"><router-outlet></router-outlet><dashboard-component id="d"></dashboard-component></div>');
+    const anim = (sel) => page.locator(sel).evaluate((e) => getComputedStyle(e).animationName);
+    expect(await anim('#d')).toBe('sx-page-in');
+    expect(await anim('router-outlet')).not.toBe('sx-page-in');
+    await page.evaluate(() => { document.getElementById('d').outerHTML = '<tables-dashboard-component id="t"></tables-dashboard-component>'; });
+    expect(await anim('#t')).toBe('sx-page-fade');
+    // A repeat visit (sx-calm) still slides: the calm rule leaves the page element alone.
+    await page.evaluate(() => document.documentElement.classList.add('sx-calm'));
+    expect(await page.locator('#t').evaluate((e) => getComputedStyle(e).animationDuration)).toBe('0.42s');
+  });
+});
