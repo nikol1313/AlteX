@@ -74,15 +74,11 @@ abstract class BundleExtension : DefaultTask() {
     }
 }
 
-// The app keeps the classic timetable look; the Chrome extension has the redesigns.
-val appOnly = listOf("css/timetable.css", "js/timetable.js")
-    .associateWith { "android/classic/" + it.substringAfter('/') }
-
 val bundleExtension = tasks.register<BundleExtension>("bundleExtension") {
     @Suppress("UNCHECKED_CAST")
-    cssFiles.from(contentScripts.flatMap { (it["css"] as List<String>?).orEmpty() }.map { extDir.resolve(appOnly[it] ?: it) })
+    cssFiles.from(contentScripts.flatMap { (it["css"] as List<String>?).orEmpty() }.map { extDir.resolve(it) })
     @Suppress("UNCHECKED_CAST")
-    jsFiles.from(contentScripts.flatMap { (it["js"] as List<String>?).orEmpty() }.map { extDir.resolve(appOnly[it] ?: it) })
+    jsFiles.from(contentScripts.flatMap { (it["js"] as List<String>?).orEmpty() }.map { extDir.resolve(it) })
     fontFiles.from(fileTree(extDir.resolve("fonts")) { include("*.woff2") })
     outputDir.set(layout.buildDirectory.dir("generated/altex-assets"))
 }

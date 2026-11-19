@@ -322,8 +322,9 @@ html.sx ac-tables-component .exam-filters { display: flex; flex-wrap: wrap; gap:
   html.sx .tables-dashboard .tables-tab-menu a { min-height: 52px; justify-content: center; }
 
 
-  /* Week: swipe sideways through the days, about one and a quarter on screen; the hour axis stays put. */
-  html.sx .weeklist-container { --hd: 64px; --axis: 46px; grid-auto-columns: calc((100% - var(--axis)) * .8); scroll-snap-type: x mandatory; }
+  /* Week: one day per screen beside the hour axis; a swipe or an arrow moves exactly one day (timetable.js). */
+  html.sx .weeklist-container { --hd: 64px; --axis: 46px; grid-auto-columns: calc(100% - var(--axis)); scroll-snap-type: x mandatory; }
+  html.sx .weeklist-container > .headInfo { scroll-snap-stop: always; }
   html.sx .headInfo .day-title { padding: 0 10px !important; }
   html.sx .headInfo .day-number { width: 36px !important; height: 36px !important; }
   html.sx .headInfo .day-number, html.sx .headInfo .day-number * { font-size: 18px !important; }
@@ -410,4 +411,49 @@ html.sx .sx-exam-offname { margin-top: auto; font-size: 22px !important; font-we
 @layer sx {
 /* Day opened from the dashboard week strip: brief accent ring. */
 html.sx .weeklist-container > .headInfo.sx-tt-focus { box-shadow: inset 0 0 0 2px var(--pri) !important; transition: box-shadow 300ms var(--ease) !important; }
+
+/* ---------- Phones: day pager above the week (timetable.js mountDayPager) ---------- */
+html.sx .sx-tt-pager { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; }
+html.sx .sx-tt-pager button, html.sx .sx-tt-close {
+  display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0; border-radius: 10px !important; cursor: pointer;
+  background-color: var(--box) !important; border: 1px solid var(--line) !important; color: var(--fg) !important;
+  transition: background-color 150ms var(--ease-out), opacity 150ms var(--ease-out), transform 120ms var(--ease-out) !important;
+}
+html.sx .sx-tt-pager button:active, html.sx .sx-tt-close:active { transform: scale(.94); background-color: var(--box-hi) !important; }
+html.sx .sx-tt-pager button:disabled { opacity: .35; cursor: default; transform: none; }
+html.sx :is(.sx-tt-pager, .sx-tt-close) svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+html.sx .sx-tt-pager .sx-tt-turn { margin-left: 4px; color: var(--acc) !important; }
+/* One dot per day; the shown day stretches into a bar, today's dot carries the accent. */
+html.sx .sx-tt-dots { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 0; }
+html.sx .sx-tt-dots > i { width: 6px; height: 6px; border-radius: 3px !important; background-color: var(--line) !important; transition: width 220ms var(--ease-out), background-color 220ms var(--ease-out) !important; }
+html.sx .sx-tt-dots > i[data-today] { background-color: color-mix(in srgb, var(--acc) 55%, var(--line)) !important; }
+html.sx .sx-tt-dots > i[data-on] { width: 20px; background-color: var(--fg) !important; }
+html.sx .sx-tt-dots > i[data-on][data-today] { background-color: var(--acc) !important; }
+@media (min-width: 761px) { html.sx .sx-tt-pager { display: none !important; } }
+
+/* ---------- The whole week turned sideways: fixed in the middle, rotated 90°, the page behind blurred ---------- */
+@keyframes sx-tt-turn-in { from { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(.82); } to { opacity: 1; transform: translate(-50%, -50%) rotate(90deg); } }
+@keyframes sx-tt-scrim-in { from { opacity: 0; } to { opacity: 1; } }
+html.sx .sx-tt-scrim {
+  position: fixed; inset: 0; z-index: 1000; background-color: color-mix(in srgb, var(--bg) 55%, transparent) !important;
+  backdrop-filter: blur(14px) saturate(.8); -webkit-backdrop-filter: blur(14px) saturate(.8); animation: sx-tt-scrim-in 240ms var(--ease-out) both !important;
+}
+/* Its long side runs along the phone's height; every day fits, and the hours fit the phone's width. */
+html.sx.sx-tt-turned .weeklist-container {
+  --hd: 56px; --axis: 46px; --ppm: calc((100vw - 32px - var(--hd) - 2px) / (var(--t1) - var(--t0)));
+  position: fixed !important; left: 50%; top: 50%; z-index: 1001; width: calc(100dvh - 128px) !important; height: calc(100vw - 32px); margin: 0 !important;
+  grid-auto-columns: minmax(0, 1fr); overflow: hidden; scroll-snap-type: none;
+  transform: translate(-50%, -50%) rotate(90deg); animation: sx-tt-turn-in 380ms var(--ease-out) both !important;
+  box-shadow: 0 24px 64px -24px rgba(0, 0, 0, .8) !important;
+}
+html.sx.sx-tt-turned .weeklist-container > .headInfo { animation: none !important; }
+/* Turned, a 90-minute lesson is only ~70px tall: its time and course name, nothing else. */
+html.sx.sx-tt-turned .sx-lesson { padding: 5px 7px !important; gap: 2px !important; }
+html.sx.sx-tt-turned .sx-lesson :is(.sx-room, .sx-meta, .sx-lecturer, .sx-status) { display: none !important; }
+html.sx.sx-tt-turned .sx-lesson .sx-time { font-size: 11px !important; }
+html.sx.sx-tt-turned .sx-lesson .sx-course { font-size: 12px !important; line-height: 1.3 !important; display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+/* Bottom-right in portrait is the top-right corner once the phone is turned. */
+html.sx .sx-tt-close { position: fixed; right: 12px; bottom: 12px; z-index: 1002; transform: rotate(90deg); animation: sx-tt-scrim-in 240ms var(--ease-out) both 120ms !important; }
+html.sx .sx-tt-close:active { transform: rotate(90deg) scale(.94); }
+html.sx.sx-tt-turned { overflow: hidden !important; }
 }

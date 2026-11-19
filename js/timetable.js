@@ -89,7 +89,7 @@ const mountWeekSum = (count, minutes) => {
 const enhanceWeek = () => {
   const wrap = document.querySelector('.weeklist-container');
   const heads = [...document.querySelectorAll('.weeklist-container > .headInfo')];
-  if (!wrap || !heads.length) return;
+  if (!wrap || !heads.length) { if (root.classList.contains('sx-tt-turned')) setTurned(false); return; }
   const nowIdx = heads.findIndex((h) => h.classList.contains('now'));
   const now = new Date();
   const nowMin = now.getHours() * 60 + now.getMinutes();
@@ -154,6 +154,7 @@ const enhanceWeek = () => {
   if (wrap.style.getPropertyValue('--t1') !== String(t1)) wrap.style.setProperty('--t1', t1);
   mountAxis(wrap, t0, t1);
   mountWeekSum(count, minutes);
+  mountDayPager(wrap, heads); // before --tt-top is measured: the pager sits above the grid
   // Where the grid starts on the page (after the summary line, which can wrap above it), so CSS can size the hours to end at the bottom of the window.
   // Measured only when something that moves it changed: the read forces a whole-page style and layout update.
   const topKey = `${innerWidth}|${count}|${minutes}|${heads[0]?.textContent.slice(0, 40)}|${wrap.previousElementSibling?.textContent.length}`;
@@ -186,6 +187,89 @@ const enhanceWeek = () => {
     if (wrap.scrollWidth > wrap.clientWidth + 4) wrap.scrollLeft = heads[nowIdx].offsetLeft - (wrap.querySelector('.sx-tt-axis')?.offsetWidth || 0);
   }
   focusPendingDay(heads);
+};
+
+// ---------- Phones: one day per screen, arrows to step through the week, and the whole week turned sideways ----------
+const PHONE_WEEK = matchMedia('(max-width: 760px)');
+const SVG = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
+const ICON_PREV = SVG('M15 5l-7 7 7 7');
+const ICON_NEXT = SVG('M9 5l7 7-7 7');
+// A phone outline with a turning arrow: "show the week sideways".
+const ICON_TURN = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M3.5 12a8.5 8.5 0 0 0 5 7.7M20.5 12a8.5 8.5 0 0 0-5-7.7M14.5 2.6l1 1.7-1.9.6M9.5 21.4l-1-1.7 1.9-.6"/></svg>';
+const ICON_CLOSE = SVG('M6 6l12 12M18 6L6 18');
+const shownDays = (heads) => heads.filter((h) => h.getClientRects().length);
+// Which day the week is scrolled to: one day is one column width.
+const pagerIndex = (wrap, days) => (days[0] ? Math.round(wrap.scrollLeft / days[0].offsetWidth) : 0);
+const syncPager = (wrap, bar) => {
+  const days = shownDays([...wrap.querySelectorAll(':scope > .headInfo')]);
+  const i = Math.max(0, Math.min(days.length - 1, pagerIndex(wrap, days)));
+  const dots = bar.querySelector('.sx-tt-dots');
+  if (dots.children.length !== days.length) {
+    dots.replaceChildren(...days.map((d) => { const b = el('i'); if (d.dataset.when === 'today') b.dataset.today = ''; return b; }));
+  }
+  [...dots.children].forEach((b, n) => b.toggleAttribute('data-on', n === i));
+  bar.querySelector('.sx-tt-prev').disabled = i <= 0;
+  bar.querySelector('.sx-tt-next').disabled = i >= days.length - 1;
+  const name = days[i]?.querySelector('.day-name')?.textContent.trim();
+  if (name) bar.querySelector('.sx-tt-dots').setAttribute('aria-label', `${name} · ${i + 1} / ${days.length}`);
+};
+const stepDay = (wrap, dir) => {
+  const days = shownDays([...wrap.querySelectorAll(':scope > .headInfo')]);
+  if (!days[0]) return;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  wrap.scrollBy({ left: dir * days[0].offsetWidth, behavior: reduce ? 'auto' : 'smooth' });
+};
+const setTurned = (on) => {
+  if (root.classList.contains('sx-tt-turned') === on) return;
+  root.classList.toggle('sx-tt-turned', on);
+  if (on) {
+    const scrim = el('div', 'sx-tt-scrim');
+    const close = el('button', 'sx-tt-close');
+    close.type = 'button';
+    close.setAttribute('aria-label', 'დახურვა · Close');
+    close.innerHTML = ICON_CLOSE;
+    scrim.addEventListener('click', () => setTurned(false));
+    close.addEventListener('click', () => setTurned(false));
+    document.body.append(scrim, close);
+  } else document.querySelectorAll('body > :is(.sx-tt-scrim, .sx-tt-close)').forEach((e) => e.remove());
+};
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && root.classList.contains('sx-tt-turned')) setTurned(false); });
+// Leaving the timetable or widening the window ends the sideways view.
+PHONE_WEEK.addEventListener('change', () => { if (!PHONE_WEEK.matches) setTurned(false); schedule(); });
+const mountDayPager = (wrap, heads) => {
+  let bar = wrap.previousElementSibling?.classList.contains('sx-tt-pager') ? wrap.previousElementSibling : null;
+  if (!PHONE_WEEK.matches) { bar?.remove(); setTurned(false); return; }
+  if (!bar) {
+    bar = el('div', 'sx-tt-pager');
+    const btn = (cls, label, icon, fn) => {
+      const b = el('button', cls);
+      b.type = 'button';
+      b.setAttribute('aria-label', label);
+      b.innerHTML = icon;
+      b.addEventListener('click', fn);
+      return b;
+    };
+    const dots = el('div', 'sx-tt-dots');
+    dots.setAttribute('role', 'status');
+    bar.append(
+      btn('sx-tt-prev', 'წინა დღე · Previous day', ICON_PREV, () => stepDay(wrap, -1)),
+      dots,
+      btn('sx-tt-next', 'შემდეგი დღე · Next day', ICON_NEXT, () => stepDay(wrap, 1)),
+      btn('sx-tt-turn', 'მთელი კვირა გვერდულად · Whole week sideways', ICON_TURN, () => setTurned(true)),
+    );
+    wrap.before(bar);
+  }
+  if (!wrap._sxPager) {
+    wrap._sxPager = true;
+    let frame = 0;
+    wrap.addEventListener('scroll', () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => { frame = 0; const b = wrap.previousElementSibling; if (b?.classList.contains('sx-tt-pager')) syncPager(wrap, b); });
+    }, { passive: true });
+  }
+  // Measured (a forced layout) only when the week or the window changed; scrolling keeps it current otherwise.
+  const key = `${innerWidth}|${heads.length}|${heads[0].textContent.slice(0, 40)}`;
+  if (bar.dataset.key !== key) { bar.dataset.key = key; syncPager(wrap, bar); }
 };
 
 // Set by a click on the dashboard week strip: bring that day into view once the current week has rendered.
