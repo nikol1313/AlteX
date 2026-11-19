@@ -202,7 +202,7 @@ const SVG = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/>
 const ICON_PREV = SVG('M15 5l-7 7 7 7');
 const ICON_NEXT = SVG('M9 5l7 7-7 7');
 // A phone outline with a turning arrow: "show the week sideways".
-const ICON_TURN = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="6" width="7" height="12" rx="1.6"/><path d="M2.6 13.5A9.5 9.5 0 0 1 9.5 2.8M21.4 10.5a9.5 9.5 0 0 1-6.9 10.7"/><path d="M7.2 1.4l2.3 1.4-1.4 2.3M16.8 22.6l-2.3-1.4 1.4-2.3"/></svg>';
+const ICON_TURN = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="7" width="6" height="10" rx="1.4"/><path d="M1.6 13.8A10.6 10.6 0 0 1 9.4 1.8M22.4 10.2a10.6 10.6 0 0 1-7.8 12"/><path d="M7 .6l2.4 1.2-1.2 2.4M17 23.4l-2.4-1.2 1.2-2.4"/></svg>';
 const ICON_CLOSE = SVG('M6 6l12 12M18 6L6 18');
 const shownDays = (heads) => heads.filter((h) => h.getClientRects().length);
 // Which day the week is scrolled to: one day is one column width.

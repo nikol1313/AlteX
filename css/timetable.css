@@ -308,7 +308,11 @@ html.sx ac-tables-component .exam-filters { display: flex; flex-wrap: wrap; gap:
   /* No rail: the sections sit on top of the page as one row of tabs (swiped sideways), semester and programme under it. */
   html.sx, html.sx.sx-rail-open { --rail-w: 0px; }
   html.sx.sx-has-rail body { padding-left: 0 !important; transition: none !important; }
-  html.sx tables-dashboard-component > .width { height: auto; padding: 12px 16px 0 !important; margin-bottom: 20px !important; }
+  /* Tight top: the portal's own spacing above the tabs and around the moved pickers was the blank band. */
+  html.sx.sx.sx.sx-ttdash .all-page-container { padding-top: 8px !important; }
+  html.sx tables-dashboard-component, html.sx tables-dashboard-component > .width { margin: 0 !important; }
+  html.sx tables-dashboard-component > .width { height: auto; padding: 4px 16px 0 !important; margin-bottom: 14px !important; }
+  html.sx.sx student-tables-component > div { padding-top: 0 !important; margin-top: 0 !important; }
   html.sx .tables-dashboard, html.sx.sx-rail-open .tables-dashboard {
     position: static !important; inset: auto !important; z-index: auto; width: auto !important; height: auto !important; overflow: visible !important; zoom: 1;
     padding: 0 !important; gap: 8px; cursor: default; background-color: transparent !important; border: 0 !important; transition: none !important;
@@ -328,8 +332,21 @@ html.sx ac-tables-component .exam-filters { display: flex; flex-wrap: wrap; gap:
   html.sx .tables-dashboard .tables-tab-menu a.active { border-color: color-mix(in srgb, var(--acc) 45%, var(--line)) !important; }
   html.sx .sx-rail-filters, html.sx:not(.sx-rail-open) .sx-rail-filters { width: auto; margin: 0; padding: 0 !important; border: 0 !important; visibility: visible; opacity: 1; pointer-events: auto; }
   html.sx .sx-rail-filters > div { flex-direction: row !important; gap: 8px; }
-  html.sx .sx-rail-filters mat-form-field { flex: 1 1 0; min-width: 0; }
-  html.sx .sx-rail-filters :is(.mat-mdc-select-value, .mat-mdc-select-value *) { font-size: 14px !important; white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; }
+  /* Semester and programme: two boxed pickers, like the student card's, each with one chevron of ours. */
+  html.sx .sx-rail-filters mat-form-field {
+    position: relative; flex: 1 1 0; min-width: 0; height: 44px; margin: 0 !important; padding: 0 32px 0 12px !important; box-sizing: border-box;
+    display: flex !important; align-items: center; border-radius: 10px !important; background-color: var(--box) !important; border: 1px solid var(--line) !important;
+  }
+  html.sx .sx-rail-filters mat-form-field::after {
+    content: ""; position: absolute; right: 13px; top: 50%; width: 7px; height: 7px; margin-top: -6px; pointer-events: none;
+    border: solid; border-width: 0 1.5px 1.5px 0; border-color: var(--fg2) !important; transform: rotate(45deg);
+  }
+  html.sx .sx-rail-filters :is(.mat-mdc-form-field-subscript-wrapper, .mat-mdc-floating-label, mat-label, .mdc-notched-outline, .mdc-line-ripple, .mat-mdc-select-arrow-wrapper, .mat-mdc-form-field-focus-overlay) { display: none !important; }
+  html.sx .sx-rail-filters :is(.mat-mdc-text-field-wrapper, .mat-mdc-form-field-flex, .mat-mdc-form-field-infix) {
+    width: 100% !important; height: 42px !important; min-height: 0 !important; padding: 0 !important; display: flex !important; align-items: center !important; background: transparent !important;
+  }
+  html.sx .sx-rail-filters .mat-mdc-select { width: 100% !important; }
+  html.sx .sx-rail-filters :is(.mat-mdc-select-value, .mat-mdc-select-value *) { font-size: 14px !important; color: var(--fg) !important; white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; }
   /* Countdowns: separate cards with room between them (doubled class: the base panel rules come later in this file). */
   html.sx.sx .sx-exams { grid-template-columns: 1fr; gap: 10px; margin-top: 16px; overflow: visible; border: 0 !important; border-radius: 0 !important; background-color: transparent !important; box-shadow: none !important; }
   html.sx.sx .sx-exam { gap: 8px; padding: 16px 18px; border: 1px solid var(--line) !important; border-radius: 14px !important; box-shadow: var(--shadow) !important; }
@@ -489,15 +506,13 @@ html.sx .weeklist-container > .headInfo > .sx-today {
 html.sx .weeklist-container > .headInfo > .sx-swipe { display: none; }
 @media (max-width: 760px) {
   html.sx:not(.sx-tt-turned) .weeklist-container > .headInfo > .sx-swipe {
-    display: block; position: absolute; top: calc(var(--hd) / 2 - 4px); width: 7px; height: 7px; pointer-events: none;
+    display: block; position: absolute; top: calc(50% - 4px); z-index: 3; width: 7px; height: 7px; pointer-events: none;
     border: solid; border-width: 0 1.6px 1.6px 0; border-color: var(--fg2) !important;
   }
   html.sx .weeklist-container > .headInfo > .sx-swipe[data-dir="prev"] { left: 5px; animation: sx-swipe-prev 1.4s var(--ease) 4 600ms both !important; }
   html.sx .weeklist-container > .headInfo > .sx-swipe[data-dir="next"] { right: 5px; animation: sx-swipe-next 1.4s var(--ease) 4 600ms both !important; }
   html.sx .weeklist-container > .headInfo[data-sx-first] > .sx-swipe[data-dir="prev"],
   html.sx .weeklist-container > .headInfo[data-sx-last] > .sx-swipe[data-dir="next"] { display: none; }
-  /* Today's label moves left of the next-day chevron. */
-  html.sx .weeklist-container > .headInfo > .sx-today { right: 20px; }
 }
 
 /* Keyboard focus on the phone controls: an accent ring a little outside the button. */
