@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 // README screenshots: made-up portal pages with AlteX injected, as tests/e2e/portal.js does (same origin, scripts at
-// document start), shot on a desktop window (the Chrome extension) and on a phone (the Android app, which keeps the
-// classic timetable files, see android/app/build.gradle.kts).
+// document start), shot on a desktop window (the Chrome extension) and on a phone (the Android app runs the same files).
 // Made-up student and data only; nothing here talks to the real portal.
 // Run: npm run screenshots  →  docs/screenshots/*.png (README) and docs/store/*.jpg (Chrome Web Store: 1280×800,
 // JPEG so there is no alpha channel; drawn in a 1920×1200 window, same 16:10 shape, then scaled down).
@@ -13,9 +12,8 @@ const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'docs', 'screenshots');
 const ORIGIN = 'https://students.alte.edu.ge';
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.json'), 'utf8'));
-const APP_ONLY = ['css/timetable.css', 'js/timetable.js'];
-const bundle = (app) => {
-  const read = (f) => fs.readFileSync(path.join(ROOT, app && APP_ONLY.includes(f) ? `android/classic/${path.basename(f)}` : f), 'utf8');
+const bundle = () => {
+  const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
   const all = (k) => manifest.content_scripts.flatMap((c) => c[k] || []);
   return { js: all('js').map(read).join('\n;\n'), css: all('css').map(read).join('\n').replaceAll('chrome-extension://__MSG_@@extension_id__/fonts/', '/__altex/fonts/') };
 };
@@ -127,9 +125,9 @@ const SHOTS = [
 ];
 const STORE_OUT = path.join(ROOT, 'docs', 'store');
 const DEVICES = [
-  { suffix: '', app: false, use: { viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1.25 } },
-  { suffix: '-phone', app: true, use: { ...devices['Pixel 7'] } },
-  { store: true, app: false, use: { viewport: { width: 1920, height: 1200 }, deviceScaleFactor: 1 } },
+  { suffix: '', use: { viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1.25 } },
+  { suffix: '-phone', use: { ...devices['Pixel 7'] } },
+  { store: true, use: { viewport: { width: 1920, height: 1200 }, deviceScaleFactor: 1 } },
 ];
 // One 1280×800 JPEG from an image (a PNG buffer or file), drawn centred on the app's background colour.
 const storeShot = async (browser, png, file) => {
@@ -146,7 +144,7 @@ const storeShot = async (browser, png, file) => {
   fs.mkdirSync(STORE_OUT, { recursive: true });
   const browser = await chromium.launch();
   for (const d of DEVICES) {
-    const { js, css } = bundle(d.app);
+    const { js, css } = bundle();
     for (const shot of SHOTS) {
       const context = await browser.newContext({ ...d.use, locale: 'ka-GE', timezoneId: 'Asia/Tbilisi', colorScheme: 'dark' });
       const p = await context.newPage();
