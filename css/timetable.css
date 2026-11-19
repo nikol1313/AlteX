@@ -160,8 +160,8 @@ html.sx .headInfo .day-title .mdc-button__label {
   display: grid !important; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "num en" "num ka";
   align-items: center; column-gap: 10px; row-gap: 1px; width: 100%;
 }
-html.sx .headInfo .sx-en { grid-area: en; align-self: end; font-size: 12px !important; font-weight: 500 !important; letter-spacing: .08em !important; text-transform: uppercase; color: var(--fg2) !important; }
-html.sx .headInfo .day-name { grid-area: ka; align-self: start; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 13px !important; color: var(--fg2) !important; }
+html.sx .headInfo .sx-en { grid-area: en; align-self: end; font-size: 12px !important; font-weight: 500 !important; letter-spacing: .08em !important; text-transform: uppercase; color: color-mix(in srgb, var(--fg) 70%, var(--fg2)) !important; }
+html.sx .headInfo .day-name { grid-area: ka; align-self: start; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px !important; color: color-mix(in srgb, var(--fg) 82%, var(--fg2)) !important; }
 html.sx .headInfo .day-name * { font-size: inherit !important; color: inherit !important; }
 html.sx .headInfo .day-name.mobile { display: none !important; }
 html.sx .headInfo :is(.day-number, .day-name, .day-number > div) { position: static !important; inset: auto !important; transform: none !important; margin: 0 !important; padding: 0 !important; text-align: left !important; }
@@ -177,7 +177,7 @@ html.sx .headInfo .day-number > div { width: auto !important; height: auto !impo
 html.sx .headInfo[data-when="today"] .day-number { background-color: var(--pri) !important; }
 html.sx .headInfo[data-when="today"] .day-number * { color: #fff !important; }
 html.sx .headInfo[data-when="today"] .sx-en { color: var(--acc) !important; }
-html.sx .headInfo[data-when="past"] .day-title { opacity: .55; }
+html.sx .headInfo[data-when="past"] .day-title { opacity: .85; }
 
 /* The hour grid: one faint line per hour, behind the lessons. */
 html.sx .headInfo .weeklist {
@@ -198,7 +198,7 @@ html.sx .weeklist > .sx-lesson {
   height: calc((var(--e) - var(--s)) * var(--ppm) - 4px); min-height: max(34px, (var(--e) - var(--s)) * var(--ppm) - 4px);
   display: flex; flex-direction: column; gap: 3px; padding: 8px 10px 10px;
   border-radius: 6px !important; color: var(--fg); cursor: default; interpolate-size: allow-keywords; container-type: inline-size;
-  background-color: color-mix(in srgb, var(--c) 15%, var(--box)) !important; border: 1px solid color-mix(in srgb, var(--c) 32%, transparent) !important;
+  background-color: color-mix(in srgb, var(--c) 24%, var(--box)) !important; border: 1px solid color-mix(in srgb, var(--c) 58%, transparent) !important;
   animation: sx-l-in 320ms var(--ease-out) backwards !important; animation-delay: calc(80ms + var(--i, 0) * 30ms + var(--n, 0) * 40ms) !important;
   box-shadow: 0 12px 28px -10px var(--shade) !important;
   transition: height 220ms var(--ease-out), border-color 150ms var(--ease-out), opacity 150ms var(--ease-out) !important;
@@ -215,22 +215,22 @@ html.sx .sx-time { white-space: nowrap; }
 html.sx .sx-lesson[data-stacked]:not(:hover, :focus-visible) :is(.sx-meta, .sx-lecturer) { display: none; }
 html.sx .sx-lesson[data-stacked] .sx-room { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 html.sx .sx-l-top { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
-html.sx .sx-time { font-size: 12px !important; font-weight: 500 !important; line-height: 1.3 !important; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--c) 60%, var(--fg)) !important; }
-html.sx .sx-room { margin-left: auto; font-size: 12px !important; line-height: 1.3 !important; white-space: nowrap; color: var(--fg2) !important; }
+html.sx .sx-time { font-size: 12px !important; font-weight: 500 !important; line-height: 1.3 !important; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--c) 45%, var(--fg)) !important; }
+html.sx .sx-room { margin-left: auto; font-size: 12px !important; line-height: 1.3 !important; white-space: nowrap; color: color-mix(in srgb, var(--fg) 75%, var(--fg2)) !important; }
 html.sx .sx-room::before { content: "აუდ. "; }
 html.sx .sx-course {
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
   font-size: 14px !important; font-weight: 500 !important; line-height: 1.3 !important; letter-spacing: -0.005em !important; color: var(--fg) !important; overflow-wrap: break-word;
 }
 html.sx .sx-lesson:is(:hover, :focus-visible) .sx-course { -webkit-line-clamp: unset; }
-html.sx :is(.sx-meta, .sx-lecturer) { font-size: 12px !important; line-height: 1.35 !important; color: var(--fg2) !important; }
+html.sx :is(.sx-meta, .sx-lecturer) { font-size: 12px !important; line-height: 1.35 !important; color: color-mix(in srgb, var(--fg) 70%, var(--fg2)) !important; }
 html.sx .sx-l-fill { position: absolute; inset: 0 0 auto; z-index: -1; height: 0; background-color: color-mix(in srgb, var(--c) 24%, transparent) !important; pointer-events: none; }
 html.sx .sx-status { padding: 1px 7px; border-radius: 4px !important; font-size: 11px !important; font-weight: 500 !important; line-height: 1.5 !important; }
 html.sx .sx-lesson[data-status="live"] { border-color: var(--c) !important; }
 html.sx .sx-lesson[data-status="live"] .sx-l-fill { height: calc(var(--p, 0) * 100%); transition: height 1s var(--ease) !important; }
 html.sx .sx-lesson[data-status="live"] .sx-status { background-color: var(--c) !important; color: var(--bg) !important; }
 html.sx .sx-lesson[data-status="next"] .sx-status { color: color-mix(in srgb, var(--c) 60%, var(--fg)) !important; box-shadow: inset 0 0 0 1px var(--c) !important; }
-html.sx .sx-lesson[data-status="done"] { opacity: .5; }
+html.sx .sx-lesson[data-status="done"] { opacity: .72; }
 html.sx .sx-lesson[data-status="done"]:is(:hover, :focus-visible) { opacity: 1; }
 html.sx .sx-lesson[data-status="done"] .sx-status { display: none; }
 /* Narrow lessons (small screens): the status pill becomes a dot, the room stops pushing right. */

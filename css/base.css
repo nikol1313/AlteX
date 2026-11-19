@@ -451,6 +451,13 @@ html.sx :is(.mdc-switch__handle, .mdc-switch__shadow) { border-radius: 999px !im
 html.sx .mdc-switch__handle::before, html.sx .mdc-switch__handle::after { background-color: #F2EDEF !important; border-radius: 999px !important; }
 
 /* ---------- Overlays ---------- */
+/* Date picker (the timetable's month): its own sizes, not the portal-table text and button padding above, which pushed
+   the numbers off their boxes and the last week out of the popup. Material sizes each day cell by its td padding. */
+html.sx.sx .mat-calendar { height: auto !important; font-size: 13px !important; line-height: normal !important; }
+html.sx.sx .mat-calendar-table { font-size: 13px !important; line-height: normal !important; }
+html.sx.sx .mat-calendar-table th { padding: 0 0 8px !important; font-size: 11px !important; }
+html.sx.sx .mat-calendar-body-cell { padding: 0 !important; font-size: 13px !important; line-height: normal !important; }
+html.sx.sx .mat-calendar-body-label { padding-top: 0 !important; padding-bottom: 0 !important; height: 28px; font-size: 12px !important; }
 html.sx :is(.mat-mdc-dialog-surface, .mat-mdc-select-panel, .mat-mdc-menu-panel, .mat-datepicker-content) {
   border-radius: var(--r) !important; border: 1px solid var(--line) !important; background-color: var(--box) !important;
   box-shadow: 0 28px 64px -24px var(--shade) !important;
