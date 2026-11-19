@@ -129,6 +129,12 @@ const setRail = (open) => {
   document.querySelector('.sx-rail-toggle')?.setAttribute('aria-expanded', String(open));
   store.set(RAIL_KEY, open ? '1' : '0');
 };
+// Phones: a press outside the open rail closes it. Added once (the rail is rebuilt on every visit to the timetable).
+document.addEventListener('click', (e) => {
+  if (window.innerWidth >= 860 || !root.classList.contains('sx-rail-open')) return;
+  if (e.target.closest('.tables-dashboard, .cdk-overlay-container')) return;
+  setRail(false);
+});
 const buildRail = (menu) => {
   const stored = store.get(RAIL_KEY);
   const btn = el('button', 'sx-rail-toggle');
@@ -143,11 +149,6 @@ const buildRail = (menu) => {
     if (e.target.closest('.sx-rail-toggle')) return;
     if (!root.classList.contains('sx-rail-open')) { setRail(true); return; }
     if (e.target.closest('.tables-tab-menu a') && window.innerWidth < 860) setRail(false);
-  });
-  document.addEventListener('click', (e) => {
-    if (window.innerWidth >= 860 || !root.classList.contains('sx-rail-open')) return;
-    if (e.target.closest('.tables-dashboard, .cdk-overlay-container')) return;
-    setRail(false);
   });
   menu.append(el('span', 'sx-rail-hint'));
   // Phones always start with the lessons visible: opened, the rail covers the whole page.
