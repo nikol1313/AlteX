@@ -74,8 +74,8 @@ abstract class BundleExtension : DefaultTask() {
     }
 }
 
-// The app keeps the classic timetable, student card and homework look; the Chrome extension has the redesigns.
-val appOnly = listOf("css/timetable.css", "js/timetable.js", "css/learning-card.css", "js/learning-card.js", "css/assignments.css")
+// The app keeps the classic timetable and homework look; the Chrome extension has the redesigns.
+val appOnly = listOf("css/timetable.css", "js/timetable.js", "css/assignments.css")
     .associateWith { "android/classic/" + it.substringAfter('/') }
 
 val bundleExtension = tasks.register<BundleExtension>("bundleExtension") {
