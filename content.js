@@ -1,18 +1,4 @@
-// Alte Portal — riddled.ai style
-// 1. Marks <html> so styles.css applies.
-// 2. Marks zero counts (hidden) and grade letters (failing ones get the accent).
-// 3. Adds an "idc" button to the notification popup: close it and go to the dashboard.
-// 4. AlteX wordmark (CSS) and a once-per-session welcome splash.
-// 5. Navigation bar: main sections in one row, the rest under "მეტი · More".
-// 6. Learning card: current semester open, older ones folded; score bars.
-// 7. Timetable page: clearer day blocks, foldable left menu, exam cards.
-// 8. Finances summary card; applications calendar as a list; timetable loading skeleton.
-// 9. On the dashboard, fills the three main sections with a few lines of real data,
-//    read from the same read-only endpoints the portal itself uses, with the
-//    session the portal already stored. Nothing is written; no site behaviour changes.
-// 10. Academic calendar (exam periods, days off): countdowns on the timetable and dashboard.
-// 11. Assignments page: per course, a fold with the five latest assignments.
-// 12. Login page: brand panel with an animated week.
+
 (() => {
   'use strict';
   const root = document.documentElement;
