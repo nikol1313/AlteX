@@ -159,7 +159,7 @@ test.describe('lecture timetable as a time grid', () => {
 
     const algo = page.locator('[data-day="wed"] .sx-lesson').nth(1);
     await expect(algo).toHaveAttribute('data-status', 'done');
-    await expect(algo).toHaveCSS('opacity', '0.5');
+    await expect(algo).toHaveCSS('opacity', '0.72');
     const short = (await algo.boundingBox()).height;
     await algo.hover();
     await expect(algo).toHaveCSS('opacity', '1');
