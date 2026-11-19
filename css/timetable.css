@@ -311,8 +311,11 @@ html.sx ac-tables-component .exam-filters { display: flex; flex-wrap: wrap; gap:
   /* Tight top: the portal's own spacing above the tabs and around the moved pickers was the blank band. */
   html.sx.sx.sx.sx-ttdash .all-page-container { padding-top: 8px !important; }
   html.sx tables-dashboard-component, html.sx tables-dashboard-component > .width { margin: 0 !important; }
-  html.sx tables-dashboard-component > .width { height: auto; padding: 4px 16px 0 !important; margin-bottom: 14px !important; }
+  html.sx tables-dashboard-component > .width { height: auto; padding: 4px 16px 0 !important; margin-bottom: 12px !important; }
+  /* The portal's empty 63px box above the tabs (zero-height parent on wide screens, a blank band here). */
+  html.sx tables-dashboard-component > .width > div:not(.tables-dashboard):not(:has(*)) { display: none !important; }
   html.sx.sx student-tables-component > div { padding-top: 0 !important; margin-top: 0 !important; }
+  html.sx.sx student-tables-component .calendar { margin-top: 0 !important; }
   html.sx .tables-dashboard, html.sx.sx-rail-open .tables-dashboard {
     position: static !important; inset: auto !important; z-index: auto; width: auto !important; height: auto !important; overflow: visible !important; zoom: 1;
     padding: 0 !important; gap: 8px; cursor: default; background-color: transparent !important; border: 0 !important; transition: none !important;
@@ -334,7 +337,7 @@ html.sx ac-tables-component .exam-filters { display: flex; flex-wrap: wrap; gap:
   html.sx .sx-rail-filters > div { flex-direction: row !important; gap: 8px; }
   /* Semester and programme: two boxed pickers, like the student card's, each with one chevron of ours. */
   html.sx .sx-rail-filters mat-form-field {
-    position: relative; flex: 1 1 0; min-width: 0; height: 44px; margin: 0 !important; padding: 0 32px 0 12px !important; box-sizing: border-box;
+    position: relative; flex: 1 1 0; min-width: 0; height: 44px; margin: 0 !important; padding: 0 !important; box-sizing: border-box;
     display: flex !important; align-items: center; border-radius: 10px !important; background-color: var(--box) !important; border: 1px solid var(--line) !important;
   }
   html.sx .sx-rail-filters mat-form-field::after {
@@ -345,7 +348,13 @@ html.sx ac-tables-component .exam-filters { display: flex; flex-wrap: wrap; gap:
   html.sx .sx-rail-filters :is(.mat-mdc-text-field-wrapper, .mat-mdc-form-field-flex, .mat-mdc-form-field-infix) {
     width: 100% !important; height: 42px !important; min-height: 0 !important; padding: 0 !important; display: flex !important; align-items: center !important; background: transparent !important;
   }
-  html.sx .sx-rail-filters .mat-mdc-select { width: 100% !important; }
+  /* The select's trigger fills the box: the portal's was 25px tall in a 58px field, and taps around it did nothing. */
+  html.sx .sx-rail-filters .mat-mdc-select { width: 100% !important; height: 100% !important; display: block !important; }
+  html.sx .sx-rail-filters .mat-mdc-select-trigger { height: 100% !important; width: 100% !important; padding: 0 32px 0 12px !important; box-sizing: border-box; display: flex !important; align-items: center; }
+  /* Its option list may be wider than the half-width box, so long semester names fit. */
+  html.sx .cdk-overlay-pane:has(> .mat-mdc-select-panel) { min-width: min(340px, calc(100vw - 32px)) !important; }
+  html.sx .mat-mdc-select-panel .mat-mdc-option { min-height: 44px !important; }
+  html.sx .mat-mdc-select-panel .mdc-list-item__primary-text { white-space: normal !important; font-size: 14px !important; line-height: 1.35 !important; }
   html.sx .sx-rail-filters :is(.mat-mdc-select-value, .mat-mdc-select-value *) { font-size: 14px !important; color: var(--fg) !important; white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; }
   /* Countdowns: separate cards with room between them (doubled class: the base panel rules come later in this file). */
   html.sx.sx .sx-exams { grid-template-columns: 1fr; gap: 10px; margin-top: 16px; overflow: visible; border: 0 !important; border-radius: 0 !important; background-color: transparent !important; box-shadow: none !important; }
@@ -470,14 +479,14 @@ html.sx .sx-tt-dots > i[data-on][data-today] { background-color: var(--acc) !imp
 @keyframes sx-tt-scrim-in { from { opacity: 0; } to { opacity: 1; } }
 html.sx .sx-tt-scrim {
   position: fixed; inset: 0; z-index: 1000; background-color: color-mix(in srgb, var(--bg) 55%, transparent) !important;
-  backdrop-filter: blur(14px) saturate(.8); -webkit-backdrop-filter: blur(14px) saturate(.8); animation: sx-tt-scrim-in 240ms var(--ease-out) both !important;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); animation: sx-tt-scrim-in 200ms var(--ease-out) both !important;
 }
 /* Its long side runs along the phone's height; every day fits, and the hours fit the phone's width. */
 html.sx.sx-tt-turned .weeklist-container {
   --hd: 56px; --axis: 46px; --ppm: calc((100vw - 32px - var(--hd) - 2px) / (var(--t1) - var(--t0)));
   position: fixed !important; left: 50%; top: 50%; z-index: 1001; width: calc(100dvh - 128px) !important; height: calc(100vw - 32px); margin: 0 !important;
   grid-auto-columns: minmax(0, 1fr); overflow: hidden; scroll-snap-type: none;
-  transform: translate(-50%, -50%) rotate(90deg); animation: sx-tt-turn-in 380ms var(--ease-out) both !important;
+  transform: translate(-50%, -50%) rotate(90deg); animation: sx-tt-turn-in 300ms var(--ease-out) both !important; will-change: transform, opacity; contain: layout paint;
   box-shadow: 0 24px 64px -24px rgba(0, 0, 0, .8) !important;
 }
 html.sx.sx-tt-turned .weeklist-container > .headInfo { animation: none !important; }
@@ -520,6 +529,6 @@ html.sx :is(.sx-tt-pager button, .sx-tt-close):focus-visible { outline: 2px soli
 html.sx .sx-tt-pager .sx-tt-turn { border-color: color-mix(in srgb, var(--acc) 35%, var(--line)) !important; background-color: color-mix(in srgb, var(--acc) 8%, var(--box)) !important; }
 /* Turned: once the week has swung round, its lessons pop in day by day. */
 @keyframes sx-l-pop { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: none; } }
-html.sx.sx-tt-turned .sx-lesson { animation: sx-l-pop 260ms var(--ease-out) both !important; animation-delay: calc(300ms + var(--i, 0) * 45ms + var(--n, 0) * 25ms) !important; }
+html.sx.sx-tt-turned .sx-lesson { animation: sx-l-pop 220ms var(--ease-out) both !important; animation-delay: calc(140ms + var(--i, 0) * 30ms) !important; }
 @media (max-width: 760px) { html.sx:not(.sx-tt-turned) .weeklist-container .weeklist { cursor: zoom-in; } }
 }

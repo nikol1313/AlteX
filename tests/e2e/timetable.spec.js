@@ -145,6 +145,15 @@ test.describe('lecture timetable as a time grid', () => {
     await expect(page.locator('.sx-tt-scrim')).toHaveCount(0);
   });
 
+  test('the month picker keeps its day grid: table cell padding rules skip the date picker', async ({ page }) => {
+    // Material sizes each day cell with td padding; AlteX's padding for portal tables collapsed the month into one line.
+    const picker = '<div class="cdk-overlay-container"><mat-calendar><table class="mat-calendar-table"><thead><tr><th>M</th></tr></thead><tbody class="mat-calendar-body"><tr><td class="mat-calendar-body-cell-container" style="padding-top: 7%">1</td></tr></tbody></table></mat-calendar></div><table class="plain"><tr><td style="padding-top: 7%">x</td></tr></table>';
+    await openPortal(page, week(2) + picker, { url: '/tables/learningTables', now: '2026-11-18T10:45:00+04:00' });
+    const pad = (sel) => page.locator(sel).evaluate((e) => parseFloat(getComputedStyle(e).paddingTop));
+    expect(await pad('.mat-calendar-body td')).toBeGreaterThan(0);
+    expect(await pad('table.plain td')).toBe(0); // other tables keep AlteX's spacing
+  });
+
   test('hover: finished lessons stay dimmed until hovered; a stacked lesson opens to show all of it', async ({ page }) => {
     await openPortal(page, week(2), { url: '/tables/learningTables', now: '2026-11-18T12:15:00+04:00' });
 

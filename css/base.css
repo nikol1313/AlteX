@@ -339,10 +339,11 @@ html.sx :is(.mat-elevation-z8, .mat-expansion-panel) :is(.mat-elevation-z8, .mat
 html.sx :is(.mat-mdc-table, mat-table, table) { width: 100% !important; }
 html.sx :is(.semester-child, .mat-elevation-z8, .curation_cont, .program-wrapper, .calendar, .page-messages) { overflow-x: auto !important; }
 html.sx :is(mat-header-row, .mat-mdc-header-row) { min-height: 0 !important; padding: 0 0 8px !important; }
-html.sx :is(mat-header-cell, .mat-mdc-header-cell, th) { color: var(--fg2) !important; font-size: 15px !important; padding: 0 12px 0 0 !important; text-align: left !important; }
+html.sx :is(mat-header-cell, .mat-mdc-header-cell, th:not(.mat-calendar-table th)) { color: var(--fg2) !important; font-size: 15px !important; padding: 0 12px 0 0 !important; text-align: left !important; }
 html.sx :is(mat-row, .mat-mdc-row) { min-height: 0 !important; padding: 10px 0 !important; }
 html.sx :is(mat-row, .mat-mdc-row):has(> .mat-column-expandedDetail) { padding: 0 !important; }
-html.sx :is(mat-cell, .mat-mdc-cell, td) { padding: 0 12px 0 0 !important; color: var(--fg) !important; }
+/* Not the date picker's cells: Material sizes its day grid with their padding (the days collapsed into one line). */
+html.sx :is(mat-cell, .mat-mdc-cell, td:not(.mat-calendar-table td)) { padding: 0 12px 0 0 !important; color: var(--fg) !important; }
 html.sx :is(mat-cell, .mat-mdc-cell, mat-header-cell, .mat-mdc-header-cell, td, th) { min-width: 0 !important; overflow-wrap: anywhere !important; overflow: visible !important; }
 html.sx :is(mat-cell, .mat-mdc-cell, mat-header-cell, .mat-mdc-header-cell, td, th) * { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
 html.sx :is(mat-cell, .mat-mdc-cell):is(.mat-column-prof, .mat-column-credit) { color: var(--fg2) !important; font-size: 14px !important; }
