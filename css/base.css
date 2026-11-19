@@ -12,7 +12,7 @@
     }
   }
   /* Every section after the first of a visit (main.js) appears at once. Loading indicators keep running. */
-  html.sx.sx-calm .all-page-container :not(mat-row[data-sx-busy], .sx-tt-skel-day, .all-page-container > *),
+  html.sx.sx-calm .all-page-container :not(mat-row[data-sx-busy], .sx-tt-skel-day, .sx-swipe, .sx-tt-turned :is(.weeklist-container, .sx-lesson), .all-page-container > *),
   html.sx.sx-calm .all-page-container :not(.sx-now, .weeklist)::before,
   html.sx.sx-calm .all-page-container :not(.weeklist)::after {
     animation-duration: 1ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important;

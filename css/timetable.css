@@ -305,21 +305,38 @@ html.sx ac-tables-component .exam-filters { display: flex; flex-wrap: wrap; gap:
 }
 /* ---------- Phones ---------- */
 @media (max-width: 760px) {
-  /* Rail: a thin strip; opened, it covers the whole page. */
-  html.sx, html.sx.sx-rail-open { --rail-w: 44px; }
-  html.sx.sx-has-rail body { padding-left: 44px !important; transition: none !important; }
-  html.sx .tables-dashboard { padding: 10px 2px !important; align-items: center !important; transition: none !important; }
-  html.sx.sx-rail-open .tables-dashboard { width: 100vw !important; padding: 12px 16px 24px !important; align-items: stretch !important; z-index: 995; }
-  html.sx .sx-rail-toggle { width: 40px; height: 40px; }
-  html.sx.sx-rail-open .sx-rail-toggle { align-self: flex-start; }
-  html.sx:not(.sx-rail-open) .sx-rail-head { gap: 8px; }
-  html.sx:not(.sx-rail-open) .sx-rail-title { font-size: 15px !important; }
-  html.sx:not(.sx-rail-open) .sx-rail-sub { font-size: 11px !important; }
-  html.sx .sx-rail-hint { display: none !important; }
-  html.sx:not(.sx-rail-open) .sx-rail-toggle { display: none; }
-  html.sx:not(.sx-rail-open) .tables-dashboard:hover { background-color: var(--box) !important; }
-  html.sx.sx-rail-open :is(.tables-dashboard .tables-tab-menu, .sx-rail-filters) { width: auto; }
-  html.sx .tables-dashboard .tables-tab-menu a { min-height: 52px; justify-content: center; }
+  /* No rail: the sections sit on top of the page as one row of tabs (swiped sideways), semester and programme under it. */
+  html.sx, html.sx.sx-rail-open { --rail-w: 0px; }
+  html.sx.sx-has-rail body { padding-left: 0 !important; transition: none !important; }
+  html.sx tables-dashboard-component > .width { height: auto; padding: 12px 16px 0 !important; margin-bottom: 20px !important; }
+  html.sx .tables-dashboard, html.sx.sx-rail-open .tables-dashboard {
+    position: static !important; inset: auto !important; z-index: auto; width: auto !important; height: auto !important; overflow: visible !important; zoom: 1;
+    padding: 0 !important; gap: 8px; cursor: default; background-color: transparent !important; border: 0 !important; transition: none !important;
+  }
+  html.sx :is(.sx-rail-toggle, .sx-rail-head, .sx-rail-hint, .sx-rail-label) { display: none !important; }
+  html.sx .tables-dashboard .tables-tab-menu {
+    flex-direction: row !important; gap: 6px !important; width: auto; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity;
+    visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; margin: 0 -16px !important; padding: 0 16px !important;
+  }
+  html.sx .tables-dashboard .tables-tab-menu::-webkit-scrollbar { display: none; }
+  html.sx .tables-dashboard .tables-tab-menu > li { flex: none; scroll-snap-align: start; animation: none !important; }
+  html.sx .tables-dashboard .tables-tab-menu a {
+    flex-direction: row; align-items: center !important; min-height: 40px; padding: 0 14px !important; font-size: 14px !important;
+    border-radius: 10px !important; background-color: var(--box) !important; border: 1px solid var(--line) !important;
+  }
+  html.sx .tables-dashboard .tables-tab-menu a::after { display: none; }
+  html.sx .tables-dashboard .tables-tab-menu a.active { border-color: color-mix(in srgb, var(--acc) 45%, var(--line)) !important; }
+  html.sx .sx-rail-filters, html.sx:not(.sx-rail-open) .sx-rail-filters { width: auto; margin: 0; padding: 0 !important; border: 0 !important; visibility: visible; opacity: 1; pointer-events: auto; }
+  html.sx .sx-rail-filters > div { flex-direction: row !important; gap: 8px; }
+  html.sx .sx-rail-filters mat-form-field { flex: 1 1 0; min-width: 0; }
+  html.sx .sx-rail-filters :is(.mat-mdc-select-value, .mat-mdc-select-value *) { font-size: 14px !important; white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; }
+  /* Countdowns: separate cards with room between them (doubled class: the base panel rules come later in this file). */
+  html.sx.sx .sx-exams { grid-template-columns: 1fr; gap: 10px; margin-top: 16px; overflow: visible; border: 0 !important; border-radius: 0 !important; background-color: transparent !important; box-shadow: none !important; }
+  html.sx.sx .sx-exam { gap: 8px; padding: 16px 18px; border: 1px solid var(--line) !important; border-radius: 14px !important; box-shadow: var(--shadow) !important; }
+  html.sx.sx .sx-exam[data-next] { border-color: color-mix(in srgb, var(--pri) 40%, var(--line)) !important; }
+  html.sx.sx .sx-exam-head { flex-direction: column; align-items: flex-start; gap: 2px; }
+  html.sx.sx .sx-exam-num { font-size: 34px !important; line-height: 1 !important; }
+  html.sx.sx .sx-exam-offname { margin-top: 2px; font-size: 20px !important; }
 
 
   /* Week: one day per screen beside the hour axis; a swipe or an arrow moves exactly one day (timetable.js). */
@@ -447,6 +464,7 @@ html.sx.sx-tt-turned .weeklist-container {
   box-shadow: 0 24px 64px -24px rgba(0, 0, 0, .8) !important;
 }
 html.sx.sx-tt-turned .weeklist-container > .headInfo { animation: none !important; }
+html.sx.sx-tt-turned .weeklist-container > .headInfo > .sx-today { display: none; } /* the purple day number says it there */
 /* Turned, a 90-minute lesson is only ~70px tall: its time and course name, nothing else. */
 html.sx.sx-tt-turned .sx-lesson { padding: 5px 7px !important; gap: 2px !important; }
 html.sx.sx-tt-turned .sx-lesson :is(.sx-room, .sx-meta, .sx-lecturer, .sx-status) { display: none !important; }
@@ -456,4 +474,37 @@ html.sx.sx-tt-turned .sx-lesson .sx-course { font-size: 12px !important; line-he
 html.sx .sx-tt-close { position: fixed; right: 12px; bottom: 12px; z-index: 1002; transform: rotate(90deg); animation: sx-tt-scrim-in 240ms var(--ease-out) both 120ms !important; }
 html.sx .sx-tt-close:active { transform: rotate(90deg) scale(.94); }
 html.sx.sx-tt-turned { overflow: hidden !important; }
+
+/* Today's column says so: a small label in its header corner. */
+@keyframes sx-today-in { from { opacity: 0; transform: translateY(-4px) scale(.9); } to { opacity: 1; transform: none; } }
+html.sx .weeklist-container > .headInfo > .sx-today {
+  position: absolute; top: 10px; right: 10px; z-index: 2; padding: 3px 9px; border-radius: 999px !important; pointer-events: none;
+  font-size: 12px !important; font-weight: 500 !important; line-height: 1.3 !important; color: var(--acc) !important;
+  background-color: color-mix(in srgb, var(--acc) 16%, var(--box)) !important; border: 1px solid color-mix(in srgb, var(--acc) 35%, transparent) !important;
+  animation: sx-today-in 320ms var(--ease-out) both 200ms !important;
+}
+/* Swipe hints: a small chevron at each header edge that has a day beyond it, nudging that way a few times. */
+@keyframes sx-swipe-prev { 0%, 100% { transform: translateX(0) rotate(135deg); opacity: .35; } 50% { transform: translateX(-4px) rotate(135deg); opacity: .9; } }
+@keyframes sx-swipe-next { 0%, 100% { transform: translateX(0) rotate(-45deg); opacity: .35; } 50% { transform: translateX(4px) rotate(-45deg); opacity: .9; } }
+html.sx .weeklist-container > .headInfo > .sx-swipe { display: none; }
+@media (max-width: 760px) {
+  html.sx:not(.sx-tt-turned) .weeklist-container > .headInfo > .sx-swipe {
+    display: block; position: absolute; top: calc(var(--hd) / 2 - 4px); width: 7px; height: 7px; pointer-events: none;
+    border: solid; border-width: 0 1.6px 1.6px 0; border-color: var(--fg2) !important;
+  }
+  html.sx .weeklist-container > .headInfo > .sx-swipe[data-dir="prev"] { left: 5px; animation: sx-swipe-prev 1.4s var(--ease) 4 600ms both !important; }
+  html.sx .weeklist-container > .headInfo > .sx-swipe[data-dir="next"] { right: 5px; animation: sx-swipe-next 1.4s var(--ease) 4 600ms both !important; }
+  html.sx .weeklist-container > .headInfo[data-sx-first] > .sx-swipe[data-dir="prev"],
+  html.sx .weeklist-container > .headInfo[data-sx-last] > .sx-swipe[data-dir="next"] { display: none; }
+  /* Today's label moves left of the next-day chevron. */
+  html.sx .weeklist-container > .headInfo > .sx-today { right: 20px; }
+}
+
+/* Keyboard focus on the phone controls: an accent ring a little outside the button. */
+html.sx :is(.sx-tt-pager button, .sx-tt-close):focus-visible { outline: 2px solid var(--acc) !important; outline-offset: 2px; }
+html.sx .sx-tt-pager .sx-tt-turn { border-color: color-mix(in srgb, var(--acc) 35%, var(--line)) !important; background-color: color-mix(in srgb, var(--acc) 8%, var(--box)) !important; }
+/* Turned: once the week has swung round, its lessons pop in day by day. */
+@keyframes sx-l-pop { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: none; } }
+html.sx.sx-tt-turned .sx-lesson { animation: sx-l-pop 260ms var(--ease-out) both !important; animation-delay: calc(300ms + var(--i, 0) * 45ms + var(--n, 0) * 25ms) !important; }
+@media (max-width: 760px) { html.sx:not(.sx-tt-turned) .weeklist-container .weeklist { cursor: zoom-in; } }
 }
