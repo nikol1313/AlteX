@@ -46,7 +46,9 @@ html.sx .sx-tf-label { font-size: 14px !important; color: var(--fg) !important; 
 html.sx .sx-tf-en { font-size: 12px !important; color: var(--fg2) !important; }
 html.sx .sx-tf-count { min-width: 24px; padding: 1px 8px; box-sizing: border-box; text-align: center; border-radius: 999px !important; background-color: var(--tint) !important; color: var(--acc) !important; font-size: 12px !important; font-weight: 500 !important; font-variant-numeric: tabular-nums; }
 html.sx .sx-tf.sx-tf-none .sx-tf-count { background-color: var(--box-hi) !important; color: var(--fg2) !important; }
-html.sx .sx-tf .sx-chev { margin: 0 2px 4px auto; width: 8px; height: 8px; border-color: var(--fg2) !important; transform: rotate(45deg); }
+/* Its centre sits 36px from the card's right edge, right under the open button's (40px wide, 16px in). */
+html.sx .sx-tf-sum { padding-right: 31px; }
+html.sx .sx-tf .sx-chev { margin: 0 0 4px auto; width: 8px; height: 8px; border-color: var(--fg2) !important; transform: rotate(45deg); }
 html.sx .sx-tf[open] .sx-chev { transform: rotate(225deg); margin-bottom: -4px; }
 html.sx .sx-tf[open] > .sx-tf-sum { border-bottom: 1px solid var(--line) !important; }
 
@@ -95,6 +97,7 @@ html.sx.sx.sx .sx-tf-item > .sx-file { grid-column: 1 / -1; justify-self: start;
   html.sx.sx :is(view-mini-task-dialog .mat-mdc-dialog-actions a, .sx-file)::after { content: "↓"; font-size: 18px; }
   html.sx.sx tasks-mini-component mat-row .mat-column-name { font-size: 16px !important; padding-block: 14px !important; }
   html.sx :is(.sx-tf-sum, .sx-tf-item, .sx-tf-empty) { padding-left: 38px; padding-right: 16px; }
+  html.sx .sx-tf-sum { padding-right: 33px; } /* chevron under the open button, as on wide screens */
   html.sx.sx tasks-mini-component mat-row::before { left: 14px; top: 14px; height: 22px; }
   html.sx.sx tasks-mini-component mat-row .mat-column-name { padding-left: 32px !important; }
   html.sx .sx-tf-en { display: none; }
