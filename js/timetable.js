@@ -155,8 +155,13 @@ const enhanceWeek = () => {
   mountAxis(wrap, t0, t1);
   mountWeekSum(count, minutes);
   // Where the grid starts on the page (after the summary line, which can wrap above it), so CSS can size the hours to end at the bottom of the window.
-  const top = `${Math.round(wrap.getBoundingClientRect().top + scrollY)}px`;
-  if (wrap.style.getPropertyValue('--tt-top') !== top) wrap.style.setProperty('--tt-top', top);
+  // Measured only when something that moves it changed: the read forces a whole-page style and layout update.
+  const topKey = `${innerWidth}|${count}|${minutes}|${heads[0]?.textContent.slice(0, 40)}|${wrap.previousElementSibling?.textContent.length}`;
+  if (wrap._sxTopKey !== topKey) {
+    wrap._sxTopKey = topKey;
+    const top = `${Math.round(wrap.getBoundingClientRect().top + scrollY)}px`;
+    if (wrap.style.getPropertyValue('--tt-top') !== top) wrap.style.setProperty('--tt-top', top);
+  }
 
   // The red "now" line across today's column.
   const today = nowIdx >= 0 ? heads[nowIdx].querySelector('.weeklist') : null;
@@ -174,9 +179,11 @@ const enhanceWeek = () => {
     if (tag.textContent !== hm(now)) tag.textContent = hm(now);
   }
   // Narrow screens scroll the week sideways: start on today, once per rendered week.
-  if (nowIdx >= 0 && wrap.scrollWidth > wrap.clientWidth + 4 && wrap.dataset.sxScrolled !== heads[0].textContent.slice(0, 40)) {
-    wrap.dataset.sxScrolled = heads[0].textContent.slice(0, 40);
-    wrap.scrollLeft = heads[nowIdx].offsetLeft - (wrap.querySelector('.sx-tt-axis')?.offsetWidth || 0);
+  // Checked once per week and window width (each check forces a layout); scrolled only when the week overflows.
+  const scrollKey = `${innerWidth}|${heads[0].textContent.slice(0, 40)}`;
+  if (nowIdx >= 0 && wrap.dataset.sxScrolled !== scrollKey) {
+    wrap.dataset.sxScrolled = scrollKey;
+    if (wrap.scrollWidth > wrap.clientWidth + 4) wrap.scrollLeft = heads[nowIdx].offsetLeft - (wrap.querySelector('.sx-tt-axis')?.offsetWidth || 0);
   }
   focusPendingDay(heads);
 };
@@ -222,6 +229,12 @@ const setRail = (open) => {
   document.querySelector('.sx-rail-toggle')?.setAttribute('aria-expanded', String(open));
   store.set(RAIL_KEY, open ? '1' : '0');
 };
+// Phones: a press outside the open rail closes it. Added once (the rail is rebuilt on every visit to the timetable).
+document.addEventListener('click', (e) => {
+  if (window.innerWidth >= 860 || !root.classList.contains('sx-rail-open')) return;
+  if (e.target.closest('.tables-dashboard, .cdk-overlay-container')) return;
+  setRail(false);
+});
 const buildRail = (menu) => {
   const stored = store.get(RAIL_KEY);
   const btn = el('button', 'sx-rail-toggle');
@@ -236,11 +249,6 @@ const buildRail = (menu) => {
     if (e.target.closest('.sx-rail-toggle')) return;
     if (!root.classList.contains('sx-rail-open')) { setRail(true); return; }
     if (e.target.closest('.tables-tab-menu a') && window.innerWidth < 860) setRail(false);
-  });
-  document.addEventListener('click', (e) => {
-    if (window.innerWidth >= 860 || !root.classList.contains('sx-rail-open')) return;
-    if (e.target.closest('.tables-dashboard, .cdk-overlay-container')) return;
-    setRail(false);
   });
   menu.append(el('span', 'sx-rail-hint'));
   // Phones always start with the lessons visible: opened, the rail covers the whole page.
@@ -311,6 +319,10 @@ const WIDE_WEEK = matchMedia('(min-width: 761px)');
 WIDE_WEEK.addEventListener('change', () => schedule());
 const placeExamStrip = (comp, strip) => {
   const sunday = comp.querySelector('.weeklist-container > .headInfo[data-day="sun"]');
+  // Wide lecture timetable: where the countdowns go (a free Sunday column or the top) is known only once the week is
+  // drawn. Placed before that, they flashed at the top on every reload and then jumped into the column.
+  const cal = comp.querySelector('.calendar');
+  if (WIDE_WEEK.matches && cal && (root.classList.contains('sx-tt-loading') || !cal.querySelector('.weeklist-container > .headInfo'))) { strip.remove(); return; }
   const cols = WIDE_WEEK.matches && sunday && sunday.hasAttribute('data-empty') ? sunday.parentElement : null;
   if (strip.hasAttribute('data-col') !== !!cols) strip.toggleAttribute('data-col', !!cols);
   if (cols) { if (cols.lastElementChild !== strip) cols.append(strip); } else if (comp.firstElementChild !== strip) comp.prepend(strip);

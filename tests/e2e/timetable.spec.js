@@ -90,6 +90,20 @@ test.describe('lecture timetable as a time grid', () => {
     }
   });
 
+  test('after a reload the countdowns wait for the week instead of flashing at the top', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'phones keep the countdowns at the top');
+    // The portal paints its calendar before the week's lessons arrive.
+    const html = week(2);
+    const empty = html.replace(/<div class="weeklist-container">[\s\S]*<\/div><\/div>\n<\/div><\/student-tables-component>/, '<div class="weeklist-container"></div></div>\n</div></student-tables-component>');
+    await openPortal(page, empty, { url: '/tables/learningTables', now: '2026-11-18T10:45:00+04:00' });
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+    await expect(page.locator('.sx-exams')).toHaveCount(0);
+
+    await page.evaluate((w) => { document.querySelector('.weeklist-container').outerHTML = new DOMParser().parseFromString(w, 'text/html').querySelector('.weeklist-container').outerHTML; }, html);
+    await expect(page.locator('.weeklist-container > .sx-exams[data-col]')).toBeVisible();
+    await expect(page.locator('student-tables-component > .sx-exams')).toHaveCount(0);
+  });
+
   test('a Sunday with lessons keeps its column; the countdowns then come under the week', async ({ page }) => {
     await openPortal(page, week(2, [lesson('11:00', 'ფილოსოფია', '120')]), { url: '/tables/learningTables', now: '2026-11-18T10:45:00+04:00' });
 

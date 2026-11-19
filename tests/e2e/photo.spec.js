@@ -46,7 +46,8 @@ test.describe('profile QR lightbox', () => {
     await expect(veil).toHaveCSS('position', 'fixed');
     const size = page.viewportSize();
     const box = await veil.boundingBox();
-    expect(Math.round(box.width)).toBe(size.width);
+    // The whole page width: the page scrollbar beside it stays outside, as with any full-screen overlay.
+    expect(box.width).toBeGreaterThanOrEqual(size.width - 16);
     expect(Math.round(box.height)).toBe(size.height);
 
     await page.locator('canvas').click();

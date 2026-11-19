@@ -104,10 +104,19 @@
     }, 0);
   };
 
+  // <html data-sx-waiting> while the portal waits on its server: the section-switch spinner shows only then
+  // (base.css), not while a section that already has its data is still settling.
+  let waiting = 0;
+  const wait = (d) => {
+    waiting = Math.max(0, waiting + d);
+    if (waiting) document.documentElement.dataset.sxWaiting = ''; else delete document.documentElement.dataset.sxWaiting;
+  };
+
   X.send = function (body) {
     const r = reqs.get(this);
     let kind = null;
     try { if (r) kind = kindOf(r.method, new URL(r.url)); } catch { kind = null; }
+    if (kind) { wait(1); this.addEventListener('loadend', () => wait(-1), { once: true }); }
     if (kind === 'write') forget();
     if (kind !== 'read' || (body != null && typeof body !== 'string') || !['', 'text', 'json'].includes(this.responseType)) {
       return send.call(this, body);

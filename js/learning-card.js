@@ -215,6 +215,8 @@ const enhanceCourseRow = (row, current, ended) => {
 };
 
 const enhanceCard = () => {
+  // Every pass on every page: off the card, return before getAnimations() forces a whole-page style update.
+  if (!document.querySelector('.page-learningCard')) return;
   tagDetailRows();
   markOpenRows();
   fitDetailUnfold();

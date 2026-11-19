@@ -23,39 +23,19 @@ const run = () => {
   passCost = performance.now() - lastRun;
   if (PERF) performance.measure('altex:pass', { start: lastRun });
 };
+// In order; with sx-perf each one is its own altex:<name> measure.
+const PASS_STEPS = [
+  maybeWelcome, tagCounts, dismissNotice, mountUserMenu, mountDashNav, mountNav, mountDrawer, tapDashOnly, mountRail, enhanceWeek, enhanceExams, enhanceCard, enhanceEstDialog, enhanceCardHeader, enhanceFinances, enhanceCalendar, enhanceChancellery, enhanceTablesLoading, enhanceRegistration, enhanceProgram, enhancePhotos, tagBlankProfileCells, tagProfileStats, enhanceTasks, labelTableCells, labelIconButtons, mountExamStrip, mountHello, mountLogin, mountRemember, releaseScrollLock,
+];
 const runPass = () => {
   // Page flags on <html> (a :has() there would rescan the whole DOM on every style recalc).
   for (const [cls, sel] of PAGE_FLAGS) root.classList.toggle(cls, !!document.querySelector(sel));
-  maybeWelcome();
-  tagCounts();
-  dismissNotice();
-  mountUserMenu();
-  mountDashNav();
-  mountNav();
-  mountDrawer();
-  tapDashOnly();
-  mountRail();
-  enhanceWeek();
-  enhanceExams();
-  enhanceCard();
-  enhanceEstDialog();
-  enhanceCardHeader();
-  enhanceFinances();
-  enhanceCalendar();
-  enhanceChancellery();
-  enhanceTablesLoading();
-  enhanceRegistration();
-  enhancePhotos();
-  tagBlankProfileCells();
-  tagProfileStats();
-  enhanceTasks();
-  labelTableCells();
-  labelIconButtons();
-  mountExamStrip();
-  mountHello();
-  mountLogin();
-  mountRemember();
-  releaseScrollLock();
+  for (const step of PASS_STEPS) {
+    if (!PERF) { step(); continue; }
+    const t = performance.now();
+    step();
+    performance.measure(`altex:${step.name}`, { start: t });
+  }
   if (document.querySelector('dashboard-component a.dashboard-item-wrapper')) { render(); load(); }
 };
 
@@ -72,17 +52,16 @@ const PASS_GAP = matchMedia('(pointer: coarse)').matches ? 400 : 200;
 // its data comes in. A spinner (base.css) stays until the section stops changing for ROUTE_QUIET ms, at most ROUTE_MAX ms.
 const ROUTE_FAST = 1500, ROUTE_QUIET = 250, ROUTE_MAX = 5000;
 let routePage, routeAt = -Infinity, routeQuiet = 0;
-// Sections already opened this visit come back without their entrance animations (sx-calm, base.css): switching is
-// frequent, and the same motion every time only makes it feel slower.
-const routeSeen = new Set();
+// Only the first section of a visit plays its entrance animations; every switch after that shows the section at once
+// (sx-calm, base.css), as the portal itself does: motion on each switch only made sections feel slower to open.
+let routeShown = false;
 const routeDone = () => { clearTimeout(routeQuiet); root.classList.remove('sx-routing'); };
 const watchRoute = () => {
   const page = document.querySelector('.all-page-container > :not(router-outlet)');
   if (page !== routePage) {
     if (page) {
-      const calm = routeSeen.has(page.tagName);
-      if (root.classList.contains('sx-calm') !== calm) root.classList.toggle('sx-calm', calm);
-      routeSeen.add(page.tagName);
+      if (routeShown && !root.classList.contains('sx-calm')) root.classList.add('sx-calm');
+      routeShown = true;
     }
     if (routePage !== undefined && page) { // not the first page of the visit
       routeAt = performance.now();

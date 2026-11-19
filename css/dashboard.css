@@ -6,7 +6,7 @@ html.sx.sx.sx-dash .width { max-width: calc(min(1440px, 92vw) / var(--z)) !impor
 
 html.sx .sx-hello {
   display: flex; align-items: flex-end; justify-content: space-between; gap: 24px 40px; flex-wrap: wrap;
-  margin: 0 0 12px; animation: sx-rise 300ms var(--ease-out) both !important;
+  margin: 0 0 28px; animation: sx-rise 300ms var(--ease-out) both !important;
 }
 html.sx .sx-hello-text { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 html.sx .sx-hello-date { font-size: 15px !important; color: var(--acc) !important; }
