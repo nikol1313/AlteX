@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // README screenshots: made-up portal pages with AlteX injected, as tests/e2e/portal.js does (same origin, scripts at
 // document start), shot on a desktop window (the Chrome extension) and on a phone (the Android app, which keeps the
-// classic timetable and homework files, see android/app/build.gradle.kts).
+// classic timetable files, see android/app/build.gradle.kts).
 // Made-up student and data only; nothing here talks to the real portal.
 // Run: npm run screenshots  →  docs/screenshots/*.png (README) and docs/store/*.jpg (Chrome Web Store: 1280×800,
 // JPEG so there is no alpha channel; drawn in a 1920×1200 window, same 16:10 shape, then scaled down).
@@ -13,7 +13,7 @@ const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'docs', 'screenshots');
 const ORIGIN = 'https://students.alte.edu.ge';
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.json'), 'utf8'));
-const APP_ONLY = ['css/timetable.css', 'js/timetable.js', 'css/assignments.css'];
+const APP_ONLY = ['css/timetable.css', 'js/timetable.js'];
 const bundle = (app) => {
   const read = (f) => fs.readFileSync(path.join(ROOT, app && APP_ONLY.includes(f) ? `android/classic/${path.basename(f)}` : f), 'utf8');
   const all = (k) => manifest.content_scripts.flatMap((c) => c[k] || []);

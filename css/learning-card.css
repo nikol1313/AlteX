@@ -25,9 +25,15 @@ html.sx.sx .semesters-container .commandsh3 { margin: 0 !important; font-size: 2
 html.sx.sx .semesters-container .semesters { display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0 !important; flex-wrap: nowrap; }
 html.sx.sx .semesters-container .semester-item:not(.button) {
   position: relative; display: flex !important; align-items: center; width: 320px; max-width: 100%; height: 40px; box-sizing: border-box;
-  margin: 0 10px 0 0 !important; padding: 0 12px !important; border-radius: 10px !important;
+  margin: 0 10px 0 0 !important; padding: 0 36px 0 14px !important; border-radius: 10px !important;
   background-color: var(--box) !important; border: 1px solid var(--line) !important;
 }
+/* One chevron of our own: says it is a picker, whatever arrow markup the portal ships (hidden below). */
+html.sx.sx .semesters-container .semester-item:not(.button)::after {
+  content: ""; position: absolute; right: 15px; top: 50%; width: 7px; height: 7px; margin-top: -6px; pointer-events: none;
+  border: solid; border-width: 0 1.5px 1.5px 0; border-color: var(--fg2) !important; transform: rotate(45deg);
+}
+html.sx.sx .semesters-container .mat-mdc-select-arrow-wrapper { display: none !important; }
 html.sx.sx .semesters-container .semester-item:not(.button) mat-form-field { width: 100% !important; margin: 0 !important; }
 html.sx.sx .semesters-container .semester-item:not(.button) :is(.mat-mdc-form-field-subscript-wrapper, .mat-mdc-floating-label, label, mat-label) { display: none !important; }
 html.sx.sx .semesters-container .semester-item:not(.button) :is(.mat-mdc-text-field-wrapper, .mat-mdc-form-field-flex, .mat-mdc-form-field-infix) {
@@ -39,8 +45,8 @@ html.sx.sx .semesters-container :is(.mat-mdc-select-value, .mat-mdc-select-value
 }
 html.sx.sx .semesters-container .semester-item.button { margin: 0 !important; }
 html.sx.sx .semesters-container .semester-item.button button {
-  width: 44px !important; height: 40px !important; min-width: 0 !important; padding: 0 !important;
-  display: flex !important; align-items: center !important; justify-content: center !important;
+  width: auto !important; height: 40px !important; min-width: 0 !important; padding: 0 14px !important; gap: 8px;
+  display: flex !important; align-items: center !important; justify-content: center !important; white-space: nowrap;
   background-color: var(--box) !important; border: 1px solid var(--line) !important; color: var(--fg2) !important;
   transition: background-color 150ms var(--ease-out), color 150ms var(--ease-out) !important;
 }
@@ -52,6 +58,8 @@ html.sx.sx .semesters-container .semester-item.button button mat-icon {
   margin: 0 !important; width: 20px !important; height: 20px !important; font-size: 20px !important; line-height: 20px !important; color: inherit !important;
 }
 html.sx.sx .semesters-container .semester-item.button button .mdc-button__label { display: none !important; }
+/* Short name of each view next to its icon (learning-card.js sets data-sx-label). */
+html.sx.sx .semesters-container .semester-item.button button::after { content: attr(data-sx-label); font-size: 13px; font-weight: 500; line-height: 1; }
 
 /* Stats: one panel, cells split by hairlines (the panel's line colour shows through a 1px gap). */
 /* Any depth: the portal may wrap the stats box, and base.css's box padding must not come back as a thick frame. */
@@ -152,7 +160,8 @@ html.sx.sx.sx .semester-child mat-row[data-sx-running] .sx-bar > i { background-
 /* Drawn in the row's background, so the row's ::after stays free for its fold arrow. */
 html.sx.sx.sx.sx .page-learningCard mat-row[data-sx-busy] {
   background-image: linear-gradient(var(--pri), var(--pri)) !important; background-repeat: no-repeat !important; background-size: 40% 2px !important;
-  animation: sx-busy 900ms linear infinite 120ms both !important;
+  /* sx-rise stays listed: dropped and re-added, it ran again from opacity 0 and the row's text vanished once its details came. */
+  animation: sx-rise 380ms var(--ease-out) both, sx-busy 900ms linear infinite 120ms both !important;
 }
 @keyframes sx-busy { from { background-position: -70% 100%; } to { background-position: 170% 100%; } }
 html.sx.sx .semester-child mat-row .mat-column-result { grid-area: grade; justify-self: end; }
@@ -192,7 +201,7 @@ html.sx.sx .semester-child .mat-column-expandedDetail { display: flex !important
 html.sx.sx .semester-child .mat-column-expandedDetail > * { padding: 0 !important; }
 html.sx.sx .semester-child .result-detail-wrapper {
   display: flex !important; flex-direction: column !important; gap: 0; width: 100% !important; max-width: 600px !important; height: auto !important; box-sizing: border-box;
-  margin: 0 auto !important; padding: 6px 20px 20px !important; border: 0 !important; border-radius: 0 !important; background-color: transparent !important;
+  margin: 0 auto !important; padding: 16px 20px 20px !important; border: 0 !important; border-radius: 0 !important; background-color: transparent !important;
 }
 /* Centred in the subject's band, one readable column. */
 html.sx.sx.sx .semester-child .result-detail-wrapper > * { width: 100% !important; max-width: none; box-sizing: border-box; margin-inline: 0 !important; }
@@ -226,6 +235,7 @@ html.sx.sx.sx .semester-child .result-detail .result-detail-result {
 html.sx.sx.sx .semester-child .result-detail.sx-num .result-detail-result { font-size: 16px !important; font-weight: 500 !important; font-variant-numeric: tabular-nums; }
 html.sx.sx.sx .semester-child .result-detail.sx-est-empty .result-detail-result { font-size: 12px !important; color: var(--fg2) !important; background-color: transparent !important; border-style: dashed !important; }
 html.sx.sx .semester-child .result-detail.sx-est-empty .result-detail-result::after { content: "ჯერ არ არის"; }
+html.sx.sx.sx .semester-child .result-detail.sx-allowed .result-detail-result { color: var(--good) !important; background-color: var(--read) !important; border-color: color-mix(in srgb, var(--good) 45%, var(--line)) !important; }
 html.sx.sx.sx .semester-child .result-detail.sx-denied .result-detail-result { color: var(--bad) !important; background-color: var(--read) !important; border-color: color-mix(in srgb, var(--bad) 55%, var(--line)) !important; }
 html.sx.sx .semester-child .result-detail-result * { font-size: inherit !important; color: inherit !important; }
 /* Total and grade are already said by the summary on top and the row above. */
@@ -239,8 +249,11 @@ html.sx .sx-est > .sx-need {
 html.sx .sx-est > .sx-need.sx-passed { color: var(--good) !important; }
 
 @media (max-width: 760px) {
-  html.sx.sx .semesters-container .semesters { width: 100%; flex-wrap: wrap; }
-  html.sx.sx .semesters-container .semester-item:not(.button) { flex: 1 1 auto; width: auto; }
+  /* Phones: the programme on its own full-width line, the two views under it as one even pair. */
+  html.sx.sx .semesters-container .semesters { width: 100%; flex-wrap: wrap; row-gap: 8px !important; }
+  html.sx.sx .semesters-container .semester-item:not(.button) { flex: 1 1 100%; width: auto; height: 44px; margin: 0 !important; }
+  html.sx.sx .semesters-container .semester-item.button { flex: 1 1 0; }
+  html.sx.sx .semesters-container .semester-item.button button { width: 100% !important; height: 44px !important; }
   html.sx.sx .ini-block .last-stat { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   html.sx.sx .ini-block .last-stat :is(.sx-cstat, .sx-trend) { padding: 14px; }
   html.sx .sx-cstat-num { font-size: 24px !important; }
@@ -255,7 +268,7 @@ html.sx .sx-est > .sx-need.sx-passed { color: var(--good) !important; }
     grid-template-columns: 6px minmax(0, 1fr) auto 16px; grid-template-areas: "dot course grade fold" "dot prof grade fold" "dot score score score" "dot credit credit credit";
     padding: 14px 16px !important; column-gap: 12px; row-gap: 6px;
   }
-  html.sx.sx .semester-child .result-detail-wrapper { padding: 2px 16px 16px !important; }
+  html.sx.sx .semester-child .result-detail-wrapper { padding: 14px 16px 16px !important; }
   html.sx .sx-dsum-num { font-size: 30px !important; }
 }
 
@@ -276,6 +289,7 @@ html.sx .sx-est-val { font-size: 15px !important; line-height: 1.45 !important; 
 html.sx .sx-est-row.sx-num .sx-est-val { font-family: var(--display) !important; font-weight: 500 !important; letter-spacing: -0.02em !important; font-size: 19px !important; line-height: 1.25 !important; }
 html.sx .sx-est-row.sx-est-empty .sx-est-val { color: var(--fg2) !important; }
 html.sx .sx-est-row.sx-text .sx-est-val { text-align: left !important; color: var(--fg2) !important; }
+html.sx .sx-est-row.sx-allowed .sx-est-val { text-align: left !important; color: color-mix(in srgb, var(--good) 85%, var(--fg2)) !important; }
 html.sx .sx-est-row.sx-denied .sx-est-val { text-align: left !important; color: color-mix(in srgb, var(--bad) 85%, var(--fg2)) !important; }
 html.sx .sx-est-row.sx-total { margin-top: 8px !important; padding: 14px 16px !important; border: 0 !important; border-radius: 12px !important; align-items: center !important; background-color: color-mix(in srgb, var(--acc) 12%, var(--box)) !important; }
 html.sx .sx-est-row.sx-total .sx-est-name { color: var(--fg) !important; font-weight: 500 !important; }

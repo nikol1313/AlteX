@@ -1,6 +1,6 @@
 'use strict';
 const PASS = 51;
-const valueKind = (v) => (!v ? 'sx-est-empty' : /^[\d.,]+$/.test(v) ? 'sx-num' : /არა?\s+არის\s+დაშვ/.test(v) ? 'sx-denied' : 'sx-text');
+const valueKind = (v) => (!v ? 'sx-est-empty' : /^[\d.,]+$/.test(v) ? 'sx-num' : /არა?\s+არის\s+დაშვ/.test(v) ? 'sx-denied' : /^დაშვებულია/.test(v) ? 'sx-allowed' : 'sx-text');
 
 const placeNeed = (host, totalText) => {
   const total = parseFloat(String(totalText || '').replace(',', '.'));
@@ -51,7 +51,7 @@ const tagDetailRows = () => {
     if (d.dataset.sxRow === `${n}|${v}`) continue;
     d.dataset.sxRow = `${n}|${v}`;
     const kind = valueKind(v);
-    for (const c of ['sx-est-empty', 'sx-num', 'sx-denied', 'sx-text']) d.classList.toggle(c, c === kind);
+    for (const c of ['sx-est-empty', 'sx-num', 'sx-denied', 'sx-allowed', 'sx-text']) d.classList.toggle(c, c === kind);
     d.classList.add('sx-est-row');
     d.classList.toggle('sx-total', n === 'ჯამი');
     d.classList.toggle('sx-grade', n === 'შედეგი');
@@ -351,13 +351,14 @@ const enhanceEstDialog = () => {
   }
 };
 
-const HEADER_VIEWS = { list: 'სემესტრებით · By semester', date_range: 'სასწავლო წლებით · By academic year' };
+const HEADER_VIEWS = { list: ['სემესტრებით · By semester', 'სემესტრები'], date_range: ['სასწავლო წლებით · By academic year', 'სასწავლო წლები'] };
 const enhanceCardHeader = () => {
   const box = document.querySelector('.page-learningCard .semesters');
   if (!box) return;
   for (const btn of box.querySelectorAll('.semester-item.button button')) {
-    const label = HEADER_VIEWS[(btn.querySelector('mat-icon')?.textContent || '').trim()];
+    const [label, short] = HEADER_VIEWS[(btn.querySelector('mat-icon')?.textContent || '').trim()] || [];
     if (label && btn.getAttribute('aria-label') !== label) { btn.setAttribute('aria-label', label); btn.title = label; }
+    if (short && btn.dataset.sxLabel !== short) btn.dataset.sxLabel = short;
     const active = btn.classList.contains('mat-primary');
     if (btn.getAttribute('aria-pressed') !== String(active)) btn.setAttribute('aria-pressed', String(active));
   }

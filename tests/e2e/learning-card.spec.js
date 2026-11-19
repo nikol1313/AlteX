@@ -81,6 +81,27 @@ test.describe('student card', () => {
     expect(b.width).toBeGreaterThan(Math.min(row.width * 0.8, 500));
   });
 
+  test('a tapped subject keeps its text visible while its details load and once they come', async ({ page }) => {
+    await openPortal(page, CARD, { url: '/learningCard', now: '2026-11-18T10:00:00+04:00' });
+    const row = page.locator('.semester-child[data-sx-fold="open"] mat-row', { hasText: 'ინგლისური' });
+    await expect.poll(() => row.evaluate((r) => r.getAnimations().every((a) => a.playState === 'finished'))).toBe(true);
+    await row.click();
+    await expect(row).toHaveAttribute('data-sx-busy', '');
+    await row.evaluate((r) => r.insertAdjacentHTML('afterend', '<mat-row><mat-cell class="mat-column-expandedDetail"><div class="result-detail-wrapper"><div class="result-detail"><div class="result-detail-name">ჯამი</div><div class="result-detail-result">44</div></div></div></mat-cell></mat-row>'));
+    await expect(row).not.toHaveAttribute('data-sx-busy');
+    // The entrance animation is not run again: it started from opacity 0 and the row's text vanished.
+    expect(await row.evaluate((r) => getComputedStyle(r).opacity)).toBe('1');
+  });
+
+  test('admission: allowed reads green, not allowed red', async ({ page }) => {
+    const card = CARD.replace('<div class="result-detail"><div class="result-detail-name">დასკვნითი', '<div class="result-detail"><div class="result-detail-name">დაშვება</div><div class="result-detail-result">დაშვებულია</div></div><div class="result-detail"><div class="result-detail-name">დასკვნითი');
+    await openPortal(page, card, { url: '/learningCard', now: '2026-11-18T10:00:00+04:00' });
+    const val = page.locator('.result-detail', { hasText: 'დაშვება' }).locator('.result-detail-result');
+    await expect(page.locator('.result-detail', { hasText: 'დაშვება' })).toHaveClass(/sx-allowed/);
+    const [color, good] = await val.evaluate((v) => [getComputedStyle(v).color, getComputedStyle(document.documentElement).getPropertyValue('--good').trim()]);
+    expect(color).toBe(`rgb(${good.slice(1).match(/../g).map((h) => parseInt(h, 16)).join(', ')})`);
+  });
+
   test('tapping a subject leaves no lasting tint on its row (the portal keeps a closed subject\'s details in the page)', async ({ page }) => {
     await openPortal(page, CARD, { url: '/learningCard', now: '2026-11-18T10:00:00+04:00' });
 
