@@ -14,9 +14,10 @@ const WEEK = [
   [],
   [],
 ];
-// An empty Sunday comes without its lesson list, as on the real portal.
+// An empty Sunday comes without its lesson list, as on the real portal. Wrapped in .all-page-container like the real
+// page: AlteX zooms that container on wide screens, and the hour scale (--ppm) assumes it.
 const week = (today, sunday = []) => `
-<tables-dashboard-component><div class="width"><div class="tables-dashboard"><ul class="tables-tab-menu">
+<div class="all-page-container"><tables-dashboard-component><div class="width"><div class="tables-dashboard"><ul class="tables-tab-menu">
   <li><a href="/tables/learningTables" class="active">ლექციები</a></li><li><a href="/tables/ac-tables/1">შუალედური</a></li>
 </ul></div></div></tables-dashboard-component>
 <student-tables-component><div>
@@ -24,7 +25,7 @@ const week = (today, sunday = []) => `
   <div class="calendar"><div class="weeklist-container">
     ${DAYS.map((d, i) => `<div class="headInfo${i === today ? ' now' : ''}"><button class="day-title"><span class="mdc-button__label"><div class="day-name">${d}</div><div class="day-number"><div>${16 + i}</div></div></span></button>${i === 6 && !sunday.length ? '' : `<div class="weeklist">${(i === 6 ? sunday : WEEK[i]).join('')}</div>`}</div>`).join('')}
   </div></div>
-</div></student-tables-component>`;
+</div></student-tables-component></div>`;
 
 test.describe('lecture timetable as a time grid', () => {
   test('places lessons by start time and length on an hour axis', async ({ page }) => {
@@ -39,8 +40,16 @@ test.describe('lecture timetable as a time grid', () => {
     const mon = grid.locator('[data-day="mon"] .sx-lesson');
     await expect(mon).toHaveCount(2);
     await expect(mon.first().locator('.sx-time')).toHaveText('10:00–11:30');
-    const [a, b] = [await mon.nth(0).boundingBox(), await mon.nth(1).boundingBox()];
-    expect(b.y - a.y).toBeGreaterThanOrEqual(119); // two hours apart, at 1px+ per minute
+    // 10:00 and 12:00: as far apart as the 10:00 and 12:00 marks on the hour axis. Read in one go: the hour scale
+    // follows the window and can still settle between two separate reads.
+    const [lessonGap, hourGap] = await grid.evaluate((g) => {
+      const top = (el) => el.getBoundingClientRect().top;
+      const [a, b] = g.querySelectorAll("[data-day=\"mon\"] .sx-lesson");
+      const hours = g.querySelectorAll(".sx-tt-axis > .sx-hour");
+      return [top(b) - top(a), top(hours[3]) - top(hours[1])];
+    });
+    expect(hourGap).toBeGreaterThan(100);
+    expect(Math.abs(lessonGap - hourGap)).toBeLessThanOrEqual(2);
     await expect(page.locator('.sx-tt-sum')).toHaveText('7 ლექცია · 11 სთ ამ კვირაში');
   });
 
