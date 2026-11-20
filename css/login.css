@@ -1,0 +1,249 @@
+@layer sx {
+
+@keyframes sx-w-pop { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
+@keyframes sx-w-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes sx-w-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- No flash: from leaving the login form until the welcome screen covers the page ---------- */
+html.sx.sx-await-welcome body:not(:has(login-component)) { visibility: hidden !important; }
+
+/* ---------- Welcome screen after a fresh login ---------- */
+html.sx .sx-welcome {
+  position: fixed; inset: 0; z-index: 2147483000; display: grid; place-items: center; padding: 24px; box-sizing: border-box;
+  background-color: var(--bg) !important; color: var(--fg); font-family: var(--sans); overflow-y: auto;
+  opacity: 0; transform: scale(1.015); transition: opacity 250ms var(--ease-out), transform 250ms var(--ease-out) !important;
+}
+html.sx .sx-welcome.sx-in { opacity: 1; transform: none; }
+html.sx .sx-welcome.sx-out { opacity: 0; transform: scale(.985); pointer-events: none; transition-duration: 300ms !important; }
+html.sx.sx-welcoming .cdk-overlay-container { visibility: hidden !important; }
+html.sx .sx-welcome-inner { width: 100%; max-width: 640px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+html.sx .sx-w-logo {
+  font-size: clamp(60px, 10vw, 96px); font-weight: 500; line-height: 1; letter-spacing: -0.045em; color: var(--fg); margin-bottom: 28px;
+  animation: sx-w-pop 300ms var(--ease-out) both 120ms !important;
+}
+html.sx .sx-w-x { color: var(--red); }
+html.sx .sx-w-title {
+  margin: 0 0 8px; font-size: clamp(24px, 3.6vw, 34px); font-weight: 500; line-height: 1.25; letter-spacing: -0.02em; color: var(--fg);
+  animation: sx-w-up 420ms var(--ease-out) both 420ms !important;
+}
+html.sx .sx-w-sub { margin: 0 0 28px; font-size: 15px; color: var(--fg3); animation: sx-w-up 420ms var(--ease-out) both 470ms !important; }
+html.sx .sx-w-hello { margin: 0; font-size: 21px; color: var(--fg2); animation: sx-w-up 420ms var(--ease-out) both 520ms !important; }
+html.sx .sx-w-today {
+  margin: 10px 0 0; min-height: 1.5em; font-size: 17px; color: var(--sage); opacity: 0; transform: translateY(6px);
+  transition: opacity 300ms var(--ease-out), transform 300ms var(--ease-out) !important;
+}
+html.sx .sx-w-today.sx-show { opacity: 1; transform: none; }
+html.sx.sx .sx-w-go {
+  margin-top: 36px; min-height: 52px; padding: 0 34px !important; border-radius: 999px !important; cursor: pointer;
+  background-color: var(--btn) !important; background-image: var(--grad) !important; color: #fff !important;
+  box-shadow: 0 14px 30px -12px rgba(147, 96, 227, .85) !important; font-size: 17px; font-weight: 500; font-family: var(--sans);
+  animation: sx-w-up 420ms var(--ease-out) both 620ms !important;
+  transition: transform 160ms var(--ease-out), filter 160ms linear !important;
+}
+html.sx .sx-w-go:hover { transform: scale(1.03) !important; filter: brightness(1.08); }
+html.sx .sx-w-go:active { transform: scale(.97) !important; }
+html.sx .sx-w-off {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; min-height: 44px; cursor: pointer;
+  font-size: 14px; color: var(--fg3); animation: sx-w-up 420ms var(--ease-out) both 720ms !important;
+}
+html.sx .sx-w-off input { width: 18px; height: 18px; accent-color: var(--btn); }
+
+/* ---------- Login page: brand panel (live week preview) + the site's form on a card ---------- */
+@keyframes sx-la-scan { from { top: 56px; } to { top: calc(100% - 22px); } }
+@keyframes sx-la-lit {
+  0% { background-color: #9360E3; border-color: #D9CAFA; box-shadow: 0 0 28px rgba(147, 96, 227, .8); transform: scale(1.04); }
+  18%, 100% { background-color: rgba(147, 96, 227, .2); border-color: rgba(157, 110, 228, .38); box-shadow: 0 0 0 rgba(147, 96, 227, 0); transform: none; }
+}
+@keyframes sx-la-drift { from { transform: translate(0, 0) scale(1); } to { transform: translate(9vw, 7vh) scale(1.15); } }
+@keyframes sx-la-toast {
+  0%, 2% { opacity: 0; transform: translate(14px, 8px) scale(.96); }
+  6%, 26% { opacity: 1; transform: none; }
+  31%, 100% { opacity: 0; transform: translate(0, -10px) scale(.98); }
+}
+@keyframes sx-la-ping { 0% { box-shadow: 0 0 0 0 var(--tc); } 70%, 100% { box-shadow: 0 0 0 8px transparent; } }
+@keyframes sx-la-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+html.sx.sx-login .all-page-container { padding: 0 !important; }
+html.sx.sx-login body::before {
+  content: ""; position: fixed; left: -18vw; top: -24vw; width: 62vw; height: 62vw; pointer-events: none; z-index: 0;
+  background-image: radial-gradient(closest-side, rgba(147, 96, 227, .26), transparent) !important;
+  animation: sx-la-drift 16s ease-in-out infinite alternate !important;
+}
+html.sx login-component {
+  position: relative; z-index: 1; display: grid !important; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center;
+  gap: clamp(32px, 6vw, 96px); width: 100%; max-width: 1180px; min-height: calc(100vh - 140px); margin: 0 auto !important; padding: 48px 32px !important; box-sizing: border-box;
+}
+html.sx .sx-login-art { display: flex; flex-direction: column; gap: 36px; min-width: 0; animation: sx-rise 600ms var(--ease) both !important; }
+html.sx .sx-la-brand { font-size: clamp(48px, 6vw, 76px) !important; font-weight: 500 !important; line-height: 1 !important; letter-spacing: -0.045em !important; color: var(--fg) !important; }
+html.sx .sx-la-x { font-size: inherit !important; font-weight: inherit !important; line-height: inherit !important; letter-spacing: inherit !important; color: var(--pri2) !important; }
+
+html.sx .sx-la-stage { position: relative; max-width: 520px; }
+html.sx .sx-la-week {
+  position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; height: 300px; padding: 20px 20px 22px; box-sizing: border-box;
+  border-radius: 24px !important; background-color: var(--box) !important; border: 1px solid var(--line) !important; box-shadow: 0 32px 64px -32px rgba(0, 0, 0, .8) !important;
+  background-image: linear-gradient(160deg, rgba(147, 96, 227, .10), transparent 50%) !important;
+}
+html.sx .sx-la-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+html.sx .sx-la-day { height: 26px; font-size: 12px !important; line-height: 26px !important; text-align: center; color: var(--fg2) !important; }
+html.sx .sx-la-track { position: relative; flex: 1; border-radius: 12px !important; background-color: var(--well) !important; }
+html.sx .sx-la-block {
+  position: absolute; left: 6px; right: 6px; box-sizing: border-box; border-radius: 9px !important;
+  background-color: rgba(147, 96, 227, .2) !important; border: 1px solid rgba(157, 110, 228, .38) !important;
+}
+html.sx .sx-la-now {
+  position: absolute; left: 14px; right: 14px; top: 56px; height: 2px; border-radius: 2px !important; pointer-events: none;
+  background-color: #B99CF3 !important; box-shadow: 0 0 12px rgba(185, 156, 243, .9) !important;
+}
+html.sx .sx-la-now::before { content: ""; position: absolute; left: -4px; top: -3px; width: 8px; height: 8px; border-radius: 999px !important; background-color: #fff !important; }
+
+/* notifications popping over the week, one after another */
+html.sx .sx-la-toast {
+  --tc: #B99CF3;
+  position: absolute; right: -28px; z-index: 2; display: flex; align-items: center; gap: 12px; min-width: 230px; padding: 12px 16px 12px 14px; box-sizing: border-box;
+  border-radius: 16px !important; background-color: rgba(37, 39, 42, .92) !important; border: 1px solid rgba(157, 110, 228, .35) !important;
+  box-shadow: 0 18px 40px -14px rgba(0, 0, 0, .85), 0 0 0 1px rgba(255, 255, 255, .03) inset !important;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); opacity: 0;
+}
+html.sx .sx-la-toast[data-kind="next"] { top: 18%; }
+html.sx .sx-la-toast[data-kind="grade"] { top: 44%; right: -44px; --tc: #CDBBF8; }
+html.sx .sx-la-toast[data-kind="task"] { top: 70%; --tc: #DE8DB8; }
+html.sx .sx-la-toast-dot { flex: 0 0 auto; width: 10px; height: 10px; border-radius: 999px !important; background-color: var(--tc) !important; }
+html.sx .sx-la-toast-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+html.sx .sx-la-toast-title { font-size: 14px !important; font-weight: 500 !important; line-height: 1.3 !important; color: var(--fg) !important; }
+html.sx .sx-la-toast-sub { font-size: 12px !important; line-height: 1.4 !important; color: var(--fg2) !important; }
+
+html.sx .sx-la-copy { display: flex; flex-direction: column; gap: 12px; max-width: 520px; }
+html.sx .sx-la-title { margin: 0; font-size: clamp(26px, 3vw, 36px) !important; font-weight: 500 !important; line-height: 1.22 !important; letter-spacing: -0.025em !important; color: var(--fg) !important; }
+html.sx .sx-la-sub { margin: 0; font-size: 16px !important; line-height: 1.6 !important; color: var(--fg2) !important; }
+
+@media (prefers-reduced-motion: no-preference) {
+  html.sx .sx-la-week { animation: sx-la-float 6s ease-in-out infinite !important; }
+  html.sx .sx-la-now { animation: sx-la-scan 12s linear infinite !important; }
+  html.sx .sx-la-block { animation: sx-la-lit 12s linear infinite !important; animation-delay: calc(var(--at, 0) * 12s) !important; }
+  html.sx .sx-la-toast { animation: sx-la-toast 12s var(--ease-out) infinite both !important; animation-delay: calc(var(--n, 0) * 4s + .6s) !important; }
+  html.sx .sx-la-toast-dot { animation: sx-la-ping 2s ease-out infinite !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.sx .sx-la-toast[data-kind="next"] { opacity: 1; }
+}
+
+/* the site's App Store / Google Play badges are gone */
+html.sx login-component .loginPage-wrapper > div:has(> a[href*="apps.apple.com"], > a[href*="play.google.com"]) { display: none !important; }
+
+html.sx.sx login-component .loginPage-wrapper {
+  display: flex !important; flex-direction: column !important; align-items: stretch !important; justify-self: center; width: 100% !important;
+  max-width: 460px !important; min-width: 0 !important; margin: 0 !important; padding: 44px 40px 32px !important; box-sizing: border-box !important;
+  border-radius: 28px !important; background-color: var(--box) !important; border: 1px solid var(--line) !important;
+  box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .9), 0 0 0 1px rgba(157, 110, 228, .08), 0 30px 90px -50px rgba(147, 96, 227, .55) !important;
+  line-height: 1.5 !important; text-align: left !important; animation: sx-rise 600ms var(--ease) both 120ms !important;
+}
+html.sx login-component .logo { display: none !important; }
+html.sx.sx login-component .loginPage-wrapper h3 { margin: 0 0 8px !important; font-size: 30px !important; line-height: 1.2 !important; letter-spacing: -0.02em !important; color: var(--fg) !important; text-align: left !important; }
+html.sx.sx login-component .description { margin: 0 0 28px !important; text-align: left !important; }
+html.sx.sx login-component .description, html.sx.sx login-component .description * { font-size: 15px !important; line-height: 1.55 !important; color: var(--fg2) !important; }
+html.sx.sx login-component .login-form { display: flex !important; flex-direction: column !important; align-items: stretch !important; width: 100% !important; margin: 0 !important; }
+html.sx.sx login-component .ini-form-field { position: relative; display: block !important; width: 100% !important; margin: 0 0 14px !important; padding: 0 !important; border: 0 !important; background-color: transparent !important; }
+html.sx.sx login-component .login-form input:not([type="checkbox"]) {
+  display: block; width: 100% !important; height: 58px !important; box-sizing: border-box !important; padding: 0 18px !important; line-height: normal !important;
+  background-color: var(--well) !important; border: 1.5px solid #4D5059 !important; border-radius: 14px !important;
+  color: var(--fg) !important; -webkit-text-fill-color: var(--fg); caret-color: var(--pri2); font-size: 16px !important;
+  transition: border-color 150ms linear, box-shadow 150ms linear, background-color 150ms linear !important;
+}
+html.sx.sx login-component .login-form input:is([formcontrolname="username"], [formcontrolname="password"]) { text-indent: 0 !important; }
+html.sx.sx login-component .login-form input::placeholder { color: var(--fg3) !important; -webkit-text-fill-color: var(--fg3); opacity: 1; }
+html.sx.sx login-component .login-form input:not([type="checkbox"]):hover { border-color: #6A6E79 !important; }
+html.sx.sx login-component .login-form input:not([type="checkbox"]):focus { border-color: var(--btn) !important; background-color: #101112 !important; box-shadow: 0 0 0 4px rgba(155, 110, 232, .24) !important; }
+html.sx.sx login-component .login-form input:is(:-webkit-autofill, :autofill) { -webkit-text-fill-color: var(--fg); box-shadow: 0 0 0 100px var(--well) inset !important; caret-color: var(--pri2); }
+html.sx.sx login-component .login-form input:is(:-webkit-autofill, :autofill):focus { box-shadow: 0 0 0 100px #101112 inset, 0 0 0 4px rgba(155, 110, 232, .24) !important; }
+html.sx.sx login-component .login-form:not(.step-2) .step-2-form,
+html.sx.sx login-component .login-form:not(.step-3) .step-3-form,
+html.sx.sx login-component .login-form.step-2 .step-1-form { margin: 0 !important; padding-block: 0 !important; border-width: 0 !important; visibility: hidden; }
+html.sx.sx login-component .student-userName-wrapper {
+  display: flex !important; align-items: center !important; margin: 0 0 14px !important; padding: 10px 6px !important; box-sizing: border-box;
+  border-radius: 14px !important; background-color: var(--well) !important; border: 1px solid var(--line) !important; color: var(--fg) !important;
+}
+html.sx.sx login-component .student-userName-wrapper img { border-radius: 999px !important; border: 1px solid var(--line) !important; }
+html.sx.sx login-component .clearForm { color: var(--acc) !important; font-size: 14px !important; }
+html.sx.sx login-component div.step-3-form:not(.ini-form-field) { margin: 0 0 14px !important; color: var(--fg2) !important; }
+html.sx.sx login-component div.step-3-form:not(.ini-form-field) > span { cursor: pointer; font-size: 15px !important; }
+html.sx.sx login-component .sms-progress { background-color: rgba(147, 96, 227, .3) !important; border-radius: 14px !important; }
+html.sx.sx login-component .sms-button, html.sx.sx login-component .sms-button * { color: var(--acc) !important; }
+html.sx.sx login-component .buttonWrapper { width: 100% !important; margin: 8px 0 0 !important; }
+html.sx.sx.sx login-component .buttonWrapper button {
+  display: flex !important; justify-content: center !important; width: 100% !important; height: 56px !important; padding: 0 24px !important; border-radius: 14px !important;
+  background-color: var(--btn) !important; background-image: var(--grad) !important; color: #fff !important; cursor: pointer;
+  box-shadow: 0 14px 30px -14px rgba(147, 96, 227, .9) !important;
+  transition: transform 160ms var(--ease), filter 160ms linear, box-shadow 160ms linear !important;
+}
+html.sx.sx.sx login-component .buttonWrapper button, html.sx.sx.sx login-component .buttonWrapper button * { font-size: 16px !important; font-weight: 500 !important; }
+html.sx.sx.sx login-component .buttonWrapper button:not(:disabled):hover { filter: brightness(1.1); transform: translateY(-1px) !important; }
+html.sx.sx.sx login-component .buttonWrapper button:not(:disabled):active { transform: translateY(1px) !important; }
+html.sx.sx.sx login-component .buttonWrapper button:is(:disabled, .mat-mdc-button-disabled) {
+  background-color: #34363C !important; background-image: none !important; color: #B5B5BA !important; box-shadow: none !important; cursor: not-allowed;
+}
+html.sx login-component .buttonWrapper mat-spinner circle { stroke: #fff !important; }
+html.sx.sx login-component .login-footer { display: flex !important; justify-content: center !important; margin: 20px 0 0 !important; padding: 0 !important; }
+html.sx.sx login-component .login-footer a { color: var(--acc) !important; font-size: 14px !important; cursor: pointer; text-decoration: underline 1px rgba(185, 156, 243, .45) !important; text-underline-offset: 4px !important; }
+html.sx.sx login-component .login-footer a:hover { color: #fff !important; }
+
+/* ---------- Forgot-password dialog ---------- */
+html.sx .mat-mdc-dialog-surface:has(lost-password-dialog) { width: min(460px, 92vw) !important; }
+html.sx.sx lost-password-dialog .mat-mdc-dialog-title {
+  display: flex !important; flex-direction: column; gap: 6px; margin: 0 !important; padding: 32px 32px 4px !important; height: auto !important;
+}
+html.sx.sx lost-password-dialog .mat-mdc-dialog-title span { font-size: 24px !important; font-weight: 500 !important; line-height: 1.25 !important; letter-spacing: -0.015em !important; color: var(--fg) !important; }
+html.sx.sx lost-password-dialog .mat-mdc-dialog-title::after {
+  content: "აირჩიე, სად გამოგიგზავნოთ ახალი პაროლი."; font-size: 14px; line-height: 1.5; color: var(--fg2);
+}
+html.sx.sx lost-password-dialog .mat-mdc-dialog-content { padding: 20px 32px 8px !important; max-height: none !important; overflow: visible !important; color: var(--fg) !important; }
+html.sx lost-password-dialog form { gap: 12px; }
+html.sx lost-password-dialog mat-radio-group > div { display: grid !important; grid-template-columns: 1fr 1fr; gap: 10px; }
+html.sx.sx lost-password-dialog mat-radio-button {
+  display: flex !important; align-items: center; min-height: 52px; padding: 0 10px 0 4px !important; box-sizing: border-box; cursor: pointer;
+  border-radius: 14px !important; background-color: var(--well) !important; border: 1.5px solid #4D5059 !important;
+  transition: border-color 150ms linear, background-color 150ms linear !important;
+}
+html.sx.sx lost-password-dialog mat-radio-button:hover { border-color: #6A6E79 !important; }
+html.sx.sx lost-password-dialog mat-radio-button.mat-mdc-radio-checked { border-color: var(--btn) !important; background-color: rgba(155, 110, 232, .14) !important; }
+html.sx lost-password-dialog mat-radio-button label { cursor: pointer; font-size: 15px !important; color: var(--fg2) !important; }
+html.sx lost-password-dialog mat-radio-button.mat-mdc-radio-checked label { color: var(--fg) !important; }
+html.sx lost-password-dialog mat-radio-button.mat-mdc-radio-checked .mdc-radio__outer-circle { border-color: var(--acc) !important; }
+html.sx lost-password-dialog mat-radio-button.mat-mdc-radio-checked .mdc-radio__inner-circle { border-color: var(--acc) !important; }
+html.sx lost-password-dialog mat-form-field { display: block !important; width: 100% !important; margin: 0 !important; padding-top: 0 !important; }
+html.sx lost-password-dialog .mat-mdc-form-field-subscript-wrapper { display: none !important; }
+html.sx.sx lost-password-dialog .mat-mdc-text-field-wrapper {
+  height: 54px !important; padding: 0 16px !important; box-sizing: border-box; border-radius: 14px !important;
+  background-color: var(--well) !important; border: 1.5px solid #4D5059 !important;
+  transition: border-color 150ms linear, box-shadow 150ms linear !important;
+}
+html.sx.sx lost-password-dialog .mat-mdc-text-field-wrapper:hover { border-color: #6A6E79 !important; }
+html.sx.sx lost-password-dialog .mat-focused .mat-mdc-text-field-wrapper { border-color: var(--btn) !important; box-shadow: 0 0 0 4px rgba(155, 110, 232, .24) !important; }
+html.sx lost-password-dialog :is(.mat-mdc-form-field-flex, .mat-mdc-form-field-infix) { height: 100% !important; min-height: 0 !important; padding: 0 !important; display: flex !important; align-items: center !important; }
+html.sx lost-password-dialog input { width: 100% !important; font-size: 16px !important; color: var(--fg) !important; caret-color: var(--pri2); }
+html.sx lost-password-dialog input::placeholder { color: var(--fg3) !important; opacity: 1; }
+html.sx.sx lost-password-dialog .mat-mdc-dialog-actions { display: flex !important; padding: 16px 32px 32px !important; min-height: 0 !important; margin: 0 !important; }
+html.sx.sx.sx lost-password-dialog .mat-mdc-dialog-actions button {
+  display: flex !important; justify-content: center !important; width: 100% !important; height: 52px !important; padding: 0 24px !important; border-radius: 14px !important;
+  background-color: var(--btn) !important; background-image: var(--grad) !important; color: #fff !important; box-shadow: 0 14px 30px -14px rgba(147, 96, 227, .9) !important;
+  transition: filter 160ms linear, transform 160ms var(--ease) !important;
+}
+html.sx.sx.sx lost-password-dialog .mat-mdc-dialog-actions button * { font-size: 16px !important; font-weight: 500 !important; color: inherit !important; }
+html.sx.sx.sx lost-password-dialog .mat-mdc-dialog-actions button:not(:disabled):hover { filter: brightness(1.1); transform: translateY(-1px) !important; }
+html.sx.sx.sx lost-password-dialog .mat-mdc-dialog-actions button:is(:disabled, .mat-mdc-button-disabled) {
+  background-color: #34363C !important; background-image: none !important; color: #B5B5BA !important; box-shadow: none !important; cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  html.sx login-component { grid-template-columns: minmax(0, 1fr); gap: 28px; padding: 32px 16px !important; align-content: center; }
+  html.sx .sx-login-art { align-items: center; gap: 0; }
+  html.sx :is(.sx-la-stage, .sx-la-copy) { display: none; }
+  html.sx.sx login-component .loginPage-wrapper { padding: 32px 22px 26px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.sx :is(.sx-w-logo, .sx-w-title, .sx-w-sub, .sx-w-hello, .sx-w-go, .sx-w-off) { animation-name: sx-w-fade !important; }
+  html.sx.sx-enter :is(user-menu-component .user-area-wrapper.navbar, user-menu-component .topMenuTo, .dashboard-item-wrapper) { animation-name: sx-w-fade !important; }
+  html.sx :is(.sx-welcome, .sx-welcome.sx-in, .sx-welcome.sx-out, .sx-w-today, .sx-w-go:hover, .sx-w-go:active) { transform: none !important; }
+  html.sx :is(.sx-login-art, .loginPage-wrapper), html.sx.sx-login body::before { animation: none !important; }
+}
+
+}
