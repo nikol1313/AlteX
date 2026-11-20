@@ -1,0 +1,62 @@
+/* Design tokens and shared keyframes: used by the extension and the PWA. */
+@layer sx {
+
+html.sx {
+  --bg: #1C1E1F;
+  --box: #25272A;
+  --box-hi: #2E3035;
+  --line: #393B41;
+  --well: #141516;
+  --fg: #F2EDEF;
+  --fg2: #A6A6AA;
+  --fg3: #93939A;
+  --pri: #9360E3;
+  --pri2: #9D6EE4;
+  --btn: #9B6EE8;
+  --acc: #B99CF3;
+  --red: #9D6EE4;
+  --sage: #CDBBF8;
+  --clay: #DE8DB8;
+  --grad: linear-gradient(135deg, #8B57DE 0%, #7445CB 100%);
+  --grad-hot: linear-gradient(140deg, #8B57DE 0%, #7445CB 55%, #6238B6 100%);
+  --shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 12px 32px -16px rgba(0, 0, 0, .65);
+  --glow: 0 8px 20px -10px rgba(147, 96, 227, .8);
+  --r-lg: 20px;
+  --r: 14px;
+  --sans: "FiraGO", "Noto Sans Georgian", sans-serif;
+  --serif: var(--sans);
+  --col: 880px;
+  --wide: 1200px;
+  --pad: 32px;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  color-scheme: dark;
+
+  --mat-sys-primary: var(--fg); --mat-sys-on-primary: var(--bg);
+  --mat-sys-surface: var(--bg); --mat-sys-on-surface: var(--fg); --mat-sys-on-surface-variant: var(--fg2);
+  --mat-table-background-color: transparent; --mat-table-header-headline-color: var(--fg3);
+  --mat-table-row-item-label-text-color: var(--fg); --mat-table-row-item-outline-color: transparent;
+  --mat-dialog-container-color: var(--bg); --mat-dialog-subhead-color: var(--fg); --mat-dialog-supporting-text-color: var(--fg2);
+  --mat-select-panel-background-color: var(--bg); --mat-select-enabled-trigger-text-color: var(--fg); --mat-select-enabled-arrow-color: var(--fg2);
+  --mat-option-label-text-color: var(--fg2); --mat-option-selected-state-label-text-color: var(--fg);
+  --mat-option-hover-state-layer-color: transparent; --mat-option-selected-state-layer-color: transparent; --mat-option-focus-state-layer-color: transparent;
+  --mat-menu-container-color: var(--bg); --mat-menu-item-label-text-color: var(--fg2);
+  --mat-form-field-filled-container-color: transparent; --mat-form-field-filled-input-text-color: var(--fg);
+  --mat-form-field-filled-label-text-color: var(--fg3); --mat-form-field-filled-focus-label-text-color: var(--fg2);
+  --mat-form-field-outlined-input-text-color: var(--fg); --mat-form-field-outlined-label-text-color: var(--fg3);
+  --mat-form-field-enabled-select-arrow-color: var(--fg2); --mat-form-field-state-layer-color: transparent;
+  --mat-tab-header-active-label-text-color: var(--fg); --mat-tab-header-inactive-label-text-color: var(--fg2);
+  --mat-tab-header-active-focus-label-text-color: var(--fg); --mat-tab-header-active-hover-label-text-color: var(--fg);
+  --mat-radio-selected-icon-color: var(--fg); --mat-radio-unselected-icon-color: var(--fg3); --mat-radio-label-text-color: var(--fg);
+  --mat-checkbox-selected-icon-color: var(--fg);
+  --mat-progress-spinner-active-indicator-color: var(--fg);
+  --mat-datepicker-calendar-container-background-color: var(--bg); --mat-datepicker-calendar-date-text-color: var(--fg2);
+  --mat-datepicker-calendar-date-selected-state-background-color: var(--fg); --mat-datepicker-calendar-date-selected-state-text-color: var(--bg);
+  --mat-datepicker-calendar-header-text-color: var(--fg); --mat-datepicker-calendar-body-label-text-color: var(--fg3);
+  --mat-tooltip-container-color: var(--fg); --mat-tooltip-supporting-text-color: var(--bg);
+}
+
+@keyframes sx-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes sx-drop { from { opacity: 0; transform: translateY(-6px) scale(.98); } to { opacity: 1; transform: none; } }
+
+}
