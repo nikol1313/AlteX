@@ -127,14 +127,21 @@ test.describe('student card', () => {
   });
 });
 
-test('a running subject the portal prints as 0 shows its real total from the breakdown', async ({ page }) => {
+test('a running subject shows the sum of its graded parts when the portal prints less', async ({ page }) => {
   const zero = CARD.replace(subject('ალგორითმები', 'გიორგი კაპანაძე', 6, 38, 'F'), subject('ალგორითმები', 'გიორგი კაპანაძე', 6, 0, 'F'));
   const api = {
     '/student/card': { card: { books: [{ id: 5, name: 'ალგორითმები', score: 0 }] } },
-    '/student/getCardDetails': { data: [{ coId: 6, name: 'ჯამი', componentType: 3, result: '<b>17</b>', items: [] }] },
+    // As the portal sends it: its ჯამი leaves the homework out; retake rows stand in for a part, not add to it.
+    '/student/getCardDetails': { data: [
+      { coId: 1, name: 'საშინაო დავალება', componentType: 1, result: '12', items: { 0: { key: 0, value: '3' } } },
+      { coId: 4, name: 'შუალედურის აღდგენა', componentType: 1, result: '9', items: [] },
+      { coId: 2, name: 'შუალედური გამოცდა', componentType: 1, result: '17', items: [] },
+      { coId: 3, name: 'დასკვნით გამოცდაზე დაშვება', componentType: 3, result: '<span style="color: red; font-size: 10px">არ არის დაშვებული</span>', items: [] },
+      { coId: 6, name: 'ჯამი', componentType: 3, result: '<b style="color: red" title="მინიმალური ზღვარი > 51">17</b>', items: [] },
+    ] },
   };
   await openPortal(page, zero, { url: '/learningCard', now: '2026-11-18T10:00:00+04:00', student: { id: 1, currentProgram: { eduId: 7 } }, api });
   const algo = page.locator('mat-row', { hasText: 'ალგორითმები' }).first();
-  await expect(algo.locator('.mat-column-score')).toHaveText('17');
-  await expect(algo.locator('.sx-bar > i')).toHaveAttribute('style', /width: 17%/);
+  await expect(algo.locator('.mat-column-score')).toHaveText('29');
+  await expect(algo.locator('.sx-bar > i')).toHaveAttribute('style', /width: 29%/);
 });
