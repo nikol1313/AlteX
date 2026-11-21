@@ -177,7 +177,7 @@ const bindSemesterHead = (sem, head) => {
   head.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSemester(sem); } });
 };
 
-// Subject name → real total, for subjects the portal prints as 0 (see cardBooks in core.js). Fetched once per visit.
+// Subject name → real total, for subjects the portal prints short (see cardBooks in core.js). Fetched once per visit.
 const realTotals = new Map();
 let totalsAsked = false;
 const askRealTotals = () => {
@@ -207,10 +207,11 @@ const enhanceCourseRow = (row, current, ended) => {
   if (!scoreCell) return null;
   const name = (rr ? rr.querySelector('.subj-name') : row.querySelector('.mat-column-bookName'))?.textContent;
   let score = Math.max(0, Math.min(100, parseFloat(scoreCell.textContent) || 0));
-  if (!score && current) {
+  if (current) {
     const real = realTotals.get(String(name).trim());
     const text = document.createTreeWalker(scoreCell, NodeFilter.SHOW_TEXT, (n) => (n.data.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP)).nextNode();
-    if (real && text) { text.data = String(real); score = Math.min(100, real); } else askRealTotals();
+    if (!totalsAsked) askRealTotals();
+    else if (real > score && text) { text.data = String(real); score = Math.min(100, real); }
   }
   const chip = row.querySelector('.result-color');
   let grade = (chip?.textContent || '').trim().toUpperCase();
