@@ -54,6 +54,16 @@ test('latest grade: a subject the card leaves at 0 takes its total from the brea
   await expect(card.locator('.sx-gr-change')).toHaveText('+4 ქვიზი 1');
 });
 
+test('latest grade: totals saved before parts were added up are taken as they are, not as a new grade', async ({ page }) => {
+  // The portal prints 15 for AI; its parts add up to 19. The saved grade came from the short total.
+  const api = { ...grades, '/student/card': { card: { books: [{ id: 10, name: 'AI', score: 15, semester: 5 }] } } };
+  const last = { id: 10, name: 'AI', score: 15, delta: 15, at: Date.parse('2026-11-16T09:00:00+04:00') };
+  await openPortal(page, dashboard, { student, now: NOW, api, storage: { 'sx-grades:1': JSON.stringify({ scores: { 10: 15 }, last }) } });
+  const card = box(page, '/learningCard');
+  await expect(card).toContainText('ახალი შეფასება ჯერ არ დადებულა');
+  await expect(card.locator('.sx-gr-change')).toHaveCount(0);
+});
+
 test.describe('next lecture', () => {
   const lesson = (h, m) => ({ data: { h, m, duration: 90, profName: 'ლაშა დალაქიშვილი', activity_type: 'lecture_seminar', auditorium: { name: '204' } }, item: { book: { name: 'AI' } } });
   const tables = (h, m) => ({
