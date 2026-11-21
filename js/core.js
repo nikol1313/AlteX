@@ -98,7 +98,7 @@ const cardBooks = async (s) => {
     if (newest && Number(b.semester) !== newest) return b;
     try {
       const v = Math.round(partsTotal((await api(s, '/student/getCardDetails', { resultId: b.id })).data) * 100) / 100;
-      return v > b.score ? { ...b, score: v } : b;
+      return v > b.score ? { ...b, score: v, printed: b.score } : b;
     } catch { return b; } // the card's number stands until the next try
   }));
 };
