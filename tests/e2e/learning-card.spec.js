@@ -126,3 +126,15 @@ test.describe('student card', () => {
     await expect(algo).not.toHaveAttribute('data-sx-open', '');
   });
 });
+
+test('a running subject the portal prints as 0 shows its real total from the breakdown', async ({ page }) => {
+  const zero = CARD.replace(subject('ალგორითმები', 'გიორგი კაპანაძე', 6, 38, 'F'), subject('ალგორითმები', 'გიორგი კაპანაძე', 6, 0, 'F'));
+  const api = {
+    '/student/card': { card: { books: [{ id: 5, name: 'ალგორითმები', score: 0 }] } },
+    '/student/getCardDetails': { data: [{ coId: 6, name: 'ჯამი', componentType: 3, result: '<b>17</b>', items: [] }] },
+  };
+  await openPortal(page, zero, { url: '/learningCard', now: '2026-11-18T10:00:00+04:00', student: { id: 1, currentProgram: { eduId: 7 } }, api });
+  const algo = page.locator('mat-row', { hasText: 'ალგორითმები' }).first();
+  await expect(algo.locator('.mat-column-score')).toHaveText('17');
+  await expect(algo.locator('.sx-bar > i')).toHaveAttribute('style', /width: 17%/);
+});

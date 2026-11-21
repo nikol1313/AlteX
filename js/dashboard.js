@@ -65,8 +65,7 @@ const newParts = (now, before, delta) => {
   return onePart(exact.length ? exact : list);
 };
 const loadCard = async (s) => {
-  const res = await api(s, '/student/card');
-  const books = ((res && res.card && res.card.books) || []).filter((b) => b && b.id != null && typeof b.score === 'number');
+  const books = await cardBooks(s);
   if (!books.length) return null;
   const key = `sx-grades:${s.studentId}`;
   let stored = null;

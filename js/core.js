@@ -77,6 +77,21 @@ const api = async (s, path, body) => {
   return res.json();
 };
 
+// The portal's card (/student/card) can keep a subject at 0 while its breakdown already has grades: the
+// breakdown's ჯამი row (componentType 3, e.g. "<b>17</b>") is the real total, so a 0 is checked against it.
+const cardBooks = async (s) => {
+  const res = await api(s, '/student/card');
+  const books = ((res && res.card && res.card.books) || []).filter((b) => b && b.id != null && typeof b.score === 'number');
+  return Promise.all(books.map(async (b) => {
+    if (b.score !== 0) return b;
+    try {
+      const sum = ((await api(s, '/student/getCardDetails', { resultId: b.id })).data || []).find((r) => r && r.componentType === 3);
+      const v = sum ? parseFloat(String(sum.result).replace(/<[^>]*>/g, '').replace(',', '.')) : NaN;
+      return v > 0 ? { ...b, score: v } : b;
+    } catch { return b; } // the card's 0 stands until the next try
+  }));
+};
+
 // Monday..Sunday of a week, in the shape the timetable endpoint expects.
 const weekDates = (offsetWeeks) => {
   const now = new Date();
