@@ -72,7 +72,12 @@ const loadCard = async (s) => {
   try { stored = JSON.parse(store.get(key)); } catch { /* start over */ }
   let last = (stored && stored.last) || null;
   const parts = (stored && stored.parts) || {};
-  if (stored && stored.scores) {
+  // v2: totals now add up every graded part. Older saved totals were the portal's short ones, so the first look
+  // takes the new totals as they are, and drops a latest grade that came from a corrected subject's short total.
+  if (stored && stored.v !== 2) {
+    const was = last && books.find((x) => x.id === last.id);
+    if (was && was.printed != null) last = null;
+  } else if (stored && stored.scores) {
     const changed = books
       .filter((b) => (b.id in stored.scores ? stored.scores[b.id] !== b.score : b.score > 0))
       .sort((x, y) => (Number(y.semester) || 0) - (Number(x.semester) || 0));
@@ -92,7 +97,7 @@ const loadCard = async (s) => {
   }
   const scores = {};
   for (const b of books) scores[b.id] = b.score;
-  store.set(key, JSON.stringify({ scores, parts, last }));
+  store.set(key, JSON.stringify({ v: 2, scores, parts, last }));
   return { last };
 };
 const signed = (n) => (n > 0 ? `+${n}` : String(n));
