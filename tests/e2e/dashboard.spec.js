@@ -17,7 +17,7 @@ const grades = {
 
 test.describe('latest grade', () => {
   test('shows the grade that was entered, not the whole change of the total', async ({ page }) => {
-    await openPortal(page, dashboard, { student, now: NOW, api: grades, storage: { 'sx-grades:1': JSON.stringify({ scores: { 10: 15 } }) } });
+    await openPortal(page, dashboard, { student, now: NOW, api: grades, storage: { 'sx-grades:1': JSON.stringify({ v: 2, scores: { 10: 15 } }) } });
     const card = box(page, '/learningCard');
     await expect(card.locator('.sx-gr-name')).toHaveText('AI');
     await expect(card).not.toContainText('შეიტანა ქულა');
@@ -48,7 +48,7 @@ test('latest grade: a list saved by the previous version is cut to one grade', a
 
 test('latest grade: a subject the card leaves at 0 takes its total from the breakdown', async ({ page }) => {
   const api = { ...grades, '/student/card': { card: { books: [{ id: 10, name: 'AI', score: 0, semester: 5 }] } } };
-  await openPortal(page, dashboard, { student, now: NOW, api, storage: { 'sx-grades:1': JSON.stringify({ scores: { 10: 15 } }) } });
+  await openPortal(page, dashboard, { student, now: NOW, api, storage: { 'sx-grades:1': JSON.stringify({ v: 2, scores: { 10: 15 } }) } });
   const card = box(page, '/learningCard');
   await expect(card.locator('.sx-gr-num')).toHaveText('19 / 100');
   await expect(card.locator('.sx-gr-change')).toHaveText('+4 ქვიზი 1');
