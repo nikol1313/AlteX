@@ -84,7 +84,7 @@ const api = async (s, path, body) => {
 const RETAKE = /აღდგენ|განმეორებით|გადაბარებ/;
 const partsTotal = (rows) => (rows || []).reduce((sum, r) => {
   if (!r || r.componentType !== 1 || RETAKE.test(String(r.name))) return sum;
-  const v = parseFloat(new DOMParser().parseFromString(String(r.result ?? ''), 'text/html').body.textContent.replace(',', '.'));
+  const v = parseFloat(plainText(r.result).replace(',', '.'));
   return Number.isNaN(v) ? sum : sum + v;
 }, 0);
 const cardBooks = async (s) => {
