@@ -81,7 +81,9 @@ const api = async (s, path, body) => {
 // breakdown's ჯამი row (componentType 3, e.g. "<b>17</b>") is the real total, so a 0 is checked against it.
 const cardBooks = async (s) => {
   const res = await api(s, '/student/card');
-  const books = ((res && res.card && res.card.books) || []).filter((b) => b && b.id != null && typeof b.score === 'number');
+  // A subject without points can come as null or "0": read as a number, so it is checked too instead of dropped.
+  const books = ((res && res.card && res.card.books) || []).filter((b) => b && b.id != null)
+    .map((b) => ({ ...b, score: parseFloat(String(b.score ?? '').replace(',', '.')) || 0 }));
   return Promise.all(books.map(async (b) => {
     if (b.score !== 0) return b;
     try {
