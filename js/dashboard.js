@@ -287,7 +287,7 @@ const current = () => {
   if (!cache || cache.studentId !== s.studentId) cache = restore(s);
   return cache;
 };
-const forgetDashboard = () => { const s = session(); if (s) store.remove(savedKey(s)); cache = null; };
+const forgetDashboard = () => { const s = session(); if (s) { store.remove(savedKey(s)); store.remove(`sx-grades:${s.studentId}`); } cache = null; };
 
 // Fresh for five minutes per login token: data fetched before signing in (no token, or an expired one) never sticks.
 const load = () => {
