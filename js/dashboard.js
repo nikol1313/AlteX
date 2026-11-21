@@ -297,7 +297,8 @@ const load = () => {
   if (cache && cache.token === s.token && Date.now() - cache.at < CACHE_MS) return Promise.resolve();
   if (loading) return loading;
   if (lastTry.token === s.token && Date.now() - lastTry.at < 30000) return Promise.resolve();
-  if (lastTry.token !== s.token) { taskBooksCache = null; taskCache.clear(); }
+  // The task lists only share requests within one load: kept longer, a new assignment never showed.
+  taskBooksCache = null; taskCache.clear();
   lastTry = { token: s.token, at: Date.now() };
   const hrefs = Object.keys(SECTIONS);
   loading = Promise.allSettled(hrefs.map((h) => SECTIONS[h].load(s))).then((settled) => {
