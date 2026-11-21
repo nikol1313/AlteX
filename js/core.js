@@ -77,20 +77,29 @@ const api = async (s, path, body) => {
   return res.json();
 };
 
-// The portal's card (/student/card) can keep a subject at 0 while its breakdown already has grades: the
-// breakdown's ჯამი row (componentType 3, e.g. "<b>17</b>") is the real total, so a 0 is checked against it.
+// The portal's totals (the card's score and the breakdown's ჯამი row) can leave graded parts out: a subject at 0
+// with a 17 midterm, or homework/lab/practical points missing from the sum. The real total of a running subject is
+// its graded parts (componentType 1) added up. Retake rows (აღდგენა, განმეორებითი) stand in for a part rather than
+// add to it, so they are left out; the portal's number is kept whenever it is the larger one.
+const RETAKE = /აღდგენ|განმეორებით|გადაბარებ/;
+const partsTotal = (rows) => (rows || []).reduce((sum, r) => {
+  if (!r || r.componentType !== 1 || RETAKE.test(String(r.name))) return sum;
+  const v = parseFloat(new DOMParser().parseFromString(String(r.result ?? ''), 'text/html').body.textContent.replace(',', '.'));
+  return Number.isNaN(v) ? sum : sum + v;
+}, 0);
 const cardBooks = async (s) => {
   const res = await api(s, '/student/card');
   // A subject without points can come as null or "0": read as a number, so it is checked too instead of dropped.
   const books = ((res && res.card && res.card.books) || []).filter((b) => b && b.id != null)
     .map((b) => ({ ...b, score: parseFloat(String(b.score ?? '').replace(',', '.')) || 0 }));
+  // Only the newest semester is running; older ones are closed and their totals final.
+  const newest = Math.max(0, ...books.map((b) => Number(b.semester) || 0));
   return Promise.all(books.map(async (b) => {
-    if (b.score !== 0) return b;
+    if (newest && Number(b.semester) !== newest) return b;
     try {
-      const sum = ((await api(s, '/student/getCardDetails', { resultId: b.id })).data || []).find((r) => r && r.componentType === 3);
-      const v = sum ? parseFloat(String(sum.result).replace(/<[^>]*>/g, '').replace(',', '.')) : NaN;
-      return v > 0 ? { ...b, score: v } : b;
-    } catch { return b; } // the card's 0 stands until the next try
+      const v = Math.round(partsTotal((await api(s, '/student/getCardDetails', { resultId: b.id })).data) * 100) / 100;
+      return v > b.score ? { ...b, score: v } : b;
+    } catch { return b; } // the card's number stands until the next try
   }));
 };
 
