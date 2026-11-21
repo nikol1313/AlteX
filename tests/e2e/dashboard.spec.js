@@ -46,6 +46,14 @@ test('latest grade: a list saved by the previous version is cut to one grade', a
   await expect(card).not.toContainText('+15');
 });
 
+test('latest grade: a subject the card leaves at 0 takes its total from the breakdown', async ({ page }) => {
+  const api = { ...grades, '/student/card': { card: { books: [{ id: 10, name: 'AI', score: 0, semester: 5 }] } } };
+  await openPortal(page, dashboard, { student, now: NOW, api, storage: { 'sx-grades:1': JSON.stringify({ scores: { 10: 15 } }) } });
+  const card = box(page, '/learningCard');
+  await expect(card.locator('.sx-gr-num')).toHaveText('19 / 100');
+  await expect(card.locator('.sx-gr-change')).toHaveText('+4 ქვიზი 1');
+});
+
 test.describe('next lecture', () => {
   const lesson = (h, m) => ({ data: { h, m, duration: 90, profName: 'ლაშა დალაქიშვილი', activity_type: 'lecture_seminar', auditorium: { name: '204' } }, item: { book: { name: 'AI' } } });
   const tables = (h, m) => ({

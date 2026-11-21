@@ -177,6 +177,19 @@ const bindSemesterHead = (sem, head) => {
   head.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSemester(sem); } });
 };
 
+// Subject name → real total, for subjects the portal prints as 0 (see cardBooks in core.js). Fetched once per visit.
+const realTotals = new Map();
+let totalsAsked = false;
+const askRealTotals = () => {
+  const s = session();
+  if (totalsAsked || !s) return;
+  totalsAsked = true;
+  cardBooks(s).then((books) => {
+    for (const b of books) if (b.score) realTotals.set(String(b.name).trim(), b.score);
+    schedule();
+  }).catch(() => { totalsAsked = false; });
+};
+
 const enhanceCourseRow = (row, current, ended) => {
   // Phones get one .responsive-row cell: name + .icons-row [lecturer, credits, score, grade].
   let scoreCell, creditText;
@@ -192,7 +205,13 @@ const enhanceCourseRow = (row, current, ended) => {
     creditText = row.querySelector('.mat-column-credit')?.textContent;
   }
   if (!scoreCell) return null;
-  const score = Math.max(0, Math.min(100, parseFloat(scoreCell.textContent) || 0));
+  const name = (rr ? rr.querySelector('.subj-name') : row.querySelector('.mat-column-bookName'))?.textContent;
+  let score = Math.max(0, Math.min(100, parseFloat(scoreCell.textContent) || 0));
+  if (!score && current) {
+    const real = realTotals.get(String(name).trim());
+    const text = document.createTreeWalker(scoreCell, NodeFilter.SHOW_TEXT, (n) => (n.data.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP)).nextNode();
+    if (real && text) { text.data = String(real); score = Math.min(100, real); } else askRealTotals();
+  }
   const chip = row.querySelector('.result-color');
   let grade = (chip?.textContent || '').trim().toUpperCase();
   // The site prints F for a running course until the points add up; it is real only once the semester ended.
@@ -204,7 +223,6 @@ const enhanceCourseRow = (row, current, ended) => {
     if (chip && running) { chip.setAttribute('aria-label', 'მიმდინარე · In progress'); chip.title = 'მიმდინარე · In progress'; }
     else if (chip) { chip.removeAttribute('aria-label'); chip.removeAttribute('title'); }
   }
-  const name = (rr ? rr.querySelector('.subj-name') : row.querySelector('.mat-column-bookName'))?.textContent;
   const hue = courseHue(name);
   if (row.dataset.c !== hue) row.dataset.c = hue;
   let bar = scoreCell.querySelector(':scope > .sx-bar');
