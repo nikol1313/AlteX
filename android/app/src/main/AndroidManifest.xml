@@ -4,6 +4,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Offline screen reloads by itself when the connection is back. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- New-grade notifications (GradeWorker). Android 13+ asks the student first. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- allowBackup off: the WebView's storage holds the student's portal login token. -->
     <application

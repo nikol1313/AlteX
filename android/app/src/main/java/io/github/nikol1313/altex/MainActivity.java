@@ -1,5 +1,6 @@
 package io.github.nikol1313.altex;
 
+import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.net.Network;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
@@ -83,6 +85,10 @@ public class MainActivity extends ComponentActivity {
     private String bundle;
     private boolean injectAtDocumentStart;
     private ValueCallback<Uri[]> pendingUpload;
+
+    private static final String PREF_NOTIFY_ASKED = "notify-asked";
+    private final ActivityResultLauncher<String> notifyPermission = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(), granted -> { });
 
     private final ActivityResultLauncher<Intent> filePicker = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -193,6 +199,7 @@ public class MainActivity extends ComponentActivity {
         UpdateCheck.run(this, installedVersion(), version -> showBanner("update",
                 getString(R.string.update_available, version), () -> openOutside(Uri.parse(UpdateCheck.DOWNLOAD_URL))));
         checkWebView();
+        GradeWorker.schedule(this);
         // Back online while the offline screen shows: load again by itself.
         ConnectivityManager cm = getSystemService(ConnectivityManager.class);
         if (cm != null) {
@@ -270,11 +277,15 @@ public class MainActivity extends ComponentActivity {
                     JSONObject login = msg.optJSONObject("login");
                     String u = login == null ? "" : login.optString("u");
                     String p = login == null ? "" : login.optString("p");
-                    if (!u.isEmpty() && !p.isEmpty()) logins.save(u, p);
+                    if (!u.isEmpty() && !p.isEmpty()) {
+                        logins.save(u, p);
+                        askNotifications();
+                    }
                     break;
                 }
                 case "forget":
                     logins.clear();
+                    GradeWorker.forget(this);
                     break;
                 case "file":
                     Downloads.save(this, msg.optString("name"), msg.optString("mime"), msg.optString("data"));
@@ -285,6 +296,15 @@ public class MainActivity extends ComponentActivity {
         } catch (JSONException e) {
             // not one of ours
         }
+    }
+
+    /** Android 13+: new-grade notifications need permission. Asked once, when the student first keeps their login. */
+    private void askNotifications() {
+        if (Build.VERSION.SDK_INT < 33 || checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) return;
+        android.content.SharedPreferences prefs = getSharedPreferences("altex", MODE_PRIVATE);
+        if (prefs.getBoolean(PREF_NOTIFY_ASKED, false)) return;
+        prefs.edit().putBoolean(PREF_NOTIFY_ASKED, true).apply();
+        notifyPermission.launch(Manifest.permission.POST_NOTIFICATIONS);
     }
 
     private static boolean isPortal(Uri uri) {

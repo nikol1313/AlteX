@@ -136,4 +136,7 @@ dependencies {
     implementation("androidx.activity:activity:1.9.3")
     implementation("androidx.core:core:1.15.0")
     implementation("androidx.webkit:webkit:1.12.1")
+    // 2.9.x: still on Kotlin 1.8, in line with the BOM above.
+    implementation("androidx.work:work-runtime:2.9.1")
+    testImplementation("junit:junit:4.13.2")
 }

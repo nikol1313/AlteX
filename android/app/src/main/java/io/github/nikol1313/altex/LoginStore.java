@@ -21,13 +21,16 @@ import javax.crypto.spec.GCMParameterSpec;
 
 /**
  * The student's saved portal login ("დამახსოვრება"), encrypted with an AES-GCM key that lives in the
- * Android Keystore and never leaves it. The ciphertext sits in app-private preferences (not backed up:
+ * Android Keystore and never leaves it; GradeWorker's portal token is sealed the same way. The ciphertext sits in
+ * app-private preferences (not backed up:
  * allowBackup is off). Anything unreadable, e.g. after the key was reset, counts as no saved login.
  */
 final class LoginStore {
     private static final String KEY_ALIAS = "altex-login";
     private static final String PREFS = "altex";
     private static final String PREF_LOGIN = "login";
+    private static final String PREF_TOKEN = "bg-token";
+    private static final String PREF_BG_REFUSED = "bg-login-refused";
     private static final int IV_BYTES = 12;
     private static final int TAG_BITS = 128;
 
@@ -39,7 +42,53 @@ final class LoginStore {
 
     /** {"u": …, "p": …}, or null when nothing (readable) is saved. */
     JSONObject load() {
-        String stored = prefs.getString(PREF_LOGIN, null);
+        String plain = open(PREF_LOGIN);
+        try {
+            return plain == null ? null : new JSONObject(plain);
+        } catch (JSONException e) {
+            clear();
+            return null;
+        }
+    }
+
+    void save(String username, String password) {
+        try {
+            JSONObject before = load();
+            // New details: GradeWorker may try signing in again (see refuseBackground).
+            if (before == null || !username.equals(before.optString("u")) || !password.equals(before.optString("p"))) {
+                prefs.edit().remove(PREF_BG_REFUSED).apply();
+            }
+            seal(PREF_LOGIN, new JSONObject().put("u", username).put("p", password).toString());
+        } catch (JSONException e) {
+            clear();
+        }
+    }
+
+    /** Log out: the login and everything GradeWorker kept for it. */
+    void clear() {
+        prefs.edit().remove(PREF_LOGIN).remove(PREF_TOKEN).remove(PREF_BG_REFUSED).apply();
+    }
+
+    /** The portal token GradeWorker signed in with last, so it does not sign in every hour. */
+    String loadToken() {
+        return open(PREF_TOKEN);
+    }
+
+    void saveToken(String token) {
+        seal(PREF_TOKEN, token);
+    }
+
+    /** The saved login did not work in the background; stop trying until it changes. */
+    void refuseBackground() {
+        prefs.edit().putBoolean(PREF_BG_REFUSED, true).remove(PREF_TOKEN).apply();
+    }
+
+    boolean backgroundRefused() {
+        return prefs.getBoolean(PREF_BG_REFUSED, false);
+    }
+
+    private String open(String pref) {
+        String stored = prefs.getString(pref, null);
         if (stored == null) return null;
         try {
             ByteBuffer in = ByteBuffer.wrap(Base64.decode(stored, Base64.NO_WRAP));
@@ -49,29 +98,24 @@ final class LoginStore {
             in.get(sealed);
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             cipher.init(Cipher.DECRYPT_MODE, key(), new GCMParameterSpec(TAG_BITS, iv));
-            return new JSONObject(new String(cipher.doFinal(sealed), StandardCharsets.UTF_8));
-        } catch (GeneralSecurityException | JSONException | IllegalArgumentException | java.nio.BufferUnderflowException e) {
+            return new String(cipher.doFinal(sealed), StandardCharsets.UTF_8);
+        } catch (GeneralSecurityException | IllegalArgumentException | java.nio.BufferUnderflowException e) {
             clear();
             return null;
         }
     }
 
-    void save(String username, String password) {
+    private void seal(String pref, String plain) {
         try {
-            JSONObject login = new JSONObject().put("u", username).put("p", password);
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, key());
             byte[] iv = cipher.getIV();
-            byte[] sealed = cipher.doFinal(login.toString().getBytes(StandardCharsets.UTF_8));
+            byte[] sealed = cipher.doFinal(plain.getBytes(StandardCharsets.UTF_8));
             byte[] out = ByteBuffer.allocate(iv.length + sealed.length).put(iv).put(sealed).array();
-            prefs.edit().putString(PREF_LOGIN, Base64.encodeToString(out, Base64.NO_WRAP)).apply();
-        } catch (GeneralSecurityException | JSONException e) {
+            prefs.edit().putString(pref, Base64.encodeToString(out, Base64.NO_WRAP)).apply();
+        } catch (GeneralSecurityException e) {
             clear();
         }
-    }
-
-    void clear() {
-        prefs.edit().remove(PREF_LOGIN).apply();
     }
 
     private static SecretKey key() throws GeneralSecurityException {

@@ -50,7 +50,7 @@ jobs:
           ALTEX_KEYSTORE_PASSWORD: ${{ secrets.ALTEX_KEYSTORE_PASSWORD }}
         run: |
           task=assemble${BUILD^}
-          gradle --no-daemon "$task"
+          gradle --no-daemon testDebugUnitTest "$task"
           version=$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' ../manifest.json)
           suffix=$([ "$BUILD" = debug ] && echo "-debug" || true)
           apk="$RUNNER_TEMP/AlteX-$version$suffix.apk"

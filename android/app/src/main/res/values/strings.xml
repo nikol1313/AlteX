@@ -10,4 +10,7 @@
     <string name="webview_old">Android System WebView მოძველებულია, დიზაინი სრულად არ ჩანს → განახლება</string>
     <string name="download_saved">ჩამოიტვირთა: %1$s</string>
     <string name="download_failed">ფაილის ჩამოტვირთვა ვერ მოხერხდა</string>
+    <string name="grades_channel">ახალი ნიშნები</string>
+    <string name="grade_changed">ქულა: %1$s → %2$s</string>
+    <string name="grade_new">ქულა: %1$s</string>
 </resources>
