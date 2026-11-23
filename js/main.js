@@ -26,6 +26,7 @@ const run = () => {
   mountDashNav();
   mountNav();
   mountDrawer();
+  tapDashOnly();
   mountRail();
   enhanceWeek();
   enhanceExams();

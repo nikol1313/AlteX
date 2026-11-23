@@ -1,10 +1,21 @@
 'use strict';
 // Route through the site's own link when there is one, else via history (Angular follows popstate).
+// Some tiles only work from the dashboard (the academic calendar is a PDF the tile opens): go there, then tap it.
+const DASH_ONLY = new Set(['/academic-calendar']);
+let dashTap = null;
 const go = (href) => {
   const a = document.querySelector(`.topMenuItem > a[href="${href}"]:not([data-sx-href]), a.dashboard-item-wrapper[href="${href}"], a.user-area[href="${href}"]`);
   if (a) { a.click(); return; }
+  if (DASH_ONLY.has(href)) { dashTap = { href, at: Date.now() }; go('/dashboard'); return; }
   history.pushState(null, '', href);
   window.dispatchEvent(new PopStateEvent('popstate', { state: null }));
+};
+
+const tapDashOnly = () => {
+  if (!dashTap) return;
+  if (Date.now() - dashTap.at > 8000) { dashTap = null; return; }
+  const a = document.querySelector(`a.dashboard-item-wrapper[href="${dashTap.href}"]`);
+  if (a) { dashTap = null; a.click(); }
 };
 
 // "idc" on the notification popup: close it like Material does (Escape) and go home.
@@ -247,7 +258,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setDrawer(
 window.addEventListener('popstate', () => setDrawer(false));
 
 // Phones: plain tables become one card per row (CSS); each cell carries its column title.
-const CARD_TABLES = 'student-commands-component mat-table';
+const CARD_TABLES = ':is(student-commands-component, app-statement-list, student-logs-component, list-bib-component) mat-table';
 const labelTableCells = () => {
   for (const t of document.querySelectorAll(CARD_TABLES)) {
     if (!t.classList.contains('sx-cards')) t.classList.add('sx-cards');

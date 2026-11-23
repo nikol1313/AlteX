@@ -53,7 +53,7 @@ html.sx .sx-tf-meta > span { font-size: 14px !important; color: var(--fg2) !impo
 html.sx .sx-tf-meta > .sx-tf-due { padding: 3px 12px; border-radius: 999px !important; background-color: rgba(147, 96, 227, .22) !important; color: #E3D7FB !important; }
 html.sx .sx-tf-meta > .sx-tf-due.sx-past { background-color: rgba(222, 141, 184, .16) !important; color: var(--clay) !important; }
 html.sx .sx-tf-text { margin: 0; font-size: 15px !important; line-height: 1.55 !important; color: var(--fg2) !important; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
-html.sx.sx .sx-tf-link { align-self: flex-start; font-size: 15px !important; color: var(--acc) !important; text-decoration: underline 1px rgba(185, 156, 243, .5) !important; text-underline-offset: 4px !important; }
+html.sx.sx .sx-tf-link { align-self: flex-start; display: inline-flex; align-items: center; min-height: 44px; font-size: 15px !important; color: var(--acc) !important; text-decoration: underline 1px rgba(185, 156, 243, .5) !important; text-underline-offset: 4px !important; }
 html.sx.sx .sx-tf-link:hover { color: #fff !important; }
 html.sx .sx-tf-empty { margin: 0; padding: 4px 2px; font-size: 15px !important; color: var(--fg2) !important; }
 @media (max-width: 640px) {

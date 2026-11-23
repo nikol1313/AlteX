@@ -118,7 +118,9 @@ public class MainActivity extends ComponentActivity {
             WebViewCompat.addWebMessageListener(web, "AltexApp", Collections.singleton(PORTAL_ORIGIN),
                     (view, message, sourceOrigin, isMainFrame, reply) -> {
                         if (!isMainFrame || !PORTAL_ORIGIN.equals(sourceOrigin.toString())) return;
-                        onAppMessage(logins, message.getData(), reply);
+                        Uri page = view.getUrl() == null ? null : Uri.parse(view.getUrl());
+                        boolean onLogin = page != null && isPortal(page) && page.getPath() != null && page.getPath().startsWith("/login");
+                        onAppMessage(logins, message.getData(), reply, onLogin);
                     });
         }
 
@@ -147,8 +149,10 @@ public class MainActivity extends ComponentActivity {
                 if (web.canGoBack()) {
                     web.goBack();
                 } else {
+                    // Let the system handle it (close / background), then keep handling back in the page.
                     setEnabled(false);
                     getOnBackPressedDispatcher().onBackPressed();
+                    setEnabled(true);
                 }
             }
         });
@@ -177,13 +181,13 @@ public class MainActivity extends ComponentActivity {
         super.onDestroy();
     }
 
-    /** Messages from js/login.js: get (reply with the saved login), save, forget. */
-    private static void onAppMessage(LoginStore logins, String data, androidx.webkit.JavaScriptReplyProxy reply) {
+    /** Messages from js/login.js: get (reply with the saved login, on the login page only), save, forget. */
+    private static void onAppMessage(LoginStore logins, String data, androidx.webkit.JavaScriptReplyProxy reply, boolean onLogin) {
         try {
             JSONObject msg = new JSONObject(data == null ? "" : data);
             switch (msg.optString("type")) {
                 case "get": {
-                    JSONObject saved = logins.load();
+                    JSONObject saved = onLogin ? logins.load() : null;
                     reply.postMessage(new JSONObject().put("type", "login").put("login", saved == null ? JSONObject.NULL : saved).toString());
                     break;
                 }

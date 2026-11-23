@@ -174,7 +174,6 @@ const autoLogin = async (login) => {
 };
 const mountRemember = () => {
   if (!altexApp()) return;
-  askSavedLogin();
   const page = document.querySelector('login-component');
   if (!page) {
     // Signed in: keep (or drop) what was typed, as the checkbox said.
@@ -186,6 +185,7 @@ const mountRemember = () => {
   }
   const form = page.querySelector('.login-form');
   if (!form) return;
+  askSavedLogin(); // the app answers only on the login page
   if (!form.querySelector('.sx-remember')) {
     const label = el('label', 'sx-remember');
     const box = el('input');
