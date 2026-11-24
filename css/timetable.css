@@ -228,6 +228,54 @@ html.sx ac-tables-component .exam-filters { display: flex; flex-wrap: wrap; gap:
   html.sx .weeklist-container > .headInfo[data-when="today"] { grid-column: auto; }
   html.sx.sx ac-tables-component mat-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "day day" "course course" "start room" "end info" "comment comment"; row-gap: 8px; }
 }
+/* ---------- Phones ---------- */
+@media (max-width: 760px) {
+  /* Rail: a thin strip; opened, it covers the whole page. */
+  html.sx, html.sx.sx-rail-open { --rail-w: 44px; }
+  html.sx.sx-has-rail body { padding-left: 44px !important; transition: none !important; }
+  html.sx .tables-dashboard { padding: 10px 2px !important; align-items: center !important; transition: none !important; }
+  html.sx.sx-rail-open .tables-dashboard { width: 100vw !important; padding: 12px 16px 24px !important; align-items: stretch !important; z-index: 995; }
+  html.sx .sx-rail-toggle { width: 40px; height: 40px; }
+  html.sx.sx-rail-open .sx-rail-toggle { align-self: flex-start; }
+  html.sx:not(.sx-rail-open) .sx-rail-head { gap: 8px; }
+  html.sx:not(.sx-rail-open) .sx-rail-title { font-size: 15px !important; }
+  html.sx:not(.sx-rail-open) .sx-rail-sub { font-size: 11px !important; }
+  html.sx .sx-rail-hint { display: none !important; }
+  html.sx:not(.sx-rail-open) .sx-rail-toggle { display: none; }
+  html.sx:not(.sx-rail-open) .tables-dashboard:hover { background-color: var(--box) !important; }
+  html.sx.sx-rail-open :is(.tables-dashboard .tables-tab-menu, .sx-rail-filters) { width: auto; }
+  html.sx .tables-dashboard .tables-tab-menu a { min-height: 52px; justify-content: center; }
+
+  /* Lessons first, exam and day-off countdowns after them. */
+  html.sx student-tables-component { display: flex !important; flex-direction: column; }
+  html.sx student-tables-component > * { order: 1; }
+  html.sx student-tables-component > .sx-exams { order: 2; margin: 28px 0 0; }
+
+  /* Week: two days side by side, compact. */
+  html.sx .weeklist-container { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  html.sx .weeklist-container > .headInfo[data-when="today"] { grid-column: auto; }
+  html.sx .weeklist-container > .headInfo { min-height: 0; padding: 14px 12px 12px !important; border-radius: 16px !important; }
+  html.sx .weeklist-container > .headInfo:hover { transform: none !important; }
+  html.sx .headInfo .day-title { margin: 0 0 10px !important; padding: 0 0 10px !important; }
+  html.sx .headInfo .day-title .mdc-button__label { column-gap: 6px; }
+  html.sx .headInfo .sx-en { font-size: 17px !important; }
+  html.sx .headInfo .day-name { font-size: 12px !important; }
+  html.sx .headInfo .day-number, html.sx .headInfo .day-number * { font-size: 28px !important; }
+  html.sx .headInfo[data-when="today"] .sx-today-chip { margin-bottom: 8px; padding: 2px 8px; font-size: 11px !important; }
+  html.sx .sx-lesson { padding: 10px 0; }
+  html.sx .sx-lesson-top { gap: 4px 6px; }
+  html.sx .sx-time { font-size: 20px !important; }
+  html.sx .sx-until { font-size: 12px !important; }
+  html.sx .sx-room { margin-left: 0; padding: 2px 8px; font-size: 12px !important; }
+  html.sx .sx-course { margin: 6px 0 2px; font-size: 15px !important; line-height: 1.3 !important; overflow-wrap: anywhere; }
+  html.sx .sx-lecturer { font-size: 12px !important; line-height: 1.35 !important; }
+  html.sx .sx-meta { margin-top: 4px; font-size: 11px !important; }
+  html.sx .sx-status { margin-bottom: 4px; padding: 2px 8px; font-size: 11px !important; }
+  html.sx .sx-empty span:first-child { font-size: 15px !important; }
+  html.sx .sx-empty span:last-child { font-size: 12px !important; }
+  html.sx .sx-tt-skel { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  html.sx .sx-tt-skel-day { height: 200px; }
+}
 @media (prefers-reduced-motion: reduce) {
   html.sx :is(.headInfo, .tables-tab-menu > li, ac-tables-component mat-row, .sx-today-chip::before, .sx-status::before, .sx-rail-hint::after) { animation: none !important; }
   html.sx :is(.headInfo, .tables-dashboard, body, .sx-burger, .sx-burger::before, .sx-burger::after) { transition: none !important; }

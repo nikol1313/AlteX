@@ -34,4 +34,19 @@ html.sx hr-calendar-component .calendar td.week_tbody_td :is(div, .event) { widt
 html.sx hr-calendar-component .calendar .event { padding: 10px 14px !important; cursor: pointer; }
 html.sx hr-calendar-component .calendar .event, html.sx hr-calendar-component .calendar .event * { overflow-wrap: break-word !important; word-break: normal !important; line-height: 1.45 !important; }
 
+html.sx hr-calendar-component .calendar-navigation ~ :is(br, mat-divider) { display: none !important; }
+
+/* Phones: the seven day headers stay one line each (the table rule let "10" break into "1" / "0"). */
+@media (max-width: 760px) {
+  html.sx hr-calendar-component .calendar tr.week_thead { gap: 2px; margin-bottom: 12px; }
+  html.sx hr-calendar-component .calendar th.headInfo { padding: 6px 0 !important; }
+  html.sx hr-calendar-component .calendar th.headInfo :is(.day-name, .day-number, .day-number *) { white-space: nowrap !important; overflow-wrap: normal !important; word-break: keep-all !important; }
+  html.sx hr-calendar-component .calendar th.headInfo .day-name.desktop { display: none !important; }
+  html.sx.sx hr-calendar-component .calendar th.headInfo .day-name.mobile { display: block !important; font-size: 12px !important; }
+  html.sx hr-calendar-component .calendar th.headInfo :is(.day-number, .day-number *) { font-size: 17px !important; line-height: 1.3 !important; }
+  html.sx hr-calendar-component .calendar tr.week_tbody { grid-template-columns: 52px minmax(0, 1fr); gap: 10px; }
+  html.sx hr-calendar-component .calendar tr.week_tbody > td:first-child { font-size: 15px !important; }
+  html.sx :is(.calendar, .program-wrapper, .page-messages) { padding: 18px 14px !important; }
+}
+
 }

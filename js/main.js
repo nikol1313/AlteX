@@ -25,6 +25,7 @@ const run = () => {
   mountUserMenu();
   mountDashNav();
   mountNav();
+  mountDrawer();
   mountRail();
   enhanceWeek();
   enhanceExams();
@@ -37,18 +38,21 @@ const run = () => {
   enhanceTablesLoading();
   enhanceRegistration();
   enhanceTasks();
+  labelTableCells();
   mountExamStrip();
   mountHello();
   mountLogin();
+  mountRemember();
   goStatementList();
   if (document.querySelector('dashboard-component a.dashboard-item-wrapper')) { render(); load(); }
 };
 
-// The portal mutates the DOM constantly: at most ~5 passes a second.
+// The portal mutates the DOM constantly: at most ~5 passes a second (~2.5 on phones, where each pass costs more).
+const PASS_GAP = matchMedia('(pointer: coarse)').matches ? 400 : 200;
 const schedule = () => {
   if (queued) return;
   queued = true;
-  setTimeout(() => { if (document.hidden) { queued = false; return; } run(); }, Math.max(0, 200 - (performance.now() - lastRun)));
+  setTimeout(() => { if (document.hidden) { queued = false; return; } run(); }, Math.max(0, PASS_GAP - (performance.now() - lastRun)));
 };
 
 const start = () => {
