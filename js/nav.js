@@ -154,12 +154,13 @@ const mountUserMenu = () => {
         e.preventDefault();
         e.stopImmediatePropagation();
         document.querySelector('.user-menu')?.click();
-        const link = document.querySelector('.topMenuItem > a[href="/personal-data"]');
-        if (link) link.click(); else location.assign('/personal-data');
+        // In-app navigation: a full reload made the portal show its notification popup again.
+        go('/personal-data');
       }, true);
     } else if (/გასვლა/.test(t)) {
       a.dataset.en = 'Log out';
       a.classList.add('sx-um-logout');
+      a.addEventListener('click', forgetLogin, true);
     }
   }
 };
@@ -168,3 +169,96 @@ document.addEventListener('click', (e) => { if (!e.target.closest('.sx-more')) c
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMore(); });
 window.addEventListener('resize', closeMore);
 window.addEventListener('scroll', () => { const li = document.querySelector('.sx-more.sx-open'); if (li) placeMore(li); }, { passive: true });
+
+// Phones: a menu button in the header opens every section as a full-screen list (CSS hides the bar).
+const NAV_DRAWER = [
+  ['მთავარი', [
+    { href: '/dashboard', ka: 'მთავარი', en: 'Home' },
+    { href: '/tables', ka: 'ცხრილი', en: 'Schedule' },
+    { href: '/learningCard', ka: 'სასწავლო ბარათი', en: 'Learning card' },
+    { href: '/tasks-books', ka: 'დავალებები', en: 'Assignments' },
+    { href: '/calendar', ka: 'განცხადებები', en: 'Announcements' },
+    { href: '/registration', ka: 'აკადემიური რეგისტრაცია', en: 'Registration' },
+    { href: '/programs', ka: 'საგანმანათლებლო პროგრამა', en: 'Programme' },
+    { href: '/finances', ka: 'ფინანსები', en: 'Finances' },
+    { href: '/chancellery', ka: 'ელ. კანცელარია', en: 'E-office' },
+    { href: '/personal-data', ka: 'პირადი მონაცემები', en: 'Personal data' },
+  ]],
+  ['მეტი', NAV_MORE],
+];
+const navBadge = (href) => [...document.querySelectorAll(`:is(.topMenuItem > a, a.dashboard-item-wrapper)[href="${href}"] :is(.notify, .mat-badge-content)`)]
+  .map((b) => b.textContent.trim()).find((t) => /^\d+$/.test(t) && t !== '0') || '';
+const setDrawer = (open) => {
+  if (root.classList.contains('sx-drawer-open') === open) return;
+  root.classList.toggle('sx-drawer-open', open);
+  document.querySelector('.sx-nav-btn')?.setAttribute('aria-expanded', String(open));
+  if (open) fillDrawer();
+};
+const fillDrawer = () => {
+  const drawer = document.querySelector('.sx-drawer');
+  if (!drawer) return;
+  const path = location.pathname;
+  const head = el('div', 'sx-drawer-head');
+  const brand = el('span', 'sx-drawer-brand', 'Alte');
+  brand.append(el('b', null, 'X'));
+  const close = el('button', 'sx-drawer-close');
+  close.type = 'button';
+  close.setAttribute('aria-label', 'დახურვა / Close');
+  close.addEventListener('click', () => setDrawer(false));
+  head.append(brand, close);
+  drawer.replaceChildren(head, ...NAV_DRAWER.flatMap(([label, items]) => [el('span', 'sx-drawer-label', label), ...items.map(({ href, ka, en }) => {
+    const b = el('button', 'sx-drawer-item');
+    b.type = 'button';
+    b.dataset.href = href;
+    if (path === href || path.startsWith(href + '/')) b.classList.add('sx-active');
+    const text = el('span', 'sx-drawer-text');
+    text.append(el('span', 'sx-ka', ka), el('span', 'sx-en', en));
+    b.append(text);
+    const badge = navBadge(href);
+    if (badge) b.append(el('span', 'sx-drawer-badge', badge));
+    return b;
+  })]));
+};
+const mountDrawer = () => {
+  const area = document.querySelector('user-menu-component .user-area');
+  if (!area) { setDrawer(false); return; }
+  if (!area.querySelector(':scope > .sx-nav-btn')) {
+    const btn = el('button', 'sx-nav-btn');
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'მენიუ / Menu');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.append(el('span', 'sx-burger'));
+    btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); setDrawer(true); });
+    area.prepend(btn);
+  }
+  if (!document.querySelector('.sx-drawer')) {
+    const drawer = el('nav', 'sx-drawer');
+    drawer.setAttribute('aria-label', 'მენიუ / Menu');
+    drawer.addEventListener('click', (e) => {
+      const item = e.target.closest('.sx-drawer-item');
+      if (!item) return;
+      setDrawer(false);
+      go(item.dataset.href);
+    });
+    document.body.append(drawer);
+  }
+};
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setDrawer(false); });
+window.addEventListener('popstate', () => setDrawer(false));
+
+// Phones: plain tables become one card per row (CSS); each cell carries its column title.
+const CARD_TABLES = 'student-commands-component mat-table';
+const labelTableCells = () => {
+  for (const t of document.querySelectorAll(CARD_TABLES)) {
+    if (!t.classList.contains('sx-cards')) t.classList.add('sx-cards');
+    const titles = {};
+    for (const h of t.querySelectorAll('mat-header-cell')) {
+      const col = [...h.classList].find((c) => c.startsWith('mat-column-'));
+      if (col) titles[col] = h.textContent.trim();
+    }
+    for (const c of t.querySelectorAll('mat-cell')) {
+      const label = titles[[...c.classList].find((x) => x.startsWith('mat-column-'))] || '';
+      if (c.dataset.label !== label) c.dataset.label = label;
+    }
+  }
+};

@@ -21,6 +21,12 @@ before each release, or Android will refuse to install the new APK over the old 
 - Portal links stay in the app. Other links (LMS, lecturers' links, e-mail) open in the phone's browser.
 - Fonts are served from the app under `https://students.alte.edu.ge/__altex/fonts/`, intercepted locally.
 - The build fails if the bundle still contains extension-only APIs (`chrome-extension://`, `chrome.runtime`, …).
+- **Remember me:** the login form gets a "დამახსოვრება ამ ტელეფონზე" checkbox (only in the app, see `js/login.js`).
+  After a successful login the app stores the username and password encrypted with an Android Keystore key
+  (`LoginStore.java`) and signs in again when the portal's 24-hour session ends. "გასვლა" (log out) deletes it.
+  Only the portal origin can reach the bridge (`window.AltexApp`, a WebMessageListener). SMS codes are still typed by hand.
+- **Icon:** the wordmark from `altex-128x128.png`, re-rendered in FiraGO at full resolution so launchers can mask it
+  (`res/mipmap-xxxhdpi/ic_launcher_foreground.png` on `@color/bg`); the extension's `icons/` come from the same render.
 
 ## One-time setup: signing key
 
@@ -51,8 +57,12 @@ Add two repository secrets (GitHub → Settings → Secrets and variables → Ac
 3. GitHub Actions (`.github/workflows/android.yml`) builds the signed APK and creates a Release with
    `AlteX-3.2.0.apk` attached. It is free for public repositories.
 
-Share the release link with students: they open it on the phone, download the APK, allow installs from the
-browser when Android asks, and install. A newer APK installs over the old one and keeps them logged in.
+Share one link with students; it always downloads the newest release:
+
+    https://github.com/nikol1313/AlteX-chrome-extension/releases/latest/download/AlteX.apk
+
+They open it on the phone, allow installs from the browser when Android asks, and install. A newer APK installs
+over the old one and keeps them logged in.
 
 ## Build locally (optional)
 

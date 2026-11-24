@@ -3,11 +3,16 @@
 const money = (n) => `${Math.round(n * 100) / 100} ₾`;
 const num = (t) => { const n = parseFloat(String(t || '').replace(/[^\d.,-]/g, '').replace(',', '.')); return Number.isNaN(n) ? null : n; };
 
+// Desktop: [name+date, 3 labels] / [blank, 3 values]. Phones: [name+date] / [3 labels] / [3 values].
+const FIN_LABEL = /^(გადასახდელი|გადახდილი|დარჩენილი)$/;
 const readFinanceRow = (menu) => {
-  const [labels, values] = menu.querySelectorAll(':scope > .wrapper-row');
-  if (!labels || !values) return null;
-  const first = [...labels.querySelectorAll(':scope > div:first-child span')].map((x) => x.textContent.trim());
-  const cells = [...values.querySelectorAll(':scope > div')].slice(1);
+  const rows = [...menu.querySelectorAll(':scope > .wrapper-row')];
+  if (rows.length < 2) return null;
+  if (menu.dataset.sxRows !== String(rows.length)) menu.dataset.sxRows = String(rows.length);
+  const cells = [...rows[rows.length - 1].querySelectorAll(':scope > div')].slice(-3);
+  const texts = rows.slice(0, -1).flatMap((r) => [...r.querySelectorAll('span')]).map((x) => x.textContent.trim()).filter((t) => t && !FIN_LABEL.test(t));
+  const dateText = texts.find((t) => /\d{2}\.\d{2}\.\d{4}/.test(t)) || '';
+  const first = [texts.find((t) => t !== dateText) || '', dateText];
   const due = num(cells[0]?.textContent), paid = num(cells[1]?.textContent) || 0;
   const left = due == null ? null : Math.max(0, due - paid);
   [due, paid, left].forEach((v, i) => {

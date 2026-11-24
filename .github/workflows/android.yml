@@ -63,11 +63,14 @@ jobs:
           name: AlteX-${{ env.VERSION }}-${{ env.BUILD }}
           path: ${{ env.APK }}
 
+      # The asset is always named AlteX.apk, so this link always serves the newest release:
+      # https://github.com/<owner>/<repo>/releases/latest/download/AlteX.apk
       - name: GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" "$APK" \
+          cp "$APK" "$RUNNER_TEMP/AlteX.apk"
+          gh release create "$GITHUB_REF_NAME" "$RUNNER_TEMP/AlteX.apk" --latest \
             --title "AlteX for Android $VERSION" \
-            --notes "Download **AlteX-$VERSION.apk** on your phone and open it. Android asks once to allow installs from your browser; after that, installing a newer APK updates the app and keeps you logged in."
+            --notes "Download **AlteX.apk** on your phone and open it. Android asks once to allow installs from your browser; after that, installing a newer APK updates the app and keeps you logged in."

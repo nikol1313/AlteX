@@ -65,8 +65,8 @@ html.sx body {
   color: var(--fg) !important; -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums;
   background: radial-gradient(900px 480px at 88% -8%, rgba(147, 96, 227, .20), transparent 62%),
               radial-gradient(700px 420px at -6% 22%, rgba(157, 110, 228, .09), transparent 60%), var(--bg) !important;
-  background-attachment: fixed !important;
 }
+@media (hover: hover) and (pointer: fine) { html.sx body { background-attachment: fixed !important; } }
 html.sx *, html.sx *::before, html.sx *::after {
   background-color: transparent !important;
   background-image: none !important;
@@ -109,7 +109,9 @@ html.sx .width, html.sx student-tables-component {
   text-align: left !important;
 }
 html.sx:is(.sx-dash, .sx-tables, .sx-program) :is(.width, student-tables-component) { max-width: var(--wide) !important; }
-html.sx .all-page-container { padding-top: 96px !important; padding-bottom: 96px !important; min-height: 0 !important; }
+html.sx .all-page-container { padding-top: 96px !important; padding-bottom: 32px !important; min-height: 0 !important; }
+html.sx app-root > br { display: none !important; }
+html.sx app-root > div:has(> .all-page-container) { padding-bottom: 0 !important; }
 
 /* ---------- Header: AlteX wordmark, name box that opens the site's user menu ---------- */
 html.sx .user-area-wrapper.navbar { height: 88px !important; min-height: 0 !important; padding: 0 !important; align-items: center !important; }
@@ -119,7 +121,7 @@ html.sx .company-logo img { display: none !important; }
 html.sx .company-logo::before, html.sx .company-logo::after { font-family: var(--sans); font-size: 34px; font-weight: 500; line-height: 1; letter-spacing: -0.035em; }
 html.sx .company-logo::before { content: "Alte"; color: var(--fg); }
 html.sx .company-logo::after { content: "X"; display: inline-block; color: var(--red); transition: transform 360ms var(--ease) !important; }
-html.sx .user-area:hover .company-logo::after { transform: rotate(90deg); }
+@media (hover: hover) { html.sx .user-area:hover .company-logo::after { transform: rotate(90deg); } }
 
 html.sx .topMenuItem:has(> a[href="/personal-data"]) { display: none !important; }
 html.sx .user-menu-top { position: relative !important; display: flex !important; align-self: center !important; align-items: center !important; height: auto !important; }
@@ -312,6 +314,10 @@ html.sx :is(.program-name, .doc-links, .doc-links *) { color: var(--fg2) !import
 html.sx .user-avatar-image img { border-radius: 999px !important; }
 html.sx .student-card-qr { display: flex !important; justify-content: flex-start !important; text-align: left !important; }
 html.sx .profile-data-line .title { color: var(--fg3) !important; font-size: 14px !important; }
+html.sx.sx .profile-data-line { height: auto !important; min-height: 0 !important; gap: 16px; padding: 8px 0 !important; }
+html.sx.sx .profile-data-line .title { flex: 0 0 auto; }
+/* The programme picker above personal data offers only the programme already shown. */
+html.sx personal-data-component mat-form-field.educationalProgram { display: none !important; }
 
 /* Tabs: state by colour only */
 html.sx :is(.mdc-tab__text-label, .mdc-tab__text-label *) { color: var(--fg2) !important; }
@@ -367,7 +373,7 @@ html.sx .sx-idc:is(:hover, :focus-visible) { background-color: var(--box-hi) !im
 html.sx footer { position: static !important; }
 html.sx.sx .footer-text {
   display: flex !important; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px 14px;
-  padding: 48px 24px !important; font-size: 0 !important; color: var(--fg3) !important;
+  padding: 32px 24px !important; font-size: 0 !important; color: var(--fg3) !important;
 }
 html.sx .footer-text > span[translate] { display: none !important; }
 html.sx .footer-text::before {
@@ -387,6 +393,73 @@ html.sx .sx-empty { margin: auto 0; padding: 24px 0 8px; display: flex; flex-dir
 html.sx .sx-empty span:first-child { font-size: 18px !important; color: var(--fg2) !important; }
 html.sx .sx-empty span:last-child { font-size: 14px !important; color: var(--fg3) !important; }
 
+/* ---------- Phone navigation: menu button + full-screen drawer (nav.js) ---------- */
+html.sx .sx-nav-btn { display: none; }
+html.sx .sx-drawer { display: none; }
+@media (max-width: 760px) {
+  html.sx.sx :is(user-menu-component .topMenuTo, .sx-dash-nav) { display: none !important; }
+  html.sx.sx user-menu-component { top: 0; background-color: rgba(28, 30, 31, .97) !important; backdrop-filter: none; -webkit-backdrop-filter: none; border-bottom: 1px solid var(--line) !important; }
+  html.sx .user-area-wrapper.navbar { height: 64px !important; }
+  html.sx.sx .all-page-container { padding-top: 24px !important; }
+  html.sx .user-area { gap: 10px; }
+  html.sx .user-menu-top { margin-left: auto !important; }
+  html.sx.sx .user-menu { padding: 7px 12px 7px 14px !important; }
+  html.sx .sx-nav-btn {
+    display: grid; place-items: center; flex: 0 0 auto; width: 44px; height: 44px; padding: 0 !important; cursor: pointer;
+    border-radius: 14px !important; background-color: var(--box) !important; border: 1px solid var(--line) !important;
+  }
+  html.sx.sx-drawer-open body { overflow: hidden !important; }
+  html.sx.sx-drawer-open .sx-drawer {
+    position: fixed; inset: 0; z-index: 990; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; overscroll-behavior: contain;
+    padding: 12px 16px 32px; box-sizing: border-box; background-color: var(--bg) !important; animation: sx-drop 160ms var(--ease) both !important;
+  }
+  html.sx .sx-drawer-head { display: flex; align-items: center; justify-content: space-between; min-height: 52px; margin-bottom: 8px; }
+  html.sx .sx-drawer-brand { font-size: 28px !important; font-weight: 500 !important; line-height: 1 !important; letter-spacing: -0.035em !important; color: var(--fg) !important; }
+  html.sx .sx-drawer-brand b { font-size: inherit !important; font-weight: inherit !important; color: var(--red) !important; }
+  html.sx .sx-drawer-close { position: relative; width: 44px; height: 44px; padding: 0 !important; cursor: pointer; border-radius: 14px !important; background-color: var(--box) !important; border: 1px solid var(--line) !important; }
+  html.sx .sx-drawer-close::before, html.sx .sx-drawer-close::after { content: ""; position: absolute; left: 13px; top: 21px; width: 18px; height: 2px; border-radius: 2px !important; background-color: var(--fg) !important; }
+  html.sx .sx-drawer-close::before { transform: rotate(45deg); }
+  html.sx .sx-drawer-close::after { transform: rotate(-45deg); }
+  html.sx .sx-drawer-label { margin: 14px 4px 4px; font-size: 12px !important; color: var(--fg3) !important; }
+  html.sx .sx-drawer-item {
+    display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 10px 14px !important; box-sizing: border-box; cursor: pointer; text-align: left;
+    border-radius: 14px !important;
+  }
+  html.sx .sx-drawer-item:active { background-color: var(--box-hi) !important; }
+  html.sx .sx-drawer-item.sx-active { background-color: rgba(147, 96, 227, .18) !important; }
+  html.sx .sx-drawer-text { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+  html.sx .sx-drawer-item .sx-ka { font-size: 17px !important; line-height: 1.35 !important; color: var(--fg) !important; }
+  html.sx .sx-drawer-item .sx-en { font-size: 13px !important; line-height: 1.35 !important; color: var(--fg3) !important; }
+  html.sx .sx-drawer-item.sx-active .sx-ka { color: var(--acc) !important; }
+  html.sx .sx-drawer-badge { padding: 1px 9px; border-radius: 999px !important; background-color: rgba(147, 96, 227, .26) !important; color: #E3D7FB !important; font-size: 13px !important; }
+
+  /* Tab bars (განცხადებები, ფინანსები …): wrap onto lines instead of sliding out of view. */
+  html.sx .mat-mdc-tab-list { transform: none !important; }
+  html.sx .mat-mdc-tab-header-pagination { display: none !important; }
+  html.sx :is(.mat-mdc-tab-label-container, .mat-mdc-tab-link-container) { overflow: visible !important; }
+  html.sx :is(.mat-mdc-tab-links, .mat-mdc-tab-labels) { flex-wrap: wrap !important; justify-content: flex-start !important; gap: 4px; }
+  html.sx :is(.mat-mdc-tab-link, .mat-mdc-tab) { flex: 1 1 auto !important; min-width: 0 !important; height: auto !important; min-height: 44px; padding-inline: 10px !important; }
+  html.sx .mdc-tab__text-label { white-space: normal !important; text-align: center; }
+
+  /* Plain tables (js/nav.js labelTableCells): one card per row, each value under its column title. */
+  html.sx.sx mat-table.sx-cards { padding: 0 !important; background-color: transparent !important; border: 0 !important; box-shadow: none !important; overflow: visible !important; }
+  html.sx.sx mat-table.sx-cards mat-header-row { display: none !important; }
+  html.sx.sx mat-table.sx-cards mat-row {
+    display: grid !important; grid-template-columns: minmax(0, 1fr); gap: 12px; min-height: 0 !important; margin: 0 0 12px !important; padding: 18px 20px !important;
+    border-radius: 18px !important; background-color: var(--box) !important; border: 1px solid var(--line) !important;
+  }
+  html.sx.sx mat-table.sx-cards mat-cell { display: flex !important; flex-direction: column; align-items: flex-start !important; justify-content: flex-start !important; gap: 2px; padding: 0 !important; text-align: left !important; font-size: 16px !important; line-height: 1.45 !important; color: var(--fg) !important; }
+  html.sx.sx mat-table.sx-cards mat-cell::before { content: attr(data-label); font-size: 12px; line-height: 1.4; color: var(--fg3); }
+  html.sx.sx mat-table.sx-cards mat-cell:not([data-label])::before, html.sx.sx mat-table.sx-cards mat-cell[data-label=""]::before { display: none; }
+
+  /* Personal data: rows grow with their text; label above value. */
+  html.sx.sx .profile-data-line { flex-direction: column !important; height: auto !important; min-height: 0 !important; gap: 2px; padding: 10px 0 !important; border-bottom: 1px solid var(--line) !important; }
+  html.sx.sx .profile-data-line > * { text-indent: 0 !important; padding-inline: 0 !important; }
+  html.sx.sx .profile-data-line .text { flex: none !important; color: var(--fg) !important; font-size: 16px !important; line-height: 1.45 !important; }
+  html.sx.sx .personalDataList .card { padding: 18px 12px !important; }
+  html.sx.sx .personalDataList > h3.card-title:empty { display: none !important; }
+  html.sx .listMenu { gap: 12px; }
+}
 @media (max-width: 860px) {
   html.sx .listMenu { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   html.sx .all-page-container { padding-top: 56px !important; }

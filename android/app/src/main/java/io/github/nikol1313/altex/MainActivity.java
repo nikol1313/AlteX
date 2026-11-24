@@ -29,6 +29,9 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -102,6 +105,15 @@ public class MainActivity extends ComponentActivity {
         if (injectAtDocumentStart) {
             WebViewCompat.addDocumentStartJavaScript(web, bundle, Collections.singleton(PORTAL_ORIGIN));
         }
+        // window.AltexApp for js/login.js ("remember me"), injected into the portal's own pages only.
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+            LoginStore logins = new LoginStore(this);
+            WebViewCompat.addWebMessageListener(web, "AltexApp", Collections.singleton(PORTAL_ORIGIN),
+                    (view, message, sourceOrigin, isMainFrame, reply) -> {
+                        if (!isMainFrame || !PORTAL_ORIGIN.equals(sourceOrigin.toString())) return;
+                        onAppMessage(logins, message.getData(), reply);
+                    });
+        }
 
         web.setWebViewClient(new PortalClient());
         web.setWebChromeClient(new WebChromeClient() {
@@ -155,6 +167,34 @@ public class MainActivity extends ComponentActivity {
     protected void onDestroy() {
         web.destroy();
         super.onDestroy();
+    }
+
+    /** Messages from js/login.js: get (reply with the saved login), save, forget. */
+    private static void onAppMessage(LoginStore logins, String data, androidx.webkit.JavaScriptReplyProxy reply) {
+        try {
+            JSONObject msg = new JSONObject(data == null ? "" : data);
+            switch (msg.optString("type")) {
+                case "get": {
+                    JSONObject saved = logins.load();
+                    reply.postMessage(new JSONObject().put("type", "login").put("login", saved == null ? JSONObject.NULL : saved).toString());
+                    break;
+                }
+                case "save": {
+                    JSONObject login = msg.optJSONObject("login");
+                    String u = login == null ? "" : login.optString("u");
+                    String p = login == null ? "" : login.optString("p");
+                    if (!u.isEmpty() && !p.isEmpty()) logins.save(u, p);
+                    break;
+                }
+                case "forget":
+                    logins.clear();
+                    break;
+                default:
+                    break;
+            }
+        } catch (JSONException e) {
+            // not one of ours
+        }
     }
 
     private static boolean isPortal(Uri uri) {
