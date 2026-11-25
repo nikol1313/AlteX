@@ -636,7 +636,7 @@ html.sx .sx-nav-btn { display: none; }
   html.sx.sx .sx-stats:not(:has(> .personalDataList)) .sx-stat :not(mat-progress-spinner, mat-progress-spinner *) { white-space: normal !important; text-overflow: clip !important; overflow-wrap: anywhere; }
 }
 @media (max-width: 760px) {
-  html.sx .company-logo::before, html.sx .company-logo::after { font-size: 28px; }
+  html.sx .company-logo::before, html.sx .company-logo::after { font-size: 33px; }
 }
 @media (max-width: 520px) {
   html.sx { --pad: 16px; }
