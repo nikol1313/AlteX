@@ -196,13 +196,15 @@ const autoLogin = async (login) => {
   const form = document.querySelector('login-component .login-form');
   const user = form?.querySelector('input[formcontrolname="username"]');
   const submit = () => form.querySelector('.buttonWrapper button:not(:disabled)');
-  if (!user) return;
+  if (!user) return false;
   typeInto(user, login.u);
   (await waitFor(submit, 3000))?.click();
   const pass = await waitFor(() => form.isConnected && form.classList.contains('step-2') && form.querySelector('input[formcontrolname="password"]'), 8000);
-  if (!pass) return;
+  if (!pass) return false;
   typeInto(pass, login.p);
-  (await waitFor(submit, 3000))?.click();
+  const send = await waitFor(submit, 3000);
+  send?.click();
+  return !!send;
 };
 const mountRemember = () => {
   const ls = loginStore();
