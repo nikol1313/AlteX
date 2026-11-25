@@ -6,6 +6,9 @@
 
 /* ---------- No flash: from leaving the login form until the welcome screen covers the page ---------- */
 html.sx.sx-await-welcome body:not(:has(login-component)) { visibility: hidden !important; }
+/* Saved login being typed in (login.js): the form stays hidden, a spinner shows if it takes a while. */
+html.sx.sx-autologin login-component { visibility: hidden !important; }
+html.sx.sx-autologin .sx-route-busy { opacity: 1; transition-delay: 300ms !important; }
 
 /* ---------- Welcome screen after a fresh login ---------- */
 /* Modal <dialog> in the top layer. Closed state = the exit look; open = shown; @starting-style = where the entry starts.
