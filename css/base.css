@@ -159,7 +159,7 @@ html.sx .user-area-wrapper.navbar { height: 88px !important; min-height: 0 !impo
 html.sx .user-area { height: 100% !important; align-items: center !important; gap: 14px; margin: 0 !important; padding: 0 !important; }
 html.sx .company-logo { display: flex !important; align-items: baseline; width: auto !important; height: auto !important; margin: 0 !important; padding: 0 !important; }
 html.sx .company-logo img { display: none !important; }
-html.sx .company-logo::before, html.sx .company-logo::after { font-family: var(--sans); font-size: 34px; font-weight: 500; line-height: 1; letter-spacing: -0.035em; }
+html.sx .company-logo::before, html.sx .company-logo::after { font-family: var(--sans); font-size: 40px; font-weight: 500; line-height: 1; letter-spacing: -0.035em; }
 html.sx .company-logo::before { content: "Alte"; color: var(--fg); }
 html.sx .company-logo::after { content: "X"; display: inline-block; color: var(--brand); transition: transform 200ms var(--ease-out) !important; }
 /* The X steps aside as it turns: on its side (and corner-first on the way) it is wider than upright and ran into the "e". */
