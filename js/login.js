@@ -175,12 +175,21 @@ const loginStore = () => {
   };
 };
 let savedLogin, pendingLogin = null, autoLoginTried = false;
+// While the saved login is looked up and typed in, the login page stays hidden (sx-autologin, login.css): it used to
+// show for a moment before the welcome screen. Capped in time, so a silent store or a slow portal still shows the form.
+let autoHideUntil = 0;
+const hideLoginFor = (ms) => { autoHideUntil = ms ? Date.now() + ms : 0; setTimeout(schedule, ms); };
 const forgetLogin = () => { savedLogin = null; pendingLogin = null; loginStore()?.forget(); forgetDashboard(); };
 const askSavedLogin = () => {
   const ls = loginStore();
   if (!ls || savedLogin !== undefined) return;
   savedLogin = null;
-  ls.get((login) => { savedLogin = login && login.u && login.p ? { u: login.u, p: login.p } : null; schedule(); });
+  hideLoginFor(3000);
+  ls.get((login) => {
+    savedLogin = login && login.u && login.p ? { u: login.u, p: login.p } : null;
+    if (!savedLogin) hideLoginFor(0);
+    schedule();
+  });
 };
 // Angular reads the input event; a plain .value change would be ignored.
 const typeInto = (input, value) => {
