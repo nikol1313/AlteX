@@ -219,6 +219,12 @@ const mountRemember = () => {
   const ls = loginStore();
   if (!ls) return;
   const page = document.querySelector('login-component');
+  if (page?.querySelector('.login-form')) askSavedLogin(); // before the check below, so the first frame is hidden too
+  // Shown again as soon as the portal answers with an error (ours or its own dialog).
+  const hide = !!page && Date.now() < autoHideUntil && !page.querySelector('.sx-login-error')
+    && !document.querySelector('.cdk-overlay-container .cdk-overlay-pane:not(:empty)');
+  if (root.classList.contains('sx-autologin') !== hide) root.classList.toggle('sx-autologin', hide);
+  if (hide && !document.querySelector('.sx-route-busy')) document.body.append(el('div', 'sx-route-busy'));
   if (!page) {
     // Signed in: keep (or drop) what was typed, as the checkbox said.
     if (pendingLogin && session()) {
@@ -248,7 +254,8 @@ const mountRemember = () => {
   }
   if (savedLogin && !autoLoginTried) {
     autoLoginTried = true;
-    autoLogin(savedLogin);
+    hideLoginFor(12000);
+    autoLogin(savedLogin).then((sent) => { if (!sent) { hideLoginFor(0); schedule(); } });
   }
 };
 
