@@ -163,6 +163,7 @@ html.sx .company-logo img { display: none !important; }
 html.sx .user-area { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 html.sx .company-logo { transition: transform 160ms var(--ease-out) !important; }
 html.sx .user-area:active .company-logo { transform: scale(.94); }
+html.sx .user-area:focus-visible { outline: 2px solid var(--brand) !important; outline-offset: 4px; border-radius: 8px; }
 html.sx .company-logo::before, html.sx .company-logo::after { font-family: var(--sans); font-size: 40px; font-weight: 500; line-height: 1; letter-spacing: -0.035em; }
 html.sx .company-logo::before { content: "Alte"; color: var(--fg); }
 html.sx .company-logo::after { content: "X"; display: inline-block; color: var(--brand); transition: transform 200ms var(--ease-out) !important; }
