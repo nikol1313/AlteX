@@ -1,5 +1,8 @@
 # AlteX — Student Portal
 
+[![Tests](https://github.com/nikol1313/AlteX/actions/workflows/tests.yml/badge.svg)](https://github.com/nikol1313/AlteX/actions/workflows/tests.yml)
+[![Android](https://github.com/nikol1313/AlteX/actions/workflows/android.yml/badge.svg)](https://github.com/nikol1313/AlteX/actions/workflows/android.yml)
+
 A redesign of the Alte University student portal (`students.alte.edu.ge`): clearer, easier to use, and about **7× faster** when switching between sections.
 
 **[Install on PC](#installation-on-pc)** · **[Install on Android](#installation-on-android)**
