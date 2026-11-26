@@ -267,12 +267,14 @@ public class MainActivity extends ComponentActivity {
         web.evaluateJavascript(UNSENT_INPUT_JS, result -> { if (!"true".equals(result)) web.reload(); });
     }
 
-    /** Closes AlteX's open popover or dialog (js/nav.js, js/login.js); true when there was one. */
+    /** Closes AlteX's open popover or dialog (js/nav.js, js/login.js), or goes from the password step back to the ID
+     *  step (js/login.js); true when there was one. */
     private static final String CLOSE_OVERLAY_JS = "(() => { try {"
             + " const p = document.querySelector('.sx-more-menu:popover-open'); if (p) { p.hidePopover(); return true; }"
             + " } catch (e) { /* WebView without popover */ }"
             + " const d = document.querySelector('dialog.sx-drawer[open], dialog.sx-welcome[open]');"
-            + " if (d) { d.close(); return true; } return false; })()";
+            + " if (d) { d.close(); return true; }"
+            + " const b = document.querySelector('.sx-login-back'); if (b) { b.click(); return true; } return false; })()";
 
     /** True when the page holds text typed into a field, or a picked file, that a reload would throw away. */
     private static final String UNSENT_INPUT_JS = "(() => [...document.querySelectorAll("

@@ -21,6 +21,18 @@ const mountLogin = () => {
     form.addEventListener('click', (e) => { if (e.target.closest('.buttonWrapper button')) sent(); }, true);
     form.addEventListener('keydown', (e) => { if (e.key === 'Enter') sent(); }, true);
   }
+  // Password and SMS steps: an arrow back to the ID step, for a mistyped ID. It uses the portal's own reset (the small
+  // "სხვა მომხმარებელი" link). The Android back button presses it too (MainActivity).
+  const reset = form && form.classList.contains('step-2') ? form.querySelector('.clearForm') : null;
+  let back = page?.querySelector('.sx-login-back');
+  if (reset && !back) {
+    back = el('button', 'sx-login-back');
+    back.type = 'button';
+    back.setAttribute('aria-label', 'უკან · Back');
+    back.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
+    back.addEventListener('click', () => { form.querySelector('.clearForm')?.click(); back.remove(); });
+    (form.closest('.loginPage-wrapper') || form).prepend(back);
+  } else if (!reset && back) back.remove();
   if (!page || page.querySelector(':scope > .sx-login-art')) return;
   const art = el('div', 'sx-login-art');
   art.setAttribute('aria-hidden', 'true');
