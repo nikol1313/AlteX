@@ -159,3 +159,18 @@ test("AlteX's own reads (api in js/core.js) go through the same memory", async (
   expect(b).toEqual(a);
   expect(requests.filter((u) => u.endsWith('/student/card')).length).toBe(1);
 });
+
+test('offline, the homework list is found whether or not the portal had added the group id yet', async ({ page, context }) => {
+  const requests = await openPortal(page, '<div></div>', {
+    api: { '/student/getStudentTaskBooks/': { data: [{ id: 7, name: 'Math' }], total: 1 }, '/student/getCardDetails': { result: 'yes' } },
+  });
+  await page.evaluate(`window.__xhr = ${xhr.toString()}`);
+  await page.evaluate(() => window.__xhr('/student/getStudentTaskBooks/?page=1&limit=10', '{"registrationGroupId":42}'));
+  await page.evaluate(() => window.__xhr('/student/getCardDetails', '{"resultId":1}'));
+  await context.setOffline(true);
+  expect(await page.evaluate(() => window.__xhr('/student/getStudentTaskBooks/?page=1&limit=10', '{}'))).toMatchObject({ body: { total: 1 } });
+  expect(requests.filter((u) => u.includes('/student/getStudentTaskBooks/')).length).toBe(1);
+  // Only the group id may differ: another subject is not answered from memory with the first one's details.
+  await page.evaluate(() => window.__xhr('/student/getCardDetails', '{"resultId":2}').catch(() => null));
+  expect(requests.filter((u) => u.endsWith('/student/getCardDetails')).length).toBe(2);
+});

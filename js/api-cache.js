@@ -78,6 +78,20 @@
   };
   const keyOf = (r) => `${r.method} ${r.url}\n${r.body || ''}\n${r.headers.authorization || r.headers.Authorization || ''}`;
   const usable = (e) => e && Date.now() - e.at < STALE_MS;
+  // Offline, a read that differs from a saved one only in registrationGroupId gets the saved answer: the homework list
+  // sends it only once the portal has loaded the student's group in the background, so the same list is asked for with
+  // and without it depending on timing. Anything else in the body (a subject's resultId) must still match.
+  const looseKey = (r) => {
+    let body = r.body || '';
+    try { const o = JSON.parse(body); if (o && typeof o === 'object' && 'registrationGroupId' in o) { delete o.registrationGroupId; body = JSON.stringify(o); } } catch { /* not JSON */ }
+    return keyOf({ ...r, body });
+  };
+  const looseHit = (r) => {
+    const want = looseKey(r);
+    let best = null;
+    for (const e of cache.values()) if (e.req && (!best || e.at > best.at) && looseKey(e.req) === want) best = e;
+    return best;
+  };
 
   // One background read with the portal's own request, stored when it is a plain JSON success. Resolves to the entry,
   // null when the server answered something else, or undefined when the network failed.
@@ -158,8 +172,8 @@
       const req = { method: r.method, url: r.url, headers: { ...r.headers }, body: r.body };
       if (!frame) warmLater(req.headers.authorization || req.headers.Authorization);
 
-      const hit = cache.get(key);
       const online = navigator.onLine;
+      const hit = cache.get(key) || (online ? null : looseHit(req));
       if (usable(hit) || (hit && !online)) {
         try {
           answer(this, hit);
