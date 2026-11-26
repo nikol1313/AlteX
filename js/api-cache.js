@@ -130,10 +130,11 @@
     const req = { method: r.method, url: r.url, headers: { ...r.headers }, body: r.body };
 
     const hit = cache.get(key);
-    if (usable(hit)) {
+    const online = navigator.onLine;
+    if (usable(hit) || (hit && !online)) {
       try {
         answer(this, hit);
-        if (Date.now() - hit.at > FRESH_MS) refresh(key, req, section);
+        if (online && Date.now() - hit.at > FRESH_MS) refresh(key, req, section);
         return undefined;
       } catch { /* fall through to the server */ }
     }
