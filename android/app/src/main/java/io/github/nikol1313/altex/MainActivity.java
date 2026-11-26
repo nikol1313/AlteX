@@ -81,6 +81,7 @@ public class MainActivity extends ComponentActivity {
     private View offline;
     private boolean mainFrameFailed;
     private ConnectivityManager.NetworkCallback onNetwork;
+    private OfflineShell shell;
     /** Set from the network callback; read on the WebView's request threads. */
     private volatile boolean online = true;
     private String bundle;
@@ -191,6 +192,7 @@ public class MainActivity extends ComponentActivity {
             }
         });
 
+        shell = new OfflineShell(this);
         ConnectivityManager cm = getSystemService(ConnectivityManager.class);
         if (cm != null) online = hasInternet(cm);
         web.setNetworkAvailable(online);
@@ -328,7 +330,11 @@ public class MainActivity extends ComponentActivity {
         public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
             Uri uri = request.getUrl();
             String path = uri.getPath();
-            if (!isPortal(uri) || path == null || !path.startsWith(FONT_PATH)) return null;
+            if (!isPortal(uri) || path == null) return null;
+            if (!path.startsWith(FONT_PATH)) {
+                if (online) shell.saw(request);
+                return online ? null : shell.open(request);
+            }
             String name = path.substring(FONT_PATH.length());
             if (!FONT_NAME.matcher(name).matches()) return null;
             try {
