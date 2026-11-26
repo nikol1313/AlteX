@@ -22,6 +22,8 @@ AlteX remembers each section's data, so going back to a section is almost instan
 
 On average a section's data is ready in **0.14 s instead of 0.95 s**. The first visit to a section still waits for the portal's server.
 
+**How it was measured:** the time from opening a section until its data is on screen, on the real portal, with and without AlteX, averaged over the portal's sections. <!-- TODO before pushing: how many runs, which sections, which device/network -->
+
 ## Problem
 
 The Alte University student portal works, but it is far from user-friendly. Its outdated design, cluttered layout, confusing navigation and unnecessary clicks make even simple tasks frustrating. Important information is hard to find, the timetable is hard to read, and many parts of the interface lack the clarity students need.
