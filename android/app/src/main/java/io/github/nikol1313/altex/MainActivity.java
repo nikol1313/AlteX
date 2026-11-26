@@ -84,6 +84,8 @@ public class MainActivity extends ComponentActivity {
     private OfflineShell shell;
     /** Set from the network callback; read on the WebView's request threads. */
     private volatile boolean online = true;
+    /** The page on screen was opened from the offline copy: reloaded when the connection is back. */
+    private boolean pageFromCopy;
     private String bundle;
     private boolean injectAtDocumentStart;
     private ValueCallback<Uri[]> pendingUpload;
@@ -209,10 +211,7 @@ public class MainActivity extends ComponentActivity {
                 @Override
                 public void onAvailable(Network network) {
                     online = true;
-                    runOnUiThread(() -> {
-                        web.setNetworkAvailable(true);
-                        if (offline != null && offline.getVisibility() == View.VISIBLE) web.reload();
-                    });
+                    runOnUiThread(MainActivity.this::backOnline);
                 }
 
                 @Override
@@ -228,6 +227,13 @@ public class MainActivity extends ComponentActivity {
                 onNetwork = null;
             }
         }
+    }
+
+    /** Load again by itself when the offline screen or the offline copy shows, unless that throws away typed input. */
+    private void backOnline() {
+        web.setNetworkAvailable(true);
+        if (offline != null && offline.getVisibility() == View.VISIBLE) web.reload();
+        else if (pageFromCopy) web.evaluateJavascript(UNSENT_INPUT_JS, result -> { if (!"true".equals(result)) web.reload(); });
     }
 
     @Override
@@ -349,6 +355,7 @@ public class MainActivity extends ComponentActivity {
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             mainFrameFailed = false;
+            pageFromCopy = !online;
         }
 
         @Override
