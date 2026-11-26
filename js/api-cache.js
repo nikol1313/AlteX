@@ -120,7 +120,7 @@
     let kind = null;
     try { if (r) kind = kindOf(r.method, new URL(r.url)); } catch { kind = null; }
     if (kind) { wait(1); this.addEventListener('loadend', () => wait(-1), { once: true }); }
-    if (kind === 'write') forget();
+    if (kind === 'write' && navigator.onLine) forget();
     if (kind !== 'read' || (body != null && typeof body !== 'string') || !['', 'text', 'json'].includes(this.responseType)) {
       return send.call(this, body);
     }
