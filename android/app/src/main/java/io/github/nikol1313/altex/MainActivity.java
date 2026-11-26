@@ -127,7 +127,8 @@ public class MainActivity extends ComponentActivity {
         s.setAllowFileAccess(false);
         s.setAllowContentAccess(false);
 
-        bundle = readAsset("altex.js");
+        // window.__altexApp: js/api-cache.js keeps the portal's data across app restarts, for offline use.
+        bundle = "window.__altexApp = true;\n" + readAsset("altex.js");
         // Document start matches the extension's "run_at": "document_start". Older WebViews without it
         // get the bundle once the page has loaded; the extension's code handles both.
         injectAtDocumentStart = WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT);
