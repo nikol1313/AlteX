@@ -208,17 +208,23 @@ public class MainActivity extends ComponentActivity {
         // The page learns of it through navigator.onLine and online/offline events (js/api-cache.js, js/nav.js).
         if (cm != null) {
             onNetwork = new ConnectivityManager.NetworkCallback() {
+                /** The default network now; only its loss means offline (Wi-Fi handing over to mobile data reports
+                 *  the new network first and the old one lost after). Used on the callback thread only. */
+                private Network current;
+
                 @Override
                 public void onAvailable(Network network) {
+                    current = network;
                     online = true;
                     runOnUiThread(MainActivity.this::backOnline);
                 }
 
                 @Override
                 public void onLost(Network network) {
-                    // Wi-Fi handing over to mobile data can report the old network lost after the new one is up.
-                    online = hasInternet(cm);
-                    if (!online) runOnUiThread(() -> web.setNetworkAvailable(false));
+                    if (!network.equals(current)) return;
+                    current = null;
+                    online = false;
+                    runOnUiThread(() -> web.setNetworkAvailable(false));
                 }
             };
             try {
@@ -255,7 +261,8 @@ public class MainActivity extends ComponentActivity {
         super.onResume();
         boolean away = pausedAt != 0 && System.currentTimeMillis() - pausedAt > RESUME_RELOAD_MS;
         pausedAt = 0;
-        if (!away || pendingUpload != null || (offline != null && offline.getVisibility() == View.VISIBLE)) return;
+        // Offline a reload only shows the same saved copy again, and loses where the student was.
+        if (!away || !online || pendingUpload != null || (offline != null && offline.getVisibility() == View.VISIBLE)) return;
         // Something typed or a file picked and not sent yet: keep the page as it is rather than lose it.
         web.evaluateJavascript(UNSENT_INPUT_JS, result -> { if (!"true".equals(result)) web.reload(); });
     }
@@ -339,7 +346,7 @@ public class MainActivity extends ComponentActivity {
             if (!isPortal(uri) || path == null) return null;
             if (!path.startsWith(FONT_PATH)) {
                 if (online) shell.saw(request);
-                return online ? null : shell.open(request);
+                return shell.open(request, online);
             }
             String name = path.substring(FONT_PATH.length());
             if (!FONT_NAME.matcher(name).matches()) return null;
