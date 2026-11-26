@@ -49,3 +49,28 @@ test('<html data-sx-waiting> is set only while a portal request waits on the ser
   expect(during).toBe(true);
   await expect(page.locator('html')).not.toHaveAttribute('data-sx-waiting', '');
 });
+
+test.describe('offline (the Android app)', () => {
+  test('reads are answered from the saved copy however old, a failed change keeps it, log out empties it', async ({ page, context }) => {
+    await page.addInitScript('window.__altexApp = true');
+    const requests = await openPortal(page, '<div></div>', { api: { '/student/program/get': { name: 'CS' }, '/student/program/save': {} } });
+    const hits = () => requests.filter((u) => u.endsWith('/student/program/get')).length;
+    await page.evaluate(`window.__xhr = ${xhr.toString()}`);
+    await page.evaluate(() => window.__xhr('/student/program/get'));
+    // Kept in localStorage in the app, so it outlives a restart.
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('sx-api-cache'))).toContain('CS');
+
+    // An hour later and offline: too old to be answered online, but offline it is all there is.
+    await page.evaluate(() => { const real = Date.now; Date.now = () => real() + 3600 * 1000; });
+    await context.setOffline(true);
+    expect(await page.evaluate(() => window.__xhr('/student/program/get'))).toMatchObject({ status: 200, body: { name: 'CS' } });
+    // A change tried offline never reached the server: the copy stays.
+    await page.evaluate(() => window.__xhr('/student/program/save').catch(() => null));
+    expect(await page.evaluate(() => window.__xhr('/student/program/get'))).toMatchObject({ body: { name: 'CS' } });
+    expect(hits()).toBe(1);
+
+    await context.setOffline(false);
+    await page.evaluate(() => document.dispatchEvent(new Event('sx-forget')));
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('sx-api-cache'))).toBe('[]');
+  });
+});
