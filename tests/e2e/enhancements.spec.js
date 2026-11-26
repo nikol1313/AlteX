@@ -116,3 +116,18 @@ test.describe('section entrance', () => {
     expect(await page.locator('#t').evaluate((e) => getComputedStyle(e).animationDuration)).toBe('0.42s');
   });
 });
+
+test('a page loaded offline shows the offline notice straight away', async ({ page }) => {
+  await page.addInitScript(() => Object.defineProperty(Navigator.prototype, 'onLine', { get: () => false }));
+  await openPortal(page, '<div></div>');
+  await expect(page.locator('.sx-offline')).toBeVisible();
+});
+
+test('the profile button is the initial alone, with no arrow beside it', async ({ page }) => {
+  await openPortal(page, '<user-menu-component><div class="user-menu-top"><div class="user-menu"><span class="user-name-wrapper">Nino</span></div></div></user-menu-component>',
+    { student: { id: 1, firstName: 'Nino' } });
+  const menu = page.locator('.user-menu');
+  await expect(menu).toHaveAttribute('data-sx-initial', 'N');
+  expect(await menu.evaluate((m) => getComputedStyle(m, '::after').content)).toBe('none');
+  expect(await menu.evaluate((m) => Math.round(m.getBoundingClientRect().width))).toBe(44);
+});

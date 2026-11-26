@@ -25,7 +25,7 @@ const run = () => {
 };
 // In order; with sx-perf each one is its own altex:<name> measure.
 const PASS_STEPS = [
-  maybeWelcome, tagCounts, dismissNotice, mountUserMenu, mountDashNav, mountNav, mountDrawer, tapDashOnly, mountRail, enhanceWeek, enhanceExams, enhanceCard, enhanceEstDialog, enhanceCardHeader, enhanceFinances, enhanceCalendar, enhanceChancellery, enhanceTablesLoading, enhanceRegistration, enhanceProgram, enhancePhotos, tagBlankProfileCells, tagProfileStats, enhanceTasks, labelTableCells, labelIconButtons, mountExamStrip, mountHello, mountLogin, mountRemember, releaseScrollLock,
+  maybeWelcome, tagCounts, dismissNotice, mountUserMenu, mountDashNav, mountNav, mountDrawer, tapDashOnly, mountRail, enhanceWeek, enhanceExams, enhanceCard, enhanceEstDialog, enhanceCardHeader, enhanceFinances, enhanceCalendar, enhanceChancellery, enhanceTablesLoading, enhanceRegistration, enhanceProgram, enhancePhotos, tagBlankProfileCells, tagProfileStats, enhanceTasks, labelTableCells, labelIconButtons, setOffline, mountExamStrip, mountHello, mountLogin, mountRemember, releaseScrollLock,
 ];
 const runPass = () => {
   // Page flags on <html> (a :has() there would rescan the whole DOM on every style recalc).
