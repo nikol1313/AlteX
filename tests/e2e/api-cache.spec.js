@@ -74,3 +74,38 @@ test.describe('offline (the Android app)', () => {
     await expect.poll(() => page.evaluate(() => localStorage.getItem('sx-api-cache'))).toBe('[]');
   });
 });
+
+test('an old read whose request fails is answered from the saved copy, even when the browser thinks it is online', async ({ page }) => {
+  const requests = await openPortal(page, '<div></div>', { api: { '/student/program/get': { name: 'CS' } } });
+  await page.evaluate(`window.__xhr = ${xhr.toString()}`);
+  await page.evaluate(() => window.__xhr('/student/program/get'));
+  // Wi-Fi switched off without the page noticing: the request fails, navigator.onLine stays true.
+  await page.route('**/student/program/get', (route) => route.abort('internetdisconnected'));
+  await page.evaluate(() => { const real = Date.now; Date.now = () => real() + 3600 * 1000; });
+  expect(await page.evaluate(() => navigator.onLine)).toBe(true);
+  expect(await page.evaluate(() => window.__xhr('/student/program/get'))).toMatchObject({ status: 200, body: { name: 'CS' } });
+  expect(requests.filter((u) => u.endsWith('/student/program/get')).length).toBe(2);
+});
+
+test("a portal frame's reads go into the page's own memory", async ({ page }) => {
+  const requests = await openPortal(page, '<iframe src="/tables"></iframe>', { api: { '/student/program/get': { name: 'CS' } } });
+  const frame = page.frame({ url: /\/tables$/ });
+  await frame.waitForLoadState();
+  await frame.evaluate(`window.__xhr = ${xhr.toString()}`);
+  await frame.evaluate(() => window.__xhr('/student/program/get'));
+  await page.evaluate(`window.__xhr = ${xhr.toString()}`);
+  expect(await page.evaluate(() => window.__xhr('/student/program/get'))).toMatchObject({ body: { name: 'CS' } });
+  expect(requests.filter((u) => u.endsWith('/student/program/get')).length).toBe(1);
+});
+
+test('the app opens the sections in a hidden frame after the first signed-in read, once per login', async ({ page }) => {
+  await page.addInitScript('window.__altexApp = true');
+  await openPortal(page, '<div></div>', { api: { '/student/program/get': { name: 'CS' } } });
+  await page.evaluate(`window.__xhr = ${xhr.toString()}`);
+  const warm = page.waitForRequest((r) => r.url().endsWith('/tables') && r.resourceType() === 'document', { timeout: 10000 });
+  await page.evaluate(() => window.__xhr('/student/program/get'));
+  await warm;
+  const frame = page.locator('iframe[aria-hidden="true"]');
+  await expect(frame).toHaveCount(1);
+  await expect(frame).not.toBeVisible();
+});
