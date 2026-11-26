@@ -144,6 +144,16 @@ html.sx.sx login-component .student-userName-wrapper > div { flex: 1 1 auto !imp
 html.sx.sx login-component .student-userName-wrapper img { flex: 0 0 auto; width: 48px !important; height: 48px !important; margin: 0 !important; object-fit: cover; }
 html.sx.sx login-component .student-userName-wrapper img + div { min-width: 0; overflow-wrap: anywhere; font-size: 16px !important; line-height: 1.35 !important; }
 html.sx.sx login-component .student-userName-wrapper > div:last-child { flex-basis: 100% !important; justify-content: flex-start !important; padding-left: 60px !important; }
+/* Password and SMS steps: back to the ID step (js/login.js). */
+html.sx.sx login-component .sx-login-back {
+  display: grid !important; place-items: center; align-self: flex-start; width: 44px !important; height: 44px !important;
+  margin: -24px 0 12px -12px !important; padding: 0 !important; border: 0 !important; border-radius: 12px !important; cursor: pointer;
+  background-color: transparent !important; color: var(--fg) !important; transition: background-color 150ms var(--ease-out) !important;
+}
+@media (hover: hover) { html.sx.sx login-component .sx-login-back:hover { background-color: var(--box-hi) !important; } }
+html.sx.sx login-component .sx-login-back:active { background-color: var(--box-hi) !important; }
+html.sx.sx login-component .sx-login-back:focus-visible { outline: 2px solid var(--brand) !important; outline-offset: 2px; }
+html.sx.sx login-component .sx-login-back svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 /* Android app only: "remember me" (js/login.js) */
 html.sx.sx login-component .sx-remember { display: flex; align-items: center; gap: 10px; min-height: 44px; margin: 0 0 6px; cursor: pointer; font-size: 15px !important; color: var(--fg2) !important; }
 html.sx.sx login-component .sx-remember input { width: 20px !important; height: 20px !important; margin: 0; accent-color: var(--btn); }

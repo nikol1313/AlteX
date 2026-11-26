@@ -148,3 +148,18 @@ test.describe('portal alerts', () => {
     await expect(page.locator('.cdk-overlay-container')).toHaveCSS('visibility', 'hidden');
   });
 });
+
+test('a back arrow on the password step returns to the ID step (a mistyped ID)', async ({ page }) => {
+  await openPortal(page, `
+    <login-component><div class="loginPage-wrapper"><h3>შესვლა</h3>
+      <form class="login-form step-2">
+        <input formcontrolname="username" value="699w">
+        <div class="student-userName-wrapper step-2-form"><div><span class="clearForm" onclick="this.closest('form').classList.remove('step-2')">სხვა მომხმარებელი</span></div></div>
+        <div class="ini-form-field step-2-form"><input formcontrolname="password" type="password"></div>
+      </form></div></login-component>`);
+  const back = page.getByRole('button', { name: 'უკან · Back' });
+  await expect(back).toBeVisible();
+  await back.click();
+  await expect(page.locator('.login-form')).not.toHaveClass(/step-2/);
+  await expect(back).toHaveCount(0);
+});
