@@ -3,9 +3,11 @@
 [![Tests](https://github.com/nikol1313/AlteX/actions/workflows/tests.yml/badge.svg)](https://github.com/nikol1313/AlteX/actions/workflows/tests.yml)
 [![Android](https://github.com/nikol1313/AlteX/actions/workflows/android.yml/badge.svg)](https://github.com/nikol1313/AlteX/actions/workflows/android.yml)
 
-A redesign of the Alte University student portal (`students.alte.edu.ge`): clearer, easier to use, and about **7× faster** when switching between sections.
+A redesign of the Alte University student portal (`students.alte.edu.ge`): clearer, easier to use, about **7× faster** when switching between sections, and it works **offline** in the Android app.
 
-**[Install on PC](#installation-on-pc)** · **[Install on Android](#installation-on-android)**
+One codebase ships two ways: a Chrome extension (Manifest V3) and an Android app that injects the same code into a WebView.
+
+**[Install on PC](#installation-on-pc)** · **[Install on Android](#installation-on-android)** · **[How it works](#how-it-works)**
 
 ## Speed
 
