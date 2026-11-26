@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.net.ConnectivityManager;
 import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
 import android.net.Uri;
@@ -80,6 +81,8 @@ public class MainActivity extends ComponentActivity {
     private View offline;
     private boolean mainFrameFailed;
     private ConnectivityManager.NetworkCallback onNetwork;
+    /** Set from the network callback; read on the WebView's request threads. */
+    private volatile boolean online = true;
     private String bundle;
     private boolean injectAtDocumentStart;
     private ValueCallback<Uri[]> pendingUpload;
@@ -188,19 +191,33 @@ public class MainActivity extends ComponentActivity {
             }
         });
 
+        ConnectivityManager cm = getSystemService(ConnectivityManager.class);
+        if (cm != null) online = hasInternet(cm);
+        web.setNetworkAvailable(online);
+
         if (savedInstanceState == null || web.restoreState(savedInstanceState) == null) {
             web.loadUrl(PORTAL_ORIGIN + "/");
         }
         UpdateCheck.run(this, installedVersion(), version -> showBanner("update",
                 getString(R.string.update_available, version), () -> openOutside(Uri.parse(UpdateCheck.DOWNLOAD_URL))));
         checkWebView();
-        // Back online while the offline screen shows: load again by itself.
-        ConnectivityManager cm = getSystemService(ConnectivityManager.class);
+        // The page learns of it through navigator.onLine and online/offline events (js/api-cache.js, js/nav.js).
         if (cm != null) {
             onNetwork = new ConnectivityManager.NetworkCallback() {
                 @Override
                 public void onAvailable(Network network) {
-                    runOnUiThread(() -> { if (offline != null && offline.getVisibility() == View.VISIBLE) web.reload(); });
+                    online = true;
+                    runOnUiThread(() -> {
+                        web.setNetworkAvailable(true);
+                        if (offline != null && offline.getVisibility() == View.VISIBLE) web.reload();
+                    });
+                }
+
+                @Override
+                public void onLost(Network network) {
+                    // Wi-Fi handing over to mobile data can report the old network lost after the new one is up.
+                    online = hasInternet(cm);
+                    if (!online) runOnUiThread(() -> web.setNetworkAvailable(false));
                 }
             };
             try {
@@ -286,6 +303,11 @@ public class MainActivity extends ComponentActivity {
         } catch (JSONException e) {
             // not one of ours
         }
+    }
+
+    private static boolean hasInternet(ConnectivityManager cm) {
+        NetworkCapabilities caps = cm.getNetworkCapabilities(cm.getActiveNetwork());
+        return caps != null && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
     }
 
     private static boolean isPortal(Uri uri) {
