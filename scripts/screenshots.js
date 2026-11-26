@@ -132,7 +132,7 @@ const DEVICES = [
 // One 1280×800 JPEG from an image (a PNG buffer or file), drawn centred on the app's background colour.
 const storeShot = async (browser, png, file) => {
   const p = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-  await p.setContent(`<body style="margin:0;width:1280px;height:800px;display:grid;place-items:center;background:#1C1E1F"><img style="max-width:1280px;max-height:800px;width:100%;height:100%;object-fit:contain" src="data:image/png;base64,${png.toString('base64')}"></body>`);
+  await p.setContent(`<body style="margin:0;width:1280px;height:800px;display:grid;place-items:center;background:#1C1C1C"><img style="max-width:1280px;max-height:800px;width:100%;height:100%;object-fit:contain" src="data:image/png;base64,${png.toString('base64')}"></body>`);
   await p.locator('img').evaluate((img) => img.decode());
   await p.screenshot({ path: file, type: 'jpeg', quality: 92 });
   await p.close();
