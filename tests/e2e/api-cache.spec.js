@@ -109,3 +109,29 @@ test('the app opens the sections in a hidden frame after the first signed-in rea
   await expect(frame).toHaveCount(1);
   await expect(frame).not.toBeVisible();
 });
+
+test('after logging in the app also saves every learning card subject, so each opens offline', async ({ page }) => {
+  test.setTimeout(90000);
+  await page.addInitScript('window.__altexApp = true');
+  const books = [{ id: 11, name: 'Math' }, { id: 12, name: 'Physics' }, { id: 13, name: 'History' }, { id: 14, name: 'Art' }];
+  const requests = await openPortal(page, '<div></div>', {
+    api: { '/student/card': { card: { books } }, '/student/getCardDetails': { result: 'yes', data: [] } },
+  });
+  // The portal's own read of the card, as the learning card page makes it.
+  await page.evaluate(() => new Promise((resolve) => {
+    const x = new XMLHttpRequest();
+    x.open('GET', '/student/card');
+    x.setRequestHeader('Authorization', 'Bearer t');
+    x.addEventListener('loadend', resolve);
+    x.send();
+  }));
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('sx-warmed')), { timeout: 80000 }).not.toBeNull();
+  const details = () => requests.filter((u) => u.endsWith('/student/getCardDetails')).length;
+  expect(details()).toBe(books.length);
+
+  // Tapping a subject never opened online: answered from the saved copy, offline.
+  await page.context().setOffline(true);
+  await page.evaluate(`window.__xhr = ${xhr.toString()}`);
+  expect(await page.evaluate(() => window.__xhr('/student/getCardDetails', '{"resultId":13}'))).toMatchObject({ status: 200, body: { result: 'yes' } });
+  expect(details()).toBe(books.length);
+});
