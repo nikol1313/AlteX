@@ -8,9 +8,12 @@
 //   in memory (the reads of each section are learnt as the portal makes them);
 // - anything that changes data (a POST that is not a get…/check… read) empties the memory, so a save or a logout
 //   is never followed by old data.
+// - offline (navigator.onLine false), a read is answered from memory however old, so sections still open with the
+//   last data; a change tried offline never reached the server, so it keeps the memory.
 // Reads only ever go to the portal itself, with the headers the portal sent. Kept in this tab's sessionStorage, so a
-// reload (the Android app reloads on return) keeps it and closing the tab drops it. Any failure here falls back to the
-// portal's normal request.
+// reload keeps it and closing the tab drops it; the Android app (window.__altexApp) keeps it in localStorage for up to
+// KEEP_MS, so the app opens with the last data offline. Log out ('sx-forget', js/login.js) empties it. Any failure here
+// falls back to the portal's normal request.
 (() => {
   if (window.__altexCache) return;
   window.__altexCache = true;
@@ -171,6 +174,8 @@
     if (section === sectionOf(location.pathname)) return;
     for (const [key, hit] of cache) if (hit.section === section && Date.now() - hit.at > FRESH_MS) refresh(key, hit.req, section);
   };
+  // A DOM event, so js/login.js reaches it from the extension's own world too.
+  document.addEventListener('sx-forget', forget);
   document.addEventListener('pointerover', ahead, { passive: true, capture: true });
   document.addEventListener('pointerdown', ahead, { passive: true, capture: true });
 })();

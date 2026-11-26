@@ -179,7 +179,7 @@ let savedLogin, pendingLogin = null, autoLoginTried = false;
 // show for a moment before the welcome screen. Capped in time, so a silent store or a slow portal still shows the form.
 let autoHideUntil = 0;
 const hideLoginFor = (ms) => { autoHideUntil = ms ? Date.now() + ms : 0; setTimeout(schedule, ms); };
-const forgetLogin = () => { savedLogin = null; pendingLogin = null; loginStore()?.forget(); forgetDashboard(); };
+const forgetLogin = () => { savedLogin = null; pendingLogin = null; loginStore()?.forget(); forgetDashboard(); document.dispatchEvent(new Event('sx-forget')); };
 const askSavedLogin = () => {
   const ls = loginStore();
   if (!ls || savedLogin !== undefined) return;
