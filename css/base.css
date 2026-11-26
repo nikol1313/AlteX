@@ -22,7 +22,7 @@
 
 /* ---------- Tokens ---------- */
 html.sx {
-  --bg: #1C1E1F;
+  --bg: #1C1C1C; /* neutral: phone screens shift dark greys towards green-blue, #1C1E1F read greenish */
   --box: #25272A;
   --box-hi: #2E3035;
   --line: #393B41;
