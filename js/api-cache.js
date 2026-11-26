@@ -26,7 +26,7 @@
   const FRESH_MS = 10 * 1000; // younger than this: no refresh needed
   const STALE_MS = 5 * 60 * 1000; // older than this: not answered from memory
   const KEEP_MS = 7 * 24 * 3600 * 1000; // saved data older than this is dropped
-  const MAX = 150;
+  const MAX = 300;
   const SAVE_KEY = 'sx-api-cache';
   const READ = /^(get|check)/i; // last path segment of a portal read: getItems, getMetaNew, check…
   const SKIP = /download|file|print|pdf|export|logout/i;
@@ -230,6 +230,23 @@
     };
     tick();
   });
+  // A learning card subject opens with its own read (POST /student/getCardDetails {resultId}), made only when it is
+  // tapped: asked here for every subject on the saved card, exactly as the portal asks, three at a time.
+  const warmSubjects = async (auth) => {
+    const sameAuth = (e) => (e.req.headers.authorization || e.req.headers.Authorization) === auth;
+    const card = [...cache.values()].find((e) => e.req && e.req.method === 'GET' && sameAuth(e) && new URL(e.req.url).pathname === '/student/card');
+    let books = [];
+    try { books = (JSON.parse(card.body).card.books || []).filter((b) => b && b.id != null); } catch { return; }
+    const url = new URL('/student/getCardDetails', location.origin).href;
+    const headers = { ...card.req.headers, 'Content-Type': 'application/json' };
+    for (let i = 0; i < books.length; i += 3) {
+      if (!warming) return; // logged out meanwhile
+      await Promise.all(books.slice(i, i + 3).map((b) => {
+        const r = { method: 'POST', url, headers, body: JSON.stringify({ resultId: b.id }) };
+        return refresh(keyOf(r), r, '/learningCard');
+      }));
+    }
+  };
   const warmUp = async (auth) => {
     if (warming || !navigator.onLine || !document.body) return;
     try { if (localStorage.getItem(WARM_KEY) === auth.slice(-24)) return; } catch { return; }
@@ -252,6 +269,8 @@
       }
       await settle(frame);
     }
+    if (!warming || warming.frame !== frame) return;
+    await warmSubjects(auth);
     if (warming && warming.frame === frame) stopWarm(true);
   };
   const warmLater = (auth) => {
