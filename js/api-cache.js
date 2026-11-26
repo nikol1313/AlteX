@@ -28,7 +28,12 @@
   const KEEP_MS = 7 * 24 * 3600 * 1000; // saved data older than this is dropped
   const MAX = 300;
   const SAVE_KEY = 'sx-api-cache';
-  const READ = /^(get|check)/i; // last path segment of a portal read: getItems, getMetaNew, check…
+  // Last path segment of a portal read sent as a POST: getItems, checkX, isStudentBannedOrPaused, allSelectablePrograms,
+  // lang/list. Paged lists (/tasks/?page=…) are reads too.
+  const READ = /^(?:[gG]et|[cC]heck|is[A-Z]|all[A-Z]|list$)/;
+  // Marks something seen or read: it changes nothing a read shows, so it neither empties the memory nor is kept or
+  // repeated (a GET /task/markAsReadTasks must not be fetched ahead).
+  const SEEN = /seen|markAsRead/i;
   const SKIP = /download|file|print|pdf|export|logout/i;
 
   const realFetch = window.fetch.bind(window);
@@ -66,8 +71,9 @@
   const kindOf = (method, url) => {
     if (url.origin !== location.origin || !url.pathname.startsWith('/student/')) return null;
     if (SKIP.test(url.pathname)) return method === 'GET' ? null : 'write';
+    if (SEEN.test(url.pathname)) return null;
     const last = url.pathname.split('/').filter(Boolean).pop() || '';
-    if (method === 'GET' || (method === 'POST' && READ.test(last))) return 'read';
+    if (method === 'GET' || (method === 'POST' && (READ.test(last) || url.searchParams.has('page')))) return 'read';
     return 'write';
   };
   const keyOf = (r) => `${r.method} ${r.url}\n${r.body || ''}\n${r.headers.authorization || r.headers.Authorization || ''}`;
@@ -202,7 +208,7 @@
   // reads are saved for offline use. Once per login token (WARM_KEY), WARM_DELAY_MS after the first signed-in read so
   // the student's own screen loads first. Only sections that just show data: messages and announcements stay out, as
   // opening them can mark them read.
-  const WARM = ['/tables', '/learningCard', '/tasks-books', '/tables/learningTables', '/calendar', '/programs',
+  const WARM = ['/learningCard', '/tables', '/tasks-books', '/tables/learningTables', '/calendar', '/programs',
     '/finances', '/registration', '/chancellery', '/personal-data', '/contracts', '/gegma-documents', '/commands',
     '/dashboard'];
   const WARM_KEY = 'sx-warmed';
@@ -268,9 +274,8 @@
         } catch { break; }
       }
       await settle(frame);
+      if (path === '/learningCard' && warming && warming.frame === frame) await warmSubjects(auth);
     }
-    if (!warming || warming.frame !== frame) return;
-    await warmSubjects(auth);
     if (warming && warming.frame === frame) stopWarm(true);
   };
   const warmLater = (auth) => {
