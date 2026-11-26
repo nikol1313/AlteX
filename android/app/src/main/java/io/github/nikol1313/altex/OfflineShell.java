@@ -29,6 +29,9 @@ final class OfflineShell {
     private static final String ORIGIN = "https://students.alte.edu.ge";
     /** A file of the page: same origin, a plain path with an extension (the API, /student/…, has none). */
     private static final Pattern FILE = Pattern.compile("/(?:[A-Za-z0-9._-]+/)*[A-Za-z0-9_-][A-Za-z0-9._-]*\\.(js|css|json|svg|png|jpg|ico|woff2|woff|ttf)");
+    /** A file of the portal's build (main-HASH.js, chunk-HASH.js, styles-HASH.css): its name changes with its content,
+     *  so a saved copy is never out of date and is used even online. */
+    private static final Pattern BUILD = Pattern.compile("/[A-Za-z0-9-]+-[A-Za-z0-9_-]{8}\\.(js|css)");
     /** Files not asked for in this long are deleted (old builds of the portal); asked for again, they come back. */
     private static final long UNUSED_MS = 30L * 24 * 3600 * 1000;
 
@@ -47,17 +50,20 @@ final class OfflineShell {
         });
     }
 
-    /** Online: the page asked for this, so keep (or refresh) its copy in the background. */
+    /** Online: the page asked for this, so keep (or refresh) its copy in the background. A saved build file is kept. */
     void saw(WebResourceRequest request) {
         String path = pathOf(request);
-        if (path != null && checked.add(path)) saver.execute(() -> save(path));
+        if (path == null || (BUILD.matcher(path).matches() && fileOf(path).isFile())) return;
+        if (checked.add(path)) saver.execute(() -> save(path));
     }
 
-    /** Offline: the saved copy of what the page asks for, or null (the WebView then fails as it would anyway). */
-    WebResourceResponse open(WebResourceRequest request) {
+    /** The saved copy of what the page asks for: anything offline, a build file also online. Null otherwise (or
+     *  when there is no copy): the WebView then loads it as usual. */
+    WebResourceResponse open(WebResourceRequest request, boolean online) {
         String path = pathOf(request);
-        File f = path == null ? null : fileOf(path);
-        if (f == null || !f.isFile()) return null;
+        if (path == null || (online && !BUILD.matcher(path).matches())) return null;
+        File f = fileOf(path);
+        if (!f.isFile()) return null;
         String mime = mimeOf(path);
         try {
             return new WebResourceResponse(mime, mime.startsWith("font/") || mime.startsWith("image/") ? null : "UTF-8",
