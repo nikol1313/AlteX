@@ -24,6 +24,15 @@ On average a section's data is ready in **0.14 s instead of 0.95 s**. The first 
 
 **How it was measured:** the time from opening a section until its data is on screen, on the real portal, with and without AlteX, averaged over the portal's sections. <!-- TODO before pushing: how many runs, which sections, which device/network -->
 
+## Offline (Android)
+
+No connection? The app still opens and shows the last data you saw:
+
+- **The portal's page is kept on the phone.** The portal sends everything with `Cache-Control: no-store`, so the WebView keeps nothing by itself. The app saves its own copy of the page's public files (HTML, scripts, styles), fetched without your cookies, and serves that copy when the phone is offline.
+- **Your data is kept for up to 7 days.** The same cache that makes sections fast is saved on the phone in the app, and while offline it answers with the last copy however old it is.
+- **An "Offline" notice shows** while the connection is gone, and the page reloads by itself when it comes back (unless you have typed something that a reload would lose).
+- **Logging out deletes the saved data.** A change tried while offline never reaches the server, so the saved data stays correct.
+
 ## Problem
 
 The Alte University student portal works, but it is far from user-friendly. Its outdated design, cluttered layout, confusing navigation and unnecessary clicks make even simple tasks frustrating. Important information is hard to find, the timetable is hard to read, and many parts of the interface lack the clarity students need.
