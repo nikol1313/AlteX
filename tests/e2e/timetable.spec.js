@@ -166,3 +166,35 @@ test.describe('lecture timetable as a time grid', () => {
     await expect.poll(async () => (await algo.boundingBox()).height).toBeGreaterThan(short + 20);
   });
 });
+
+const pickerSel = (v) => `<mat-form-field class="mat-mdc-form-field"><div class="mat-mdc-text-field-wrapper"><div class="mat-mdc-form-field-flex"><div class="mat-mdc-form-field-infix"><mat-select class="mat-mdc-select"><div class="mat-mdc-select-trigger"><div class="mat-mdc-select-value"><span class="mat-mdc-select-value-text"><span>${v}</span></span></div><div class="mat-mdc-select-arrow-wrapper"></div></div></mat-select></div></div></div><div class="mat-mdc-form-field-subscript-wrapper"></div></mat-form-field>`;
+const hdrLesson = `<div class="day-item"><b>საათი</b>: 10:00<br><b>სასწ.კურსი</b>: შესავალი კიბერუსაფრთხოებაში<br><b>ჯგუფი</b>: 101<br><b>ლექტორი</b>: დავით ბოჭორიშვილი<br><b>აუდიტორია</b>: 405<br><b>ტიპი</b>: ლექცია/სემინარი<br><b>ხანგრძლივობა</b>: 170<br></div>`;
+const HDR_DAYS = ['ორშაბათი','სამშაბათი','ოთხშაბათი','ხუთშაბათი','პარასკევი','შაბათი','კვირა'];
+const HEADER = `<div class="all-page-container"><tables-dashboard-component><div class="width"><div></div><div class="tables-dashboard"><ul class="tables-tab-menu">
+<li><a href="/tables/learningTables" class="active">სასწავლო</a></li><li><a href="/tables/ac-tables/1">შუალედური გამოცდა</a></li><li><a href="/tables/ac-tables/2">შუალედური გამოცდის აღდგენა</a></li><li><a href="/tables/ac-tables/3">ფინალური</a></li></ul></div></div></tables-dashboard-component>
+<student-tables-component><div><div>${pickerSel('2026/2027 საშემოდგომო')}${pickerSel('კომპიუტერული მეცნიერება')}</div><br>
+<div class="calendar"><div class="calendar-navigation">
+ <div class="calendar-navigation-panel block_1"><button class="mdc-button mat-mdc-raised-button"><span class="mdc-button__label"><span>მიმდინარე კვირა</span></span></button></div>
+ <div class="block_2"><div class="bb"><div style="float:left"><button class="mat-mdc-icon-button prewButton"><mat-icon class="mat-icon material-icons">keyboard_arrow_left</mat-icon></button></div><div><button class="mat-mdc-icon-button nextButton"><mat-icon class="mat-icon material-icons">keyboard_arrow_right</mat-icon></button></div></div></div>
+ <div class="block_3"><h3 class="monthName"><span class="month-name">ნოემბერი</span> <span>2026</span><span><mat-icon class="mat-icon">keyboard_arrow_down</mat-icon></span></h3></div>
+</div>
+<div class="weeklist-container">${HDR_DAYS.map((d,i)=>`<div class="headInfo${i===3?' now':''}"><button class="day-title"><span class="mdc-button__label"><div class="day-name">${d}</div><div class="day-number"><div>${23+i}</div></div></span></button><div class="weeklist">${i===3?hdrLesson:''}</div></div>`).join('')}</div></div></div></student-tables-component></div>`;
+
+test('phone header: section strip, labelled pickers, week dates under "this week", month and lessons on one line', async ({ page }) => {
+  await openPortal(page, HEADER, { url: '/tables/learningTables', now: '2026-11-26T09:30:00+04:00' });
+  await expect(page.locator('.sx-pick-label')).toHaveText(['სემესტრი · Semester', 'პროგრამა · Program']);
+  await expect(page.locator('.sx-wk-dates')).toHaveText('23 – 29 ნოემბერი');
+  await expect(page.locator('.sx-tt-sum')).toHaveText('1 ლექცია · 2.8 სთ ამ კვირაში');
+  if (test.info().project.name !== 'phone') return;
+  // The strip fades at the right edge until it is scrolled to the end.
+  const tabs = page.locator('.tables-tab-menu');
+  await expect(tabs).not.toHaveAttribute('data-sx-end', '');
+  await tabs.evaluate((t) => { t.scrollLeft = t.scrollWidth; t.dispatchEvent(new Event('scroll')); });
+  await expect(tabs).toHaveAttribute('data-sx-end', '');
+  // The month and the week's lessons share a line; the pickers are stacked full width.
+  const [month, sum] = [await page.locator('.monthName').boundingBox(), await page.locator('.sx-tt-sum').boundingBox()];
+  expect(Math.abs((month.y + month.height / 2) - (sum.y + sum.height / 2))).toBeLessThan(12);
+  const [a, b] = await page.locator('.sx-rail-filters mat-form-field').evaluateAll((f) => f.map((x) => x.getBoundingClientRect().toJSON()));
+  expect(b.top).toBeGreaterThan(a.bottom);
+  await expect(page.locator('.sx-tt-wk')).toBeHidden();
+});

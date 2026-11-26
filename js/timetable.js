@@ -81,9 +81,26 @@ const mountWeekSum = (count, minutes) => {
   const nav = document.querySelector('student-tables-component .calendar-navigation');
   if (!nav) return;
   let sum = nav.querySelector(':scope > .sx-tt-sum');
-  const text = count ? `${count} ლექცია · ${Math.round(minutes / 6) / 10} სთ ამ კვირაში` : 'ამ კვირაში ლექციები არ არის';
   if (!sum) { sum = el('span', 'sx-tt-sum'); nav.append(sum); }
-  if (sum.textContent !== text) sum.textContent = text;
+  // " ამ კვირაში" is its own span: phones leave it out to keep the line beside the month (timetable.css).
+  const text = count ? `${count} ლექცია · ${Math.round(minutes / 6) / 10} სთ` : 'ამ კვირაში ლექციები არ არის';
+  if (sum.textContent !== text + (count ? ' ამ კვირაში' : '')) sum.replaceChildren(text, ...(count ? [el('span', 'sx-tt-wk', ' ამ კვირაში')] : []));
+};
+
+// The shown week's dates under "მიმდინარე კვირა" (phones, timetable.css): "23 – 29 ნოემბერი", or "30 – 6" across two
+// months, from the day numbers in the week's headers and the month in the portal's title.
+const mountWeekDates = (heads) => {
+  const btn = document.querySelector('student-tables-component .calendar-navigation .block_1 > button');
+  if (!btn) return;
+  const days = heads.map((h) => parseInt(h.querySelector('.day-number')?.textContent, 10)).filter((n) => n > 0);
+  const month = document.querySelector('student-tables-component .calendar-navigation .month-name')?.textContent.trim() || '';
+  const first = days[0], last = days[days.length - 1];
+  const text = !days.length ? '' : last < first ? `${first} – ${last}` : `${first} – ${last}${month ? ' ' + month : ''}`;
+  const host = btn.querySelector('.mdc-button__label') || btn;
+  let line = host.querySelector(':scope > .sx-wk-dates');
+  if (!text) { line?.remove(); return; }
+  if (!line) { line = el('span', 'sx-wk-dates'); host.append(line); }
+  if (line.textContent !== text) line.textContent = text;
 };
 
 const enhanceWeek = () => {
@@ -160,6 +177,7 @@ const enhanceWeek = () => {
   if (wrap.style.getPropertyValue('--t0') !== String(t0)) wrap.style.setProperty('--t0', t0);
   if (wrap.style.getPropertyValue('--t1') !== String(t1)) wrap.style.setProperty('--t1', t1);
   mountAxis(wrap, t0, t1);
+  mountWeekDates(heads);
   mountWeekSum(count, minutes);
   mountDayPager(wrap, heads); // before --tt-top is measured: the pager sits above the grid
   // Where the grid starts on the page (after the summary line, which can wrap above it), so CSS can size the hours to end at the bottom of the window.
@@ -325,6 +343,10 @@ const TAB_EN = {
   '/tables/ac-tables/4': 'Final retake',
   '/tables/ac-tables/quizzes': 'Quizzes',
 };
+const PICKS = [
+  { label: 'სემესტრი · Semester', icon: '<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>' },
+  { label: 'პროგრამა · Program', icon: '<svg viewBox="0 0 24 24"><path d="M3 9l9-5 9 5-9 5-9-5z"/><path d="M7 11v5c3 2 7 2 10 0v-5"/></svg>' },
+];
 const setRail = (open) => {
   root.classList.toggle('sx-rail-open', open);
   document.querySelector('.sx-rail-toggle')?.setAttribute('aria-expanded', String(open));
@@ -375,6 +397,23 @@ const mountRail = () => {
   }
   // Angular removes the component, not nodes moved out of it.
   for (const old of filters.querySelectorAll(':scope > div')) if (!old._sxHost || !old._sxHost.isConnected) old.remove();
+  // Phones: each picker a card with an icon and a label (semester first, then programme, as the portal orders them).
+  filters.querySelectorAll('mat-form-field').forEach((field, i) => {
+    const pick = PICKS[i];
+    if (!pick || field.querySelector(':scope > .sx-pick-ic')) return;
+    const ic = el('span', 'sx-pick-ic');
+    ic.setAttribute('aria-hidden', 'true');
+    ic.innerHTML = pick.icon;
+    field.append(ic, el('span', 'sx-pick-label', pick.label));
+  });
+  // The tab strip's right edge fades while more tabs are off screen (timetable.css).
+  const tabs = menu.querySelector('.tables-tab-menu');
+  if (tabs && !tabs.dataset.sxFade) {
+    tabs.dataset.sxFade = '1';
+    const atEnd = () => tabs.toggleAttribute('data-sx-end', tabs.scrollLeft + tabs.clientWidth >= tabs.scrollWidth - 2);
+    tabs.addEventListener('scroll', atEnd, { passive: true });
+    atEnd();
+  }
   for (const a of menu.querySelectorAll('.tables-tab-menu a[href]')) {
     const en = TAB_EN[a.getAttribute('href')];
     if (en && a.dataset.en !== en) a.dataset.en = en;
