@@ -102,7 +102,7 @@ test('the app opens the sections in a hidden frame after the first signed-in rea
   await page.addInitScript('window.__altexApp = true');
   await openPortal(page, '<div></div>', { api: { '/student/program/get': { name: 'CS' } } });
   await page.evaluate(`window.__xhr = ${xhr.toString()}`);
-  const warm = page.waitForRequest((r) => r.url().endsWith('/tables') && r.resourceType() === 'document', { timeout: 10000 });
+  const warm = page.waitForRequest((r) => r.url().endsWith('/learningCard') && r.resourceType() === 'document', { timeout: 10000 });
   await page.evaluate(() => window.__xhr('/student/program/get'));
   await warm;
   const frame = page.locator('iframe[aria-hidden="true"]');
@@ -134,4 +134,28 @@ test('after logging in the app also saves every learning card subject, so each o
   await page.evaluate(`window.__xhr = ${xhr.toString()}`);
   expect(await page.evaluate(() => window.__xhr('/student/getCardDetails', '{"resultId":13}'))).toMatchObject({ status: 200, body: { result: 'yes' } });
   expect(details()).toBe(books.length);
+});
+
+test('paged lists (assignments) are reads; marking something seen leaves the memory alone', async ({ page }) => {
+  const requests = await openPortal(page, '<div></div>', {
+    api: { '/student/tasks/': { data: [{ id: 1 }] }, '/student/program/get': { name: 'CS' }, '/student/hr/calendar/seen': {} },
+  });
+  const count = (p) => requests.filter((u) => new URL(u).pathname === p).length;
+  await page.evaluate(`window.__xhr = ${xhr.toString()}`);
+  await page.evaluate(() => window.__xhr('/student/program/get'));
+  await page.evaluate(() => window.__xhr('/student/tasks/?page=1&limit=10', '{"listId":5}'));
+  await page.evaluate(() => window.__xhr('/student/hr/calendar/seen'));
+  expect(await page.evaluate(() => window.__xhr('/student/tasks/?page=1&limit=10', '{"listId":5}'))).toMatchObject({ body: { data: [{ id: 1 }] } });
+  await page.evaluate(() => window.__xhr('/student/program/get'));
+  expect(count('/student/tasks/')).toBe(1);
+  expect(count('/student/program/get')).toBe(1);
+});
+
+test("AlteX's own reads (api in js/core.js) go through the same memory", async ({ page }) => {
+  const requests = await openPortal(page, '<div></div>', { api: { '/student/card': { card: { books: [] } } } });
+  const a = await page.evaluate(() => api({ token: 't' }, '/student/card'));
+  const b = await page.evaluate(() => api({ token: 't' }, '/student/card'));
+  expect(a).toEqual({ card: { books: [] } });
+  expect(b).toEqual(a);
+  expect(requests.filter((u) => u.endsWith('/student/card')).length).toBe(1);
 });
