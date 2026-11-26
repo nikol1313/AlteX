@@ -78,6 +78,8 @@ html.sx .sx-rail-label { display: block; margin-bottom: 8px; font-size: 13px !im
 html.sx .sx-rail-filters > div { display: flex !important; flex-direction: column !important; gap: 4px; width: 100% !important; }
 html.sx .sx-rail-filters mat-form-field { width: 100% !important; margin: 0 !important; }
 html.sx .sx-rail-filters :is(.mat-mdc-select-value, .mat-mdc-select-value *) { font-size: 16px !important; white-space: normal !important; }
+/* Phones only (the stacked cards, the week's dates): timetable.js adds them everywhere. */
+html.sx :is(.sx-pick-ic, .sx-pick-label, .sx-wk-dates) { display: none; }
 html.sx:not(.sx-rail-open) .sx-rail-title { font-size: 18px !important; }
 
 html.sx .tables-dashboard .tables-tab-menu {
@@ -318,44 +320,80 @@ html.sx ac-tables-component .exam-filters { display: flex; flex-wrap: wrap; gap:
   html.sx.sx student-tables-component .calendar { margin-top: 0 !important; }
   html.sx .tables-dashboard, html.sx.sx-rail-open .tables-dashboard {
     position: static !important; inset: auto !important; z-index: auto; width: auto !important; height: auto !important; overflow: visible !important; zoom: 1;
-    padding: 0 !important; gap: 8px; cursor: default; background-color: transparent !important; border: 0 !important; transition: none !important;
+    padding: 0 !important; gap: 12px; cursor: default; background-color: transparent !important; border: 0 !important; transition: none !important;
   }
   html.sx :is(.sx-rail-toggle, .sx-rail-head, .sx-rail-hint, .sx-rail-label) { display: none !important; }
+  /* Sections: one dark track, swiped sideways; the open one raised with a dot. The right edge fades while there is
+     more to scroll (data-sx-end, timetable.js). */
   html.sx .tables-dashboard .tables-tab-menu {
-    flex-direction: row !important; gap: 6px !important; width: auto; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity;
-    visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; margin: 0 -16px !important; padding: 0 16px !important;
+    flex-direction: row !important; gap: 4px !important; width: auto; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity;
+    visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; margin: 0 !important; padding: 4px !important;
+    border-radius: 14px !important; background-color: var(--well) !important; border: 1px solid var(--line) !important;
+    mask-image: linear-gradient(to right, #000 calc(100% - 44px), transparent);
   }
+  html.sx .tables-dashboard .tables-tab-menu[data-sx-end] { mask-image: none; }
   html.sx .tables-dashboard .tables-tab-menu::-webkit-scrollbar { display: none; }
   html.sx .tables-dashboard .tables-tab-menu > li { flex: none; scroll-snap-align: start; animation: none !important; }
   html.sx .tables-dashboard .tables-tab-menu a {
-    flex-direction: row; align-items: center !important; min-height: 40px; padding: 0 14px !important; font-size: 14px !important;
-    border-radius: 10px !important; background-color: var(--box) !important; border: 1px solid var(--line) !important;
+    flex-direction: row; align-items: center !important; min-height: 36px; padding: 0 14px !important; font-size: 14px !important;
+    border-radius: 10px !important; background-color: transparent !important; border: 0 !important; color: var(--fg2) !important;
   }
   html.sx .tables-dashboard .tables-tab-menu a::after { display: none; }
-  html.sx .tables-dashboard .tables-tab-menu a.active { border-color: color-mix(in srgb, var(--acc) 45%, var(--line)) !important; }
+  html.sx .tables-dashboard .tables-tab-menu a.active { background-color: var(--box-hi) !important; color: var(--fg) !important; box-shadow: inset 0 0 0 1px var(--line-hi) !important; }
+  html.sx .tables-dashboard .tables-tab-menu a.active::before { content: ""; flex: none; width: 6px; height: 6px; margin-right: 8px; border-radius: 50% !important; background-color: var(--pri2) !important; }
   html.sx .sx-rail-filters, html.sx:not(.sx-rail-open) .sx-rail-filters { width: auto; margin: 0; padding: 0 !important; border: 0 !important; visibility: visible; opacity: 1; pointer-events: auto; }
-  html.sx .sx-rail-filters > div { flex-direction: row !important; gap: 8px; }
-  /* Semester and programme: two boxed pickers, like the student card's, each with one chevron of ours. */
+  html.sx .sx-rail-filters > div { flex-direction: column !important; gap: 12px; }
+  /* Semester and programme: stacked full-width cards, each with an icon, a small label and the whole name. The select
+     covers the card, so a tap anywhere opens it; icon and label (timetable.js) let taps through. */
   html.sx .sx-rail-filters mat-form-field {
-    position: relative; flex: 1 1 0; min-width: 0; height: 44px; margin: 0 !important; padding: 0 !important; box-sizing: border-box;
-    display: flex !important; align-items: center; border-radius: 10px !important; background-color: var(--box) !important; border: 1px solid var(--line) !important;
+    position: relative; flex: none; min-width: 0; height: 62px; margin: 0 !important; padding: 0 !important; box-sizing: border-box;
+    display: flex !important; align-items: center; border-radius: 14px !important; background-color: var(--box) !important; border: 1px solid var(--line) !important;
   }
   html.sx .sx-rail-filters mat-form-field::after {
-    content: ""; position: absolute; right: 13px; top: 50%; width: 7px; height: 7px; margin-top: -6px; pointer-events: none;
-    border: solid; border-width: 0 1.5px 1.5px 0; border-color: var(--fg2) !important; transform: rotate(45deg);
+    content: ""; position: absolute; right: 20px; top: 50%; width: 9px; height: 9px; margin-top: -7px; pointer-events: none;
+    border: solid; border-width: 0 1.8px 1.8px 0; border-color: var(--fg2) !important; transform: rotate(45deg);
   }
+  html.sx .sx-pick-ic, html.sx .sx-pick-label { display: block !important; position: absolute; pointer-events: none; z-index: 1; }
+  html.sx .sx-pick-ic {
+    left: 12px; top: 50%; translate: 0 -50%; width: 36px; height: 36px; display: grid !important; place-items: center;
+    border-radius: 10px !important; background-color: var(--tint) !important; color: var(--acc) !important;
+  }
+  html.sx .sx-pick-ic svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  html.sx .sx-pick-label { left: 62px; top: 11px; font-size: 12px !important; line-height: 1.2 !important; letter-spacing: .02em; color: var(--fg2) !important; }
   html.sx .sx-rail-filters :is(.mat-mdc-form-field-subscript-wrapper, .mat-mdc-floating-label, mat-label, .mdc-notched-outline, .mdc-line-ripple, .mat-mdc-select-arrow-wrapper, .mat-mdc-form-field-focus-overlay) { display: none !important; }
   html.sx .sx-rail-filters :is(.mat-mdc-text-field-wrapper, .mat-mdc-form-field-flex, .mat-mdc-form-field-infix) {
-    width: 100% !important; height: 42px !important; min-height: 0 !important; padding: 0 !important; display: flex !important; align-items: center !important; background: transparent !important;
+    width: 100% !important; height: 60px !important; min-height: 0 !important; padding: 0 !important; display: flex !important; align-items: center !important; background: transparent !important;
   }
   /* The select's trigger fills the box: the portal's was 25px tall in a 58px field, and taps around it did nothing. */
   html.sx .sx-rail-filters .mat-mdc-select { width: 100% !important; height: 100% !important; display: block !important; }
-  html.sx .sx-rail-filters .mat-mdc-select-trigger { height: 100% !important; width: 100% !important; padding: 0 32px 0 12px !important; box-sizing: border-box; display: flex !important; align-items: center; }
+  html.sx .sx-rail-filters .mat-mdc-select-trigger { height: 100% !important; width: 100% !important; padding: 26px 44px 0 62px !important; box-sizing: border-box; display: flex !important; align-items: flex-start; }
   /* Its option list may be wider than the half-width box, so long semester names fit. */
   html.sx .cdk-overlay-pane:has(> .mat-mdc-select-panel) { min-width: min(340px, calc(100vw - 32px)) !important; }
   html.sx .mat-mdc-select-panel .mat-mdc-option { min-height: 44px !important; }
   html.sx .mat-mdc-select-panel .mdc-list-item__primary-text { white-space: normal !important; font-size: 14px !important; line-height: 1.35 !important; }
-  html.sx .sx-rail-filters :is(.mat-mdc-select-value, .mat-mdc-select-value *) { font-size: 14px !important; color: var(--fg) !important; white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; }
+  html.sx .sx-rail-filters :is(.mat-mdc-select-value, .mat-mdc-select-value *) { font-size: 15px !important; font-weight: 500 !important; line-height: 1.3 !important; color: var(--fg) !important; white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Week: ‹ this week › as one control, the week's dates under the label (timetable.js); the month and the week's
+     lessons on one line under it. The portal's wrappers step aside (display: contents) so the buttons line up. */
+  html.sx.sx .calendar-navigation { display: grid !important; grid-template-columns: 52px minmax(0, 1fr) 52px; align-items: center; gap: 0 !important; margin: 0 0 16px !important; }
+  html.sx.sx .calendar-navigation :is(.block_2, .block_2 .bb, .block_2 .bb > div) { display: contents !important; }
+  html.sx.sx .calendar-navigation :is(.prewButton, .nextButton, .block_1 > button) {
+    height: 48px !important; margin: 0 !important; box-sizing: border-box; background-color: var(--box) !important; border: 1px solid var(--line) !important; box-shadow: none !important; color: var(--fg) !important;
+  }
+  html.sx.sx .calendar-navigation :is(.prewButton, .nextButton) { display: grid !important; place-items: center; padding: 0 !important; }
+  html.sx.sx .calendar-navigation .prewButton { grid-column: 1; grid-row: 1; width: 52px !important; border-radius: 14px 0 0 14px !important; border-right: 0 !important; }
+  html.sx.sx .calendar-navigation .nextButton { grid-column: 3; grid-row: 1; width: 52px !important; border-radius: 0 14px 14px 0 !important; border-left: 0 !important; }
+  html.sx.sx .calendar-navigation :is(.prewButton, .nextButton) mat-icon { color: var(--fg) !important; }
+  html.sx.sx .calendar-navigation .block_1 { grid-column: 2; grid-row: 1; display: block !important; }
+  html.sx.sx .calendar-navigation .block_1 > button { width: 100% !important; border-radius: 0 !important; padding: 0 8px !important; }
+  html.sx.sx .calendar-navigation .block_1 > button .mdc-button__label { display: flex; flex-direction: column; align-items: center; gap: 1px; line-height: 1.25; }
+  html.sx.sx .calendar-navigation .block_1 > button .mdc-button__label > span:not(.sx-wk-dates) { font-size: 15px !important; font-weight: 500 !important; }
+  html.sx .sx-wk-dates { display: block !important; font-size: 12px !important; font-weight: 400 !important; color: var(--fg2) !important; }
+  html.sx.sx .calendar-navigation .block_3 { grid-column: 1 / -1; grid-row: 2; justify-self: start; margin-top: 18px !important; }
+  html.sx.sx .calendar-navigation .monthName, html.sx.sx .calendar-navigation .monthName * { font-size: 28px !important; letter-spacing: -0.02em; }
+  html.sx.sx .calendar-navigation .monthName mat-icon { display: none !important; }
+  html.sx.sx .calendar-navigation .sx-tt-sum { grid-column: 1 / -1; grid-row: 2; justify-self: end; margin: 18px 0 0 !important; flex-basis: auto; font-size: 14px !important; }
+  html.sx .sx-tt-wk { display: none; }
   /* Countdowns: separate cards with room between them (doubled class: the base panel rules come later in this file). */
   html.sx.sx .sx-exams { grid-template-columns: 1fr; gap: 10px; margin-top: 16px; overflow: visible; border: 0 !important; border-radius: 0 !important; background-color: transparent !important; box-shadow: none !important; }
   html.sx.sx .sx-exam { gap: 8px; padding: 16px 18px; border: 1px solid var(--line) !important; border-radius: 14px !important; box-shadow: var(--shadow) !important; }
@@ -372,7 +410,7 @@ html.sx ac-tables-component .exam-filters { display: flex; flex-wrap: wrap; gap:
   html.sx .headInfo .day-number { width: 36px !important; height: 36px !important; }
   html.sx .headInfo .day-number, html.sx .headInfo .day-number * { font-size: 18px !important; }
   html.sx .sx-tt-axis > span { right: 7px; font-size: 11px !important; }
-  html.sx .sx-tt-sum { margin-left: 0; flex-basis: 100%; }
+
   html.sx .sx-tt-skel { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   html.sx .sx-tt-skel-day { height: 200px; }
 }
