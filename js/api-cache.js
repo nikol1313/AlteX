@@ -16,6 +16,7 @@
   window.__altexCache = true;
   const FRESH_MS = 10 * 1000; // younger than this: no refresh needed
   const STALE_MS = 5 * 60 * 1000; // older than this: not answered from memory
+  const KEEP_MS = 7 * 24 * 3600 * 1000; // saved data older than this is dropped
   const MAX = 80;
   const SAVE_KEY = 'sx-api-cache';
   const READ = /^(get|check)/i; // last path segment of a portal read: getItems, getMetaNew, check…
@@ -27,12 +28,14 @@
   const cache = new Map();
   const inflight = new Map(); // key -> Promise<entry | null>
 
-  try { for (const [k, v] of JSON.parse(sessionStorage.getItem(SAVE_KEY) || '[]')) cache.set(k, v); } catch { /* none */ }
+  let keep = null;
+  try { keep = window.__altexApp ? localStorage : sessionStorage; } catch { /* storage blocked */ }
+  try { for (const [k, v] of JSON.parse(keep.getItem(SAVE_KEY) || '[]')) if (Date.now() - v.at < KEEP_MS) cache.set(k, v); } catch { /* none */ }
   let saveTimer = 0;
   const save = () => {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
-      try { sessionStorage.setItem(SAVE_KEY, JSON.stringify([...cache])); } catch { try { sessionStorage.removeItem(SAVE_KEY); } catch { /* blocked */ } }
+      try { keep.setItem(SAVE_KEY, JSON.stringify([...cache])); } catch { try { keep.removeItem(SAVE_KEY); } catch { /* blocked */ } }
     }, 500);
   };
   const forget = () => { cache.clear(); inflight.clear(); save(); };
