@@ -257,7 +257,8 @@ const labelTableCells = () => {
   }
 };
 
-// Offline: a notice while the connection is gone (otherwise taps just seem to do nothing).
+// Offline: a notice while the connection is gone (otherwise taps just seem to do nothing). Also a page pass
+// (js/main.js): a page loaded offline gets no "offline" event.
 const setOffline = () => {
   const off = !navigator.onLine;
   let note = document.querySelector('.sx-offline');
