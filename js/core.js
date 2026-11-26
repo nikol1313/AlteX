@@ -64,18 +64,20 @@ const session = () => {
   } catch { return null; }
 };
 
-// Read-only calls to the portal's own API with the student's token.
-const api = async (s, path, body) => {
-  const res = await fetch(path, {
-    method: body ? 'POST' : 'GET',
-    headers: { Authorization: 'Bearer ' + s.token, ...(body ? { 'Content-Type': 'application/json' } : {}) },
-    body: body ? JSON.stringify(body) : undefined,
-    credentials: 'same-origin',
-    cache: 'no-store',
+// Read-only calls to the portal's own API with the student's token. An XMLHttpRequest like the portal's own, so in the
+// Android app (one page world) js/api-cache.js answers it too: from memory, shared with the portal, and offline.
+const api = (s, path, body) => new Promise((resolve, reject) => {
+  const x = new XMLHttpRequest();
+  x.open(body ? 'POST' : 'GET', path);
+  x.setRequestHeader('Authorization', 'Bearer ' + s.token);
+  if (body) x.setRequestHeader('Content-Type', 'application/json');
+  x.addEventListener('load', () => {
+    if (x.status < 200 || x.status > 299) { reject(new Error(path + ' ' + x.status)); return; }
+    try { resolve(JSON.parse(x.responseText)); } catch (e) { reject(e); }
   });
-  if (!res.ok) throw new Error(path + ' ' + res.status);
-  return res.json();
-};
+  x.addEventListener('error', () => reject(new Error(path + ' failed')));
+  x.send(body ? JSON.stringify(body) : null);
+});
 
 // The portal's totals (the card's score and the breakdown's ჯამი row) can leave graded parts out: a subject at 0
 // with a 17 midterm, or homework/lab/practical points missing from the sum. The real total of a running subject is
