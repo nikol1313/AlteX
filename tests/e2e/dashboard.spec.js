@@ -17,7 +17,7 @@ const grades = {
 
 test.describe('latest grade', () => {
   test('shows the grade that was entered, not the whole change of the total', async ({ page }) => {
-    await openPortal(page, dashboard, { student, now: NOW, api: grades, storage: { 'sx-grades:1': JSON.stringify({ v: 2, scores: { 10: 15 } }) } });
+    await openPortal(page, dashboard, { student, now: NOW, api: grades, storage: { 'sx-grades:1': JSON.stringify({ v: 3, scores: { 10: 15 } }) } });
     const card = box(page, '/learningCard');
     await expect(card.locator('.sx-gr-name')).toHaveText('AI');
     await expect(card).not.toContainText('შეიტანა ქულა');
@@ -46,22 +46,21 @@ test('latest grade: a list saved by the previous version is cut to one grade', a
   await expect(card).not.toContainText('+15');
 });
 
-test('latest grade: a subject the card leaves at 0 takes its total from the breakdown', async ({ page }) => {
+test('latest grade: a subject the card leaves at 0 stays at 0, its parts are not added up', async ({ page }) => {
   const api = { ...grades, '/student/card': { card: { books: [{ id: 10, name: 'AI', score: 0, semester: 5 }] } } };
-  await openPortal(page, dashboard, { student, now: NOW, api, storage: { 'sx-grades:1': JSON.stringify({ v: 2, scores: { 10: 15 } }) } });
-  const card = box(page, '/learningCard');
-  await expect(card.locator('.sx-gr-num')).toHaveText('19 / 100');
-  await expect(card.locator('.sx-gr-change')).toHaveText('+4 ქვიზი 1');
-});
-
-test('latest grade: totals saved before parts were added up are taken as they are, not as a new grade', async ({ page }) => {
-  // The portal prints 15 for AI; its parts add up to 19. The saved grade came from the short total.
-  const api = { ...grades, '/student/card': { card: { books: [{ id: 10, name: 'AI', score: 15, semester: 5 }] } } };
-  const last = { id: 10, name: 'AI', score: 15, delta: 15, at: Date.parse('2026-11-16T09:00:00+04:00') };
-  await openPortal(page, dashboard, { student, now: NOW, api, storage: { 'sx-grades:1': JSON.stringify({ scores: { 10: 15 }, last }) } });
+  await openPortal(page, dashboard, { student, now: NOW, api, storage: { 'sx-grades:1': JSON.stringify({ v: 3, scores: { 10: 0 } }) } });
   const card = box(page, '/learningCard');
   await expect(card).toContainText('ახალი შეფასება ჯერ არ დადებულა');
-  await expect(card.locator('.sx-gr-change')).toHaveCount(0);
+});
+
+test('latest grade: a grade from a total that added up parts the portal does not count is dropped', async ({ page }) => {
+  // The previous version saved 17 for AI (a midterm the portal leaves out); the portal now prints 4.
+  const api = { ...grades, '/student/card': { card: { books: [{ id: 10, name: 'AI', score: 4, semester: 5 }] } } };
+  const last = { id: 10, name: 'AI', score: 17, delta: 17, at: Date.parse('2026-11-16T09:00:00+04:00'), parts: [{ name: 'შუალედური გამოცდა', d: 17 }] };
+  await openPortal(page, dashboard, { student, now: NOW, api, storage: { 'sx-grades:1': JSON.stringify({ v: 2, scores: { 10: 17 }, last }) } });
+  const card = box(page, '/learningCard');
+  await expect(card).toContainText('ახალი შეფასება ჯერ არ დადებულა');
+  await expect(card).not.toContainText('+17');
 });
 
 test.describe('next lecture', () => {

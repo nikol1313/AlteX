@@ -127,42 +127,13 @@ test.describe('student card', () => {
   });
 });
 
-test('a running subject shows the sum of its graded parts when the portal prints less', async ({ page }) => {
-  const zero = CARD.replace(subject('ალგორითმები', 'გიორგი კაპანაძე', 6, 38, 'F'), subject('ალგორითმები', 'გიორგი კაპანაძე', 6, 0, 'F'));
+test('a running subject shows the portal\'s own total, its parts are not added up', async ({ page }) => {
   const api = {
-    '/student/card': { card: { books: [{ id: 5, name: 'ალგორითმები', score: 0 }] } },
-    // As the portal sends it: its ჯამი leaves the homework out; retake rows stand in for a part, not add to it.
-    '/student/getCardDetails': { data: [
-      { coId: 1, name: 'საშინაო დავალება', componentType: 1, result: '12', items: { 0: { key: 0, value: '3' } } },
-      { coId: 4, name: 'შუალედურის აღდგენა', componentType: 1, result: '9', items: [] },
-      { coId: 2, name: 'შუალედური გამოცდა', componentType: 1, result: '17', items: [] },
-      { coId: 3, name: 'დასკვნით გამოცდაზე დაშვება', componentType: 3, result: '<span style="color: red; font-size: 10px">არ არის დაშვებული</span>', items: [] },
-      { coId: 6, name: 'ჯამი', componentType: 3, result: '<b style="color: red" title="მინიმალური ზღვარი > 51">17</b>', items: [] },
-    ] },
+    '/student/card': { card: { books: [{ id: 5, name: 'ალგორითმები', score: 38 }] } },
+    '/student/getCardDetails': { data: [{ coId: 2, name: 'შუალედური გამოცდა', componentType: 1, result: '17', items: [] }, { coId: 1, name: 'ქვიზი', componentType: 1, result: '38', items: [] }] },
   };
-  await openPortal(page, zero, { url: '/learningCard', now: '2026-11-18T10:00:00+04:00', student: { id: 1, currentProgram: { eduId: 7 } }, api });
+  await openPortal(page, CARD, { url: '/learningCard', now: '2026-11-18T10:00:00+04:00', student: { id: 1, currentProgram: { eduId: 7 } }, api });
   const algo = page.locator('mat-row', { hasText: 'ალგორითმები' }).first();
-  await expect(algo.locator('.mat-column-score')).toHaveText('29');
-  await expect(algo.locator('.sx-bar > i')).toHaveAttribute('style', /width: 29%/);
-});
-
-test('after a log out, the next student never sees the previous student\'s totals', async ({ page }) => {
-  const zero = CARD.replace(subject('ალგორითმები', 'გიორგი კაპანაძე', 6, 38, 'F'), subject('ალგორითმები', 'გიორგი კაპანაძე', 6, 0, 'F'));
-  const api = {
-    '/student/card': { card: { books: [{ id: 5, name: 'ალგორითმები', score: 0 }] } },
-    '/student/getCardDetails': { data: [{ coId: 2, name: 'შუალედური გამოცდა', componentType: 1, result: '29', items: [] }] },
-  };
-  await openPortal(page, zero, { url: '/learningCard', now: '2026-11-18T10:00:00+04:00', student: { id: 1, currentProgram: { eduId: 7 } }, api });
-  const score = page.locator('mat-row', { hasText: 'ალგორითმები' }).first().locator('.mat-column-score');
-  await expect(score).toHaveText('29');
-  // Another student signs in on the same tab (no reload); the portal draws their card with the same subject.
-  api['/student/getCardDetails'] = { data: [{ coId: 2, name: 'შუალედური გამოცდა', componentType: 1, result: '12', items: [] }] };
-  await page.evaluate(() => {
-    const b64 = (o) => btoa(JSON.stringify(o)).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
-    localStorage.setItem('Student-Token', `${b64({ alg: 'none' })}.${b64({ id: 2, currentProgram: { eduId: 7 } })}.x`);
-    const cell = [...document.querySelectorAll('mat-row')].find((r) => r.textContent.includes('ალგორითმები')).querySelector('.mat-column-score');
-    const text = document.createTreeWalker(cell, NodeFilter.SHOW_TEXT, (n) => (n.data.trim() ? 1 : 3)).nextNode();
-    text.data = '0';
-  });
-  await expect(score).toHaveText('12');
+  await expect(algo.locator('.sx-bar > i')).toHaveAttribute('style', /width: 38%/);
+  await expect(algo.locator('.mat-column-score')).toHaveText('38');
 });

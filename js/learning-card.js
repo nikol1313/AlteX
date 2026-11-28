@@ -177,24 +177,6 @@ const bindSemesterHead = (sem, head) => {
   head.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSemester(sem); } });
 };
 
-// Subject name → real total, for subjects the portal prints short (see cardBooks in core.js). Fetched once per login:
-// a log out does not reload the page, so the next student must not see these. A failed fetch is retried after 30s.
-const realTotals = new Map();
-let totalsFor = null, totalsAsked = false, totalsTried = 0;
-const askRealTotals = () => {
-  const s = session();
-  if (!s) return;
-  if (s.token !== totalsFor) { realTotals.clear(); totalsFor = s.token; totalsAsked = false; totalsTried = 0; }
-  if (totalsAsked || Date.now() - totalsTried < 30000) return;
-  totalsAsked = true;
-  totalsTried = Date.now();
-  cardBooks(s).then((books) => {
-    if (s.token !== totalsFor) return;
-    for (const b of books) if (b.score) realTotals.set(String(b.name).trim(), b.score);
-    schedule();
-  }).catch(() => { if (s.token === totalsFor) totalsAsked = false; });
-};
-
 const enhanceCourseRow = (row, current, ended) => {
   // Phones get one .responsive-row cell: name + .icons-row [lecturer, credits, score, grade].
   let scoreCell, creditText;
@@ -211,13 +193,7 @@ const enhanceCourseRow = (row, current, ended) => {
   }
   if (!scoreCell) return null;
   const name = (rr ? rr.querySelector('.subj-name') : row.querySelector('.mat-column-bookName'))?.textContent;
-  let score = Math.max(0, Math.min(100, parseFloat(scoreCell.textContent) || 0));
-  if (current) {
-    askRealTotals();
-    const real = realTotals.get(String(name).trim());
-    const text = document.createTreeWalker(scoreCell, NodeFilter.SHOW_TEXT, (n) => (n.data.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP)).nextNode();
-    if (real > score && text) { text.data = String(real); score = Math.min(100, real); }
-  }
+  const score = Math.max(0, Math.min(100, parseFloat(scoreCell.textContent) || 0));
   const chip = row.querySelector('.result-color');
   let grade = (chip?.textContent || '').trim().toUpperCase();
   // The site prints F for a running course until the points add up; it is real only once the semester ended.

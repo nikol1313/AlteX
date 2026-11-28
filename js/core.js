@@ -79,30 +79,11 @@ const api = (s, path, body) => new Promise((resolve, reject) => {
   x.send(body ? JSON.stringify(body) : null);
 });
 
-// The portal's totals (the card's score and the breakdown's ჯამი row) can leave graded parts out: a subject at 0
-// with a 17 midterm, or homework/lab/practical points missing from the sum. The real total of a running subject is
-// its graded parts (componentType 1) added up. Retake rows (აღდგენა, განმეორებითი) stand in for a part rather than
-// add to it, so they are left out; the portal's number is kept whenever it is the larger one.
-const RETAKE = /აღდგენ|განმეორებით|გადაბარებ/;
-const partsTotal = (rows) => (rows || []).reduce((sum, r) => {
-  if (!r || r.componentType !== 1 || RETAKE.test(String(r.name))) return sum;
-  const v = parseFloat(plainText(r.result).replace(',', '.'));
-  return Number.isNaN(v) ? sum : sum + v;
-}, 0);
 const cardBooks = async (s) => {
   const res = await api(s, '/student/card');
   // A subject without points can come as null or "0": read as a number, so it is checked too instead of dropped.
-  const books = ((res && res.card && res.card.books) || []).filter((b) => b && b.id != null)
+  return ((res && res.card && res.card.books) || []).filter((b) => b && b.id != null)
     .map((b) => ({ ...b, score: parseFloat(String(b.score ?? '').replace(',', '.')) || 0 }));
-  // Only the newest semester is running; older ones are closed and their totals final.
-  const newest = Math.max(0, ...books.map((b) => Number(b.semester) || 0));
-  return Promise.all(books.map(async (b) => {
-    if (newest && Number(b.semester) !== newest) return b;
-    try {
-      const v = Math.round(partsTotal((await api(s, '/student/getCardDetails', { resultId: b.id })).data) * 100) / 100;
-      return v > b.score ? { ...b, score: v, printed: b.score } : b;
-    } catch { return b; } // the card's number stands until the next try
-  }));
 };
 
 // Monday..Sunday of a week, in the shape the timetable endpoint expects.
